@@ -3,6 +3,9 @@ package drunkmafia.thaumicinfusion.common.block.tile;
 import com.sun.javafx.geom.Vec3f;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import drunkmafia.thaumicinfusion.common.block.InfusedBlock;
+import net.minecraft.block.Block;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemBlock;
@@ -17,8 +20,10 @@ import thaumcraft.api.aspects.AspectList;
 import thaumcraft.api.crafting.InfusionEnchantmentRecipe;
 import thaumcraft.api.crafting.InfusionRecipe;
 import thaumcraft.api.wands.IWandable;
+import thaumcraft.common.Thaumcraft;
 import thaumcraft.common.lib.crafting.InfusionRunicAugmentRecipe;
 import thaumcraft.common.lib.crafting.ThaumcraftCraftingManager;
+import thaumcraft.common.lib.utils.InventoryUtils;
 import thaumcraft.common.tiles.TileInfusionMatrix;
 import thaumcraft.common.tiles.TilePedestal;
 
@@ -41,10 +46,55 @@ public class InfusionCoreTile extends TilePedestal implements IWandable {
     @SideOnly(Side.CLIENT)
     public Vec3f coreAxies = new Vec3f();
 
+    boolean shouldCheck;
+
     @Override
     public void updateEntity() {
         if(matrix == null)
-           getMatrixTile();
+            getMatrixTile();
+        else{
+            if(matrix.crafting && shouldCheck)
+                shouldCheck = checkInfusion();
+            else shouldCheck = true;
+        }
+
+        if(getStackInSlot(0) != null)
+            Thaumcraft.instance.renderEventHandler.drawTextInAir(xCoord, yCoord, zCoord, 1, getStackInSlot(0).stackSize + "");
+    }
+
+    boolean checkInfusion(){
+        try {
+            Field recipeOutput = TileInfusionMatrix.class.getDeclaredField("recipeOutput");
+            Field recipeInput = TileInfusionMatrix.class.getDeclaredField("recipeInput");
+
+            recipeOutput.setAccessible(true);
+            recipeInput.setAccessible(true);
+
+            Object output = recipeOutput.get(matrix);
+            Object input = recipeInput.get(matrix);
+
+            if(output == null || input == null)
+                return false;
+
+            if(Block.getBlockFromItem(((ItemStack)output).getItem()) instanceof InfusedBlock)
+                return false;
+
+            if(((ItemStack)input).stackSize > 1){
+                ItemStack drop = ((ItemStack)input).copy();
+                drop.stackSize -= 1;
+                ((ItemStack)input).stackSize = 1;
+
+                EntityItem item = new EntityItem(worldObj, xCoord, yCoord, zCoord, drop);
+                worldObj.spawnEntityInWorld(item);
+
+                ((ItemStack)output).stackSize = 1;
+                recipeOutput.set(matrix, output);
+                recipeInput.set(matrix, input);
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return false;
     }
 
     @Override

@@ -49,7 +49,7 @@ public class ThaumicInfusion {
         TIBlocks.initBlocks();
         AspectHandler.initEffects();
 
-        registerRecipe(new BlockInfusionRecipe("", 10, new AspectList().add(Aspect.MAGIC, 1)));
+        registerRecipe(new BlockInfusionRecipe("", 10));
     }
 
     @EventHandler

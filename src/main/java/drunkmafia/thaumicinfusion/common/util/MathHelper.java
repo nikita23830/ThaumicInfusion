@@ -11,8 +11,15 @@ public class MathHelper {
     }
 
     public static float lerp(float to, float from, float f){
-        float ret = to + f * (int)clamp(from - to, 1, -1);
+        float ret = (to > from ? to - f : to + f);
         if(withinThreshold(from, ret, 1))
+            return from;
+        return ret;
+    }
+
+    public static float lerp(float to, float from, float f, float threshold){
+        float ret = (to > from ? to - f : to + f);
+        if(withinThreshold(from, ret, threshold))
             return from;
         return ret;
     }

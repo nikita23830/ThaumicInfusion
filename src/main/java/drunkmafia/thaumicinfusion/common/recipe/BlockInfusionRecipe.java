@@ -1,15 +1,19 @@
 package drunkmafia.thaumicinfusion.common.recipe;
 
+import drunkmafia.thaumicinfusion.common.aspect.AspectHandler;
 import drunkmafia.thaumicinfusion.common.block.TIBlocks;
 import drunkmafia.thaumicinfusion.common.block.tile.InfusionCoreTile;
 import drunkmafia.thaumicinfusion.common.util.InfusionHelper;
+import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import net.minecraftforge.oredict.OreDictionary;
 import thaumcraft.api.ThaumcraftApiHelper;
+import thaumcraft.api.aspects.Aspect;
 import thaumcraft.api.aspects.AspectList;
 import thaumcraft.api.crafting.InfusionRecipe;
 import thaumcraft.common.items.ItemEssence;
@@ -23,8 +27,8 @@ import java.util.ArrayList;
  */
 public class BlockInfusionRecipe extends InfusionRecipe {
 
-    public BlockInfusionRecipe(String research, int inst, AspectList aspects2) {
-        super(research, null, inst, aspects2, null, null);
+    public BlockInfusionRecipe(String research, int inst) {
+        super(research, null, inst, null, null, null);
     }
 
     @Override
@@ -52,6 +56,24 @@ public class BlockInfusionRecipe extends InfusionRecipe {
             if(is.getItem() instanceof ItemEssence) {
                 ii.add(is.copy());
             }else return false;
+
+        AspectList infuseAspects = new AspectList();
+
+        for(ItemStack phial : ii){
+            AspectList phialList = ((ItemEssence)phial.getItem()).getAspects(phial);
+            Aspect aspect = phialList.getAspects()[0];
+            if(aspect == null) {
+                System.out.println("Aspect is null");
+                return false;
+            }
+            Class effect = AspectHandler.getEffectFromAspect(aspect);
+            Effect annot = (Effect) effect.getAnnotation(Effect.class);
+            int amount = annot.cost() * central.stackSize;
+            System.out.println(aspect.getName() + " need: " + amount);
+            infuseAspects.add(aspect, amount);
+        }
+
+        aspects = infuseAspects;
 
         if(ii.size() > 0) {
             try {
