@@ -1,21 +1,17 @@
 package drunkmafia.thaumicinfusion.client.renderer.item;
 
-import com.sun.javafx.geom.Vec3f;
-import drunkmafia.thaumicinfusion.common.block.EssentiaBlock;
 import drunkmafia.thaumicinfusion.common.block.TIBlocks;
-import drunkmafia.thaumicinfusion.common.block.tile.InfusionCoreTile;
+
 import drunkmafia.thaumicinfusion.common.util.RGB;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.Vec3;
+
 import net.minecraftforge.client.IItemRenderer;
 import org.lwjgl.opengl.GL11;
 import thaumcraft.api.aspects.Aspect;
-
-import java.lang.reflect.Method;
 
 /**
  * Created by DrunkMafia on 01/07/2014.

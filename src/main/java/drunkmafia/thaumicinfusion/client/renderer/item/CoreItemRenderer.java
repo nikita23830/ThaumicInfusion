@@ -1,12 +1,12 @@
 package drunkmafia.thaumicinfusion.client.renderer.item;
 
-import com.sun.javafx.geom.Vec3f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.client.IItemRenderer;
 import net.minecraftforge.client.model.AdvancedModelLoader;
 import net.minecraftforge.client.model.IModelCustom;
 import org.lwjgl.opengl.GL11;
+import thaumcraft.codechicken.lib.vec.Vector3;
 
 import static drunkmafia.thaumicinfusion.common.lib.BlockInfo.infusionCore_Model;
 import static drunkmafia.thaumicinfusion.common.lib.BlockInfo.infusionCore_Texture;
@@ -32,16 +32,16 @@ public class CoreItemRenderer implements IItemRenderer {
 
     @Override
     public void renderItem(ItemRenderType type, ItemStack item, Object... data) {
-        renderCore(new Vec3f(0.5F, 0.5F, 0.5F), new Vec3f(1.4F, 1.3F, 1.4F), new Vec3f(0, 0, 0), 0);
-        renderCore(new Vec3f(0.5F, 0.5F, 0.5F), new Vec3f(1F, 1.3F, 1F), new Vec3f(0, 0, 0), 0);
+        renderCore(new Vector3(0.5F, 0.5F, 0.5F), new Vector3(1.4F, 1.3F, 1.4F), new Vector3(0, 0, 0), 0);
+        renderCore(new Vector3(0.5F, 0.5F, 0.5F), new Vector3(1F, 1.3F, 1F), new Vector3(0, 0, 0), 0);
     }
 
-    public void renderCore(Vec3f coords, Vec3f scale, Vec3f rotation, float angle){
+    public void renderCore(Vector3 coords, Vector3 scale, Vector3 rotation, float angle){
         GL11.glPushMatrix();
 
-        GL11.glTranslatef(coords.x, coords.y, coords.z);
-        GL11.glScalef(scale.x, scale.y, scale.z);
-        GL11.glRotatef(angle, rotation.x, rotation.y, rotation.z);
+        GL11.glTranslated(coords.x, coords.y, coords.z);
+        GL11.glScaled(scale.x, scale.y, scale.z);
+        GL11.glRotated(angle, rotation.x, rotation.y, rotation.z);
 
         Minecraft.getMinecraft().renderEngine.bindTexture(infusionCore_Texture);
         model.renderAll();

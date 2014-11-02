@@ -1,6 +1,5 @@
 package drunkmafia.thaumicinfusion.client.renderer.tile;
 
-import com.sun.javafx.geom.Vec3f;
 import drunkmafia.thaumicinfusion.common.block.tile.InfusionCoreTile;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.RenderManager;
@@ -13,7 +12,7 @@ import net.minecraftforge.client.model.AdvancedModelLoader;
 import net.minecraftforge.client.model.IModelCustom;
 import org.lwjgl.opengl.GL11;
 import drunkmafia.thaumicinfusion.common.util.MathHelper;
-import thaumcraft.client.lib.UtilsFX;
+import thaumcraft.codechicken.lib.vec.Vector3;
 import thaumcraft.common.Thaumcraft;
 
 import static drunkmafia.thaumicinfusion.common.lib.BlockInfo.*;
@@ -37,24 +36,24 @@ public class InfusionCoreRenderer extends TileEntitySpecialRenderer {
 
         updateCore(core, deltaTime);
 
-        Vec3f pos = new Vec3f((float)x + 0.5F, (float)y + 0.5F + core.yLevel, (float)z + 0.5F);
+        Vector3 pos = new Vector3(x + 0.5D, y + 0.5D + core.yLevel, z + 0.5D);
 
-        renderCore(pos, new Vec3f(1.4F, 1.3F, 1.4F), core.coreAxies, core.angle, deltaTime);
-        renderCore(pos, new Vec3f(1F, 1.3F, 1F), core.coreAxies, -core.angle, deltaTime);
+        renderCore(pos, new Vector3(1.4, 1.3, 1.4), core.coreAxies, core.angle, deltaTime);
+        renderCore(pos, new Vector3(1, 1.3, 1), core.coreAxies, -core.angle, deltaTime);
         renderInventory(pos, tile, deltaTime);
 
         Thaumcraft.instance.renderEventHandler.drawTextInAir(x, y, z, deltaTime, "Test");
     }
 
-    void renderCore(Vec3f pos, Vec3f scale, Vec3f axies, float angle, float deltaTime){
+    void renderCore(Vector3 pos, Vector3 scale, Vector3 axies, float angle, float deltaTime){
         GL11.glPushMatrix();
 
         float ticks = Minecraft.getMinecraft().renderViewEntity.ticksExisted + deltaTime;
         float hover = net.minecraft.util.MathHelper.sin(ticks % 32767.0F / 16.0F) * 0.05F;
 
         GL11.glTranslated(pos.x, pos.y + hover, pos.z);
-        GL11.glScalef(scale.x, scale.y, scale.z);
-        GL11.glRotatef(angle, axies.x, axies.y, axies.z);
+        GL11.glScaled(scale.x, scale.y, scale.z);
+        GL11.glRotated(angle, axies.x, axies.y, axies.z);
 
         Minecraft.getMinecraft().renderEngine.bindTexture(infusionCore_Texture);
         model.renderAll();
@@ -62,7 +61,7 @@ public class InfusionCoreRenderer extends TileEntitySpecialRenderer {
         GL11.glPopMatrix();
     }
 
-    void renderInventory(Vec3f pos, TileEntity tile, float deltaTime){
+    void renderInventory(Vector3 pos, TileEntity tile, float deltaTime){
         InfusionCoreTile coreTile = (InfusionCoreTile) tile;
         ItemStack inv = coreTile.getStackInSlot(0);
         if(inv == null) return;
@@ -92,10 +91,10 @@ public class InfusionCoreRenderer extends TileEntitySpecialRenderer {
         if(core.matrix != null && core.matrix.active){
             if(core.matrix.crafting) {
                 target = 0.7F;
-                core.coreAxies = new Vec3f(1, 1, 1);
+                core.coreAxies = new Vector3(1, 1, 1);
             }else {
                 target = 0;
-                core.coreAxies = new Vec3f(0, 1, 0);
+                core.coreAxies = new Vector3(0, 1, 0);
             }
 
             core.yLevel = MathHelper.lerp(core.yLevel, target, transSpeed * deltaTime, 0.05F);

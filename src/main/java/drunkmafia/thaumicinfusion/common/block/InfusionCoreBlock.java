@@ -1,24 +1,19 @@
 package drunkmafia.thaumicinfusion.common.block;
 
-import com.sun.istack.internal.NotNull;
 import drunkmafia.thaumicinfusion.common.block.tile.InfusionCoreTile;
 import drunkmafia.thaumicinfusion.common.tab.TITab;
-import net.minecraft.block.Block;
-import net.minecraft.block.ITileEntityProvider;
-import net.minecraft.block.material.Material;
-import net.minecraft.entity.item.EntityItem;
+import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemBlock;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import thaumcraft.common.blocks.BlockStoneDevice;
-import thaumcraft.common.blocks.ItemJarFilled;
 import thaumcraft.common.items.wands.ItemWandCasting;
 import thaumcraft.common.lib.utils.InventoryUtils;
 import thaumcraft.common.tiles.TilePedestal;
 
-import java.util.Arrays;
+import java.util.List;
 
 import static drunkmafia.thaumicinfusion.common.lib.BlockInfo.*;
 
@@ -85,6 +80,11 @@ public class InfusionCoreBlock extends BlockStoneDevice {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public void getSubBlocks(Item item, CreativeTabs tab, List list) {
+        list.add(new ItemStack(item, 1, 0));
     }
 
     @Override

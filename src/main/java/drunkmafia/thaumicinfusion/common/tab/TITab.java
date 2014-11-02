@@ -1,5 +1,6 @@
 package drunkmafia.thaumicinfusion.common.tab;
 
+import drunkmafia.thaumicinfusion.common.block.TIBlocks;
 import drunkmafia.thaumicinfusion.common.lib.ModInfo;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.Blocks;
@@ -22,6 +23,6 @@ class Tab extends CreativeTabs {
 
     @Override
     public Item getTabIconItem() {
-        return Item.getItemFromBlock(Blocks.command_block);
+        return Item.getItemFromBlock(TIBlocks.infusionCoreBlock);
     }
 }

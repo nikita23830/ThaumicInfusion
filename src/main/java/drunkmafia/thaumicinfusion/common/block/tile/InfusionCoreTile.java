@@ -1,29 +1,17 @@
 package drunkmafia.thaumicinfusion.common.block.tile;
 
-import com.sun.javafx.geom.Vec3f;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import drunkmafia.thaumicinfusion.common.block.InfusedBlock;
 import net.minecraft.block.Block;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
-import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTBase;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.world.World;
-import thaumcraft.api.aspects.Aspect;
-import thaumcraft.api.aspects.AspectList;
-import thaumcraft.api.crafting.InfusionEnchantmentRecipe;
-import thaumcraft.api.crafting.InfusionRecipe;
 import thaumcraft.api.wands.IWandable;
+import thaumcraft.codechicken.lib.vec.Vector3;
 import thaumcraft.common.Thaumcraft;
-import thaumcraft.common.lib.crafting.InfusionRunicAugmentRecipe;
-import thaumcraft.common.lib.crafting.ThaumcraftCraftingManager;
-import thaumcraft.common.lib.utils.InventoryUtils;
 import thaumcraft.common.tiles.TileInfusionMatrix;
 import thaumcraft.common.tiles.TilePedestal;
 
@@ -44,7 +32,7 @@ public class InfusionCoreTile extends TilePedestal implements IWandable {
     @SideOnly(Side.CLIENT)
     public float yLevel = 0, angle;
     @SideOnly(Side.CLIENT)
-    public Vec3f coreAxies = new Vec3f();
+    public Vector3 coreAxies = new Vector3();
 
     boolean shouldCheck;
 
@@ -57,9 +45,6 @@ public class InfusionCoreTile extends TilePedestal implements IWandable {
                 shouldCheck = checkInfusion();
             else shouldCheck = true;
         }
-
-        if(getStackInSlot(0) != null)
-            Thaumcraft.instance.renderEventHandler.drawTextInAir(xCoord, yCoord, zCoord, 1, getStackInSlot(0).stackSize + "");
     }
 
     boolean checkInfusion(){
