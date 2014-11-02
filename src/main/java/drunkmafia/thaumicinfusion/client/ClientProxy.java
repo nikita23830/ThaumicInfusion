@@ -32,7 +32,6 @@ public class ClientProxy extends CommonProxy {
         MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(TIBlocks.infusionCoreBlock), new CoreItemRenderer());
         MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(TIBlocks.infusedBlock), new InfusedItemRenderer());
 
-        ClientRegistry.bindTileEntitySpecialRenderer(JarPedestalTile.class, new JarPedestalRenderer());
         ClientRegistry.bindTileEntitySpecialRenderer(InfusionCoreTile.class, new InfusionCoreRenderer());
 
         MinecraftForge.EVENT_BUS.register(new EventHookContainerClass());

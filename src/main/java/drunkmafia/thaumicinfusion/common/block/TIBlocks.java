@@ -23,6 +23,5 @@ public class TIBlocks {
         GameRegistry.registerBlock(infusionCoreBlock = new InfusionCoreBlock(), infusionCoreBlock_RegistryName);
 
         GameRegistry.registerTileEntity(InfusionCoreTile.class, infusionCoreBlock_TileEntity);
-        GameRegistry.registerTileEntity(JarPedestalTile.class, jarPedestalBlock_TileEntity);
     }
 }

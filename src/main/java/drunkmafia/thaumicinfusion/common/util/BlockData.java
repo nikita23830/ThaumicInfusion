@@ -2,20 +2,16 @@ package drunkmafia.thaumicinfusion.common.util;
 
 import com.esotericsoftware.reflectasm.MethodAccess;
 import drunkmafia.thaumicinfusion.common.aspect.AspectHandler;
-import drunkmafia.thaumicinfusion.common.aspect.effect.vanilla.AquaTile;
 import drunkmafia.thaumicinfusion.common.block.BlockHandler;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 import net.minecraft.block.Block;
-import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.world.World;
 import thaumcraft.api.aspects.Aspect;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Map;
 
 public class BlockData extends BlockSavable {
 
@@ -47,7 +43,6 @@ public class BlockData extends BlockSavable {
     }
 
     public void initAspects(World world, int x, int y, int z){
-        System.out.println("Init Apects: " + world.isRemote);
         for(int a = 0; a < dataEffects.size(); a++) {
             Savable effect = dataEffects.get(a);
             runAspectMethod(effect.getClass().getSimpleName().toLowerCase() + "Init", effect, world, x, y, z);
@@ -55,10 +50,8 @@ public class BlockData extends BlockSavable {
 
         if(tile == null)
             tile = getTileEntity();
-        if(tile != null) {
-            System.out.println("Tile Placed");
+        if(tile != null)
             world.setTileEntity(x, y, z, tile);
-        }
         init = true;
     }
 

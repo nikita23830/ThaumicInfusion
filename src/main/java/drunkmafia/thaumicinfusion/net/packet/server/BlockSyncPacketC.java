@@ -8,6 +8,7 @@ import drunkmafia.thaumicinfusion.common.util.BlockHelper;
 import drunkmafia.thaumicinfusion.common.util.BlockSavable;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
 import io.netty.buffer.ByteBuf;
+import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
@@ -62,7 +63,8 @@ public class BlockSyncPacketC implements IMessage {
             World world = ChannelHandler.getPlayer(ctx).worldObj;
             ChunkCoordinates pos = data.getCoords();
             BlockHelper.getWorldData(world).addBlock(world, message.data);
-            world.markBlockForUpdate(pos.posX, pos.posY, pos.posZ);
+            Block block = world.getBlock(pos.posX, pos.posY, pos.posZ);
+            world.markAndNotifyBlock(pos.posX, pos.posY, pos.posZ, world.getChunkFromBlockCoords(pos.posX, pos.posZ), block, block, 2);
             return null;
         }
     }

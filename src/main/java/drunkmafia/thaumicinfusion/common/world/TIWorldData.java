@@ -34,7 +34,7 @@ public class TIWorldData extends WorldSavedData {
         if (block != null && block.getCoords() != null) {
             if(block instanceof BlockData){
                 BlockData data = (BlockData)block;
-                if(data.isInit()) {
+                if(!data.isInit()) {
                     ChunkCoordinates pos = data.getCoords();
                     data.initAspects(world, pos.posX, pos.posY, pos.posZ);
                 }
@@ -44,6 +44,18 @@ public class TIWorldData extends WorldSavedData {
             return true;
         }
         return false;
+    }
+
+    public void postLoad(){
+        if(world == null)
+            return;
+        System.out.println("Post World Data Load");
+        for(Map.Entry entry : getAllBocks()){
+            BlockSavable savable = (BlockSavable) entry.getValue();
+            ChunkCoordinates coords = savable.getCoords();
+            if(savable instanceof BlockData && !((BlockData)savable).isInit())
+                ((BlockData)savable).initAspects(world, coords.posX, coords.posY, coords.posZ);
+        }
     }
 
     public void removeBlock(ChunkCoordinates coords) {

@@ -15,7 +15,7 @@ import thaumcraft.common.items.armor.ItemGoggles;
  * <p/>
  * See http://www.wtfpl.net/txt/copying for licence
  */
-@Effect(aspect = ("sensus"))
+@Effect(aspect = ("sensus"), cost = 3)
 public class Sensus extends Savable {
 
     public boolean shouldSideBeRendered(IBlockAccess access, int x, int y, int z, int side) {

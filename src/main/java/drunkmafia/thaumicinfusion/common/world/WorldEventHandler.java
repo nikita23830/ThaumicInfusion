@@ -25,7 +25,9 @@ public class WorldEventHandler {
     @SubscribeEvent
     public void load(WorldEvent.Load loadEvent){
         WorldSavedData data = loadEvent.world.perWorldStorage.loadData(TIWorldData.class, loadEvent.world.getWorldInfo().getWorldName() + "_TIDATA");
-        if(data != null)
-            ((TIWorldData)data).world = loadEvent.world;
+        if(data != null) {
+            ((TIWorldData) data).world = loadEvent.world;
+            ((TIWorldData) data).postLoad();
+        }
     }
 }

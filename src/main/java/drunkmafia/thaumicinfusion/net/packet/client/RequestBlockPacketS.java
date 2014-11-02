@@ -31,7 +31,7 @@ public class RequestBlockPacketS implements IMessage {
     private ChunkCoordinates coordinates;
 
     public static HashMap<ChunkCoordinates, Long> syncTimeouts = new HashMap<ChunkCoordinates, Long>();
-    private static long maxTimeout = 60000;
+    private static long maxTimeout = 10000;
 
     public RequestBlockPacketS(ChunkCoordinates coordinates) {
         if (syncTimeouts.containsKey(coordinates)) {
