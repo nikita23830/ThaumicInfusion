@@ -7,7 +7,7 @@ import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
  * Created by DrunkMafia on 08/10/2014.
  * See http://www.wtfpl.net/txt/copying for licence
  */
-@Effect(aspect = ("permutatio"))
+@Effect(aspect = ("permutatio"), cost = 3)
 public class Permutatio  extends Savable {
 
 }

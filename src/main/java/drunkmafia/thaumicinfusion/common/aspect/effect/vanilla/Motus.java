@@ -13,7 +13,7 @@ import net.minecraftforge.common.util.ForgeDirection;
  * See http://www.wtfpl.net/txt/copying for licence
  */
 @SuppressWarnings("ALL")
-@Effect(aspect = ("motus"), gui = Motus.GUI.class)
+@Effect(aspect = ("motus"), cost = 3)
 public class Motus extends Savable {
 
     private ForgeDirection dir;

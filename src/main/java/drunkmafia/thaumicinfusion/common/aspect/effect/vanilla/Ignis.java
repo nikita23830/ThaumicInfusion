@@ -11,7 +11,7 @@ import net.minecraftforge.common.util.ForgeDirection;
  * <p/>
  * See http://www.wtfpl.net/txt/copying for licence
  */
-@Effect(aspect = ("ignis"))
+@Effect(aspect = ("ignis"), cost = 1)
 public class Ignis  extends Savable {
 
     public int getFlammability(IBlockAccess world, int x, int y, int z, ForgeDirection face){

@@ -9,7 +9,7 @@ import net.minecraft.world.World;
  * Created by DrunkMafia on 01/11/2014.
  * See http://www.wtfpl.net/txt/copying for licence
  */
-@Effect(aspect = ("limus"))
+@Effect(aspect = ("limus"), cost = 3)
 public class Limus extends Savable {
 
     public void onEntityCollidedWithBlock (World world, int x, int y, int z, Entity entity) {

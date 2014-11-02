@@ -15,7 +15,7 @@ import net.minecraftforge.common.util.ForgeDirection;
  * <p/>
  * See http://www.wtfpl.net/txt/copying for licence
  */
-@Effect(aspect = ("potentia"))
+@Effect(aspect = ("potentia"), cost = 3)
 public class Potentia  extends Savable {
 
     public int isProvidingWeakPower(IBlockAccess access, int x, int y, int z, int side){

@@ -25,6 +25,8 @@ public @interface Effect {
      */
     String aspect();
 
+    int cost();
+
     boolean hasTileEntity() default false;
 
     Class<?> tileentity() default Object.class;
