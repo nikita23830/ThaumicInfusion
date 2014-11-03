@@ -3,6 +3,9 @@ package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 import drunkmafia.thaumicinfusion.common.lib.ModInfo;
 import drunkmafia.thaumicinfusion.common.util.Savable;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
+import net.minecraft.block.material.MapColor;
+import net.minecraft.block.material.Material;
+import net.minecraft.block.material.MaterialLiquid;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.Tessellator;
@@ -18,6 +21,7 @@ import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
@@ -31,7 +35,10 @@ import thaumcraft.common.Thaumcraft;
  * Created by DrunkMafia on 08/10/2014.
  * See http://www.wtfpl.net/txt/copying for licence
  */
-@Effect(aspect = ("aqua"), cost = 1)
+@Effect(aspect = ("aqua"), cost = 1, infusedBlock = "aqua")
 public class Aqua extends Savable {
 
+    public boolean isReplaceable(IBlockAccess access, int x, int y, int z) {
+        return false;
+    }
 }

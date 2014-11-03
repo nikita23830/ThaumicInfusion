@@ -13,7 +13,6 @@ import drunkmafia.thaumicinfusion.common.aspect.AspectHandler;
 import drunkmafia.thaumicinfusion.common.block.BlockHandler;
 import drunkmafia.thaumicinfusion.common.block.TIBlocks;
 import drunkmafia.thaumicinfusion.common.commands.InfusedInWorldCommand;
-import drunkmafia.thaumicinfusion.common.commands.SpawnInfusedBlockCommand;
 import drunkmafia.thaumicinfusion.common.recipe.BlockInfusionRecipe;
 import drunkmafia.thaumicinfusion.common.tab.TITab;
 import drunkmafia.thaumicinfusion.common.world.WorldEventHandler;
@@ -21,8 +20,6 @@ import drunkmafia.thaumicinfusion.net.ChannelHandler;
 import net.minecraft.item.Item;
 import net.minecraftforge.common.MinecraftForge;
 import thaumcraft.api.ThaumcraftApi;
-import thaumcraft.api.aspects.Aspect;
-import thaumcraft.api.aspects.AspectList;
 import thaumcraft.api.crafting.InfusionRecipe;
 
 import java.lang.reflect.Field;
@@ -67,7 +64,6 @@ public class ThaumicInfusion {
 
     @EventHandler
     public void serverStarting(FMLServerStartingEvent event) {
-        event.registerServerCommand(new SpawnInfusedBlockCommand());
         event.registerServerCommand(new InfusedInWorldCommand());
     }
 

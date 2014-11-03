@@ -7,6 +7,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import thaumcraft.common.blocks.BlockStoneDevice;
 import thaumcraft.common.items.wands.ItemWandCasting;
@@ -33,6 +34,11 @@ public class InfusionCoreBlock extends BlockStoneDevice {
     public void onBlockAdded(World world, int x, int y, int z) {
         world.setBlockMetadataWithNotify(x, y, z, 1, 3);
         world.setTileEntity(x, y, z, createNewTileEntity(world, 1));
+    }
+
+    @Override
+    public void setBlockBoundsBasedOnState(IBlockAccess world, int x, int y, int z) {
+
     }
 
     @Override

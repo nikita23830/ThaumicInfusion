@@ -9,10 +9,9 @@ import net.minecraft.world.IBlockAccess;
  * <p/>
  * See http://www.wtfpl.net/txt/copying for licence
  */
-@SuppressWarnings("Annotation")
+
 @Effect(aspect = ("lux"), cost = 1)
 public class Lux extends Savable {
-
     public int getLightValue(IBlockAccess world, int x, int y, int z){
         return 14;
     }

@@ -8,6 +8,7 @@ import drunkmafia.thaumicinfusion.common.tab.TITab;
 import drunkmafia.thaumicinfusion.common.util.BlockData;
 import drunkmafia.thaumicinfusion.common.util.BlockHelper;
 import drunkmafia.thaumicinfusion.common.util.BlockSavable;
+import drunkmafia.thaumicinfusion.common.world.TIWorldData;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
 import drunkmafia.thaumicinfusion.net.packet.client.RequestBlockPacketS;
 import drunkmafia.thaumicinfusion.net.packet.server.BlockDestroyedPacketC;
@@ -26,8 +27,10 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.world.ChunkCache;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldSavedData;
 import net.minecraftforge.common.IPlantable;
 import net.minecraftforge.common.util.ForgeDirection;
 import thaumcraft.common.items.wands.ItemWandCasting;
@@ -38,9 +41,11 @@ import static drunkmafia.thaumicinfusion.common.lib.BlockInfo.infusedBlock_Unloc
 
 public class InfusedBlock extends Block implements ITileEntityProvider {
 
-    public InfusedBlock() {
-        super(Material.rock);
-        setBlockName(infusedBlock_UnlocalizedName);
+    public InfusedBlock(Material mat, String blockName) {
+        super(mat);
+        setBlockName(blockName);
+        setTickRandomly(true);
+        BlockHandler.addBlock(blockName, this);
     }
 
     public boolean isBlockData(BlockSavable savable){
@@ -61,9 +66,9 @@ public class InfusedBlock extends Block implements ITileEntityProvider {
     public void onBlockPlacedBy(World world, int x, int y, int z, EntityLivingBase ent, ItemStack stack) {
         if (!world.isRemote) {
             BlockData data = BlockHelper.getDataFromStack(stack, x, y, z);
-            if (data != null) {
+            if (data != null)
                 BlockHelper.getWorldData(world).addBlock(world, data);
-            }else{
+            else{
                 world.setBlock(x, y, z, Blocks.air);
                 return;
             }
@@ -71,7 +76,7 @@ public class InfusedBlock extends Block implements ITileEntityProvider {
         }else RequestBlockPacketS.syncTimeouts.remove(new ChunkCoordinates(x, y, z));
         BlockSavable blockData = BlockHelper.getData(world, new ChunkCoordinates(x, y, z));
         if (isBlockData(blockData))
-            ((BlockData) blockData).runMethod(true, world, x, y, z, ent, stack);
+            ((BlockData) blockData).runMethod(true, Object.class, null, world, x, y, z, ent, stack);
     }
 
     @Override
@@ -83,11 +88,17 @@ public class InfusedBlock extends Block implements ITileEntityProvider {
         }else RequestBlockPacketS.syncTimeouts.remove(new ChunkCoordinates(x, y, z));
     }
 
+    public void updateTick(World world, int x, int y, int z, Random rand) {
+        BlockSavable blockData = BlockHelper.getData(world, new ChunkCoordinates(x, y, z));
+        if (isBlockData(blockData))
+            ((BlockData) blockData).runMethod(true, Object.class, null, world, x, y, z, rand);
+    }
+
     @Override
     public void breakBlock(World world, int x, int y, int z, Block block, int meta) {
         BlockSavable blockData = BlockHelper.getData(world, new ChunkCoordinates(x, y, z));
         if (isBlockData(blockData))
-            ((BlockData) blockData).runMethod(true, world, x, y, z, block, meta);
+            ((BlockData) blockData).runMethod(true, Object.class, null, world, x, y, z, block, meta);
         world.removeTileEntity(x, y, z);
     }
 
@@ -132,10 +143,8 @@ public class InfusedBlock extends Block implements ITileEntityProvider {
             ItemStack stack = player.getHeldItem();
             if(stack != null && stack.getItem() instanceof ItemWandCasting && ((BlockData) blockData).canOpenGUI())
                 player.openGui(ThaumicInfusion.instance, 0, world, x, y, z);
-            else{
-                Object obj = ((BlockData) blockData).runMethod(true, world, x, y, z, player, side, hitX, hitY, hitZ);
-                if (obj != null) return (Boolean) obj;
-            }
+            else
+                return ((BlockData) blockData).runMethod(true, Boolean.class, false, world, x, y, z, player, side, hitX, hitY, hitZ);
         }
         return false;
     }
@@ -149,122 +158,110 @@ public class InfusedBlock extends Block implements ITileEntityProvider {
     public void onBlockAdded(World world, int x, int y, int z) {
         BlockSavable blockData = BlockHelper.getData(world, new ChunkCoordinates(x, y, z));
         if (isBlockData(blockData))
-            ((BlockData) blockData).runMethod(true, world, x, y, z);
+            ((BlockData) blockData).runMethod(true, Object.class, null, world, x, y, z);
     }
 
     @Override
     public void setBlockBoundsBasedOnState(IBlockAccess access, int x, int y, int z) {
         BlockSavable blockData = BlockHelper.getData(access, new ChunkCoordinates(x, y, z));
         if (isBlockData(blockData))
-            ((BlockData) blockData).runMethod(true, access, x, y, z);
+            ((BlockData) blockData).runMethod(true, Object.class, null, access, x, y, z);
     }
 
     @Override
     public void randomDisplayTick(World world, int x, int y, int z, Random rand) {
         BlockSavable blockData = BlockHelper.getData(world, new ChunkCoordinates(x, y, z));
         if (isBlockData(blockData))
-            ((BlockData) blockData).runMethod(true, world, x, y, z, rand);
+            ((BlockData) blockData).runMethod(true, Object.class, null, world, x, y, z, rand);
     }
 
     @Override
     public void onPlantGrow(World world, int x, int y, int z, int sourceX, int sourceY, int sourceZ) {
         BlockSavable blockData = BlockHelper.getData(world, new ChunkCoordinates(x, y, z));
         if (isBlockData(blockData))
-            ((BlockData) blockData).runMethod(true, world, x, y, z, sourceX, sourceY, sourceZ);
+            ((BlockData) blockData).runMethod(true, Object.class, null, world, x, y, z, sourceX, sourceY, sourceZ);
     }
 
     @Override
     public void onNeighborBlockChange(World world, int x, int y, int z, Block block) {
         BlockSavable blockData = BlockHelper.getData(world, new ChunkCoordinates(x, y, z));
         if (isBlockData(blockData))
-            ((BlockData) blockData).runMethod(true, world, x, y, z, block);
+            ((BlockData) blockData).runMethod(true, Object.class, null, world, x, y, z, block);
     }
 
     @Override
     public void onFallenUpon(World world, int x, int y, int z, Entity ent, float fall) {
         BlockSavable blockData = BlockHelper.getData(world, new ChunkCoordinates(x, y, z));
         if (isBlockData(blockData))
-            ((BlockData) blockData).runMethod(true, world, x, y, z, ent, fall);
+            ((BlockData) blockData).runMethod(true, Object.class, null, world, x, y, z, ent, fall);
     }
 
     @Override
     public void onEntityWalking(World world, int x, int y, int z, Entity ent) {
         BlockSavable blockData = BlockHelper.getData(world, new ChunkCoordinates(x, y, z));
         if (isBlockData(blockData))
-            ((BlockData) blockData).runMethod(true, world, x, y, z, ent);
+            ((BlockData) blockData).runMethod(true, Object.class, null, world, x, y, z, ent);
     }
 
     @Override
     public void onEntityCollidedWithBlock(World world, int x, int y, int z, Entity ent) {
         BlockSavable blockData = BlockHelper.getData(world, new ChunkCoordinates(x, y, z));
         if (isBlockData(blockData))
-            ((BlockData) blockData).runMethod(true, world, x, y, z, ent);
+            ((BlockData) blockData).runMethod(true, Object.class, null, world, x, y, z, ent);
     }
 
     @Override
     public void onBlockClicked(World world, int x, int y, int z, EntityPlayer ent) {
         BlockSavable blockData = BlockHelper.getData(world, new ChunkCoordinates(x, y, z));
         if (isBlockData(blockData))
-            ((BlockData) blockData).runMethod(true, world, x, y, z, ent);
+            ((BlockData) blockData).runMethod(true, Object.class, null, world, x, y, z, ent);
     }
 
     @Override
     public int onBlockPlaced(World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ, int meta) {
         BlockSavable blockData = BlockHelper.getData(world, new ChunkCoordinates(x, y, z));
-        if (isBlockData(blockData)) {
-            Object obj = ((BlockData) blockData).runMethod(true, world, x, y, z, side, hitX, hitY, hitZ, meta);
-            if (obj != null) return (Integer) obj;
-        }
+        if (isBlockData(blockData))
+            return ((BlockData) blockData).runMethod(true, Integer.class, 0, world, x, y, z, side, hitX, hitY, hitZ, meta);
         return 0;
     }
 
     @Override
     public int isProvidingWeakPower(IBlockAccess access, int x, int y, int z, int meta) {
         BlockSavable blockData = BlockHelper.getData(access, new ChunkCoordinates(x, y, z));
-        if (isBlockData(blockData)) {
-            Object obj = ((BlockData) blockData).runMethod(true, access, x, y, z, meta);
-            if (obj != null) return (Integer) obj;
-        }
+        if (isBlockData(blockData))
+            return ((BlockData) blockData).runMethod(true, Integer.class, 0, access, x, y, z, meta);
         return 0;
     }
 
     @Override
     public int isProvidingStrongPower(IBlockAccess access, int x, int y, int z, int meta) {
         BlockSavable blockData = BlockHelper.getData(access, new ChunkCoordinates(x, y, z));
-        if (isBlockData(blockData)) {
-            Object obj = ((BlockData) blockData).runMethod(true, access, x, y, z, meta);
-            if (obj != null) return (Integer) obj;
-        }
+        if (isBlockData(blockData))
+            return ((BlockData) blockData).runMethod(true, Integer.class, 0, access, x, y, z, meta);
         return 0;
     }
 
     @Override
     public int getLightValue(IBlockAccess access, int x, int y, int z) {
         BlockSavable blockData = BlockHelper.getData(access, new ChunkCoordinates(x, y, z));
-        if (isBlockData(blockData)) {
-            Object obj = ((BlockData) blockData).runMethod(false, access, x, y, z);
-            if (obj != null) return (Integer) obj;
-        }
+        if (isBlockData(blockData))
+            return ((BlockData) blockData).runMethod(false, Integer.class, 0, access, x, y, z);
         return getLightValue();
     }
 
     @Override
     public int getLightOpacity(IBlockAccess access, int x, int y, int z) {
         BlockSavable blockData = BlockHelper.getData(access, new ChunkCoordinates(x, y, z));
-        if (isBlockData(blockData)) {
-            Object obj = ((BlockData) blockData).runMethod(true, access, x, y, z);
-            if (obj != null) return (Integer) obj;
-        }
+        if (isBlockData(blockData))
+            return ((BlockData) blockData).runMethod(true, Integer.class, 0, access, x, y, z);
         return getLightOpacity();
     }
 
     @Override
     public int getFlammability(IBlockAccess access, int x, int y, int z, ForgeDirection face) {
         BlockSavable blockData = BlockHelper.getData(access, new ChunkCoordinates(x, y, z));
-        if (isBlockData(blockData)) {
-            Object obj = ((BlockData) blockData).runMethod(true,  access, x, y, z, face);
-            if (obj != null) return (Integer) obj;
-        }
+        if (isBlockData(blockData))
+            return ((BlockData) blockData).runMethod(true, Integer.class, 0, access, x, y, z, face);
         return 0;
     }
 
@@ -272,8 +269,8 @@ public class InfusedBlock extends Block implements ITileEntityProvider {
     public int getFireSpreadSpeed(IBlockAccess access, int x, int y, int z, ForgeDirection face) {
         BlockSavable blockData = BlockHelper.getData(access, new ChunkCoordinates(x, y, z));
         if (isBlockData(blockData)) {
-            Object obj = ((BlockData) blockData).runMethod(true,  access, x, y, z, face);
-            if (obj != null) return (Integer) obj;
+            return ((BlockData) blockData).runMethod(true, Integer.class, 0, access, x, y, z, face);
+            
         }
         return 0;
     }
@@ -281,331 +278,266 @@ public class InfusedBlock extends Block implements ITileEntityProvider {
     @Override
     public ForgeDirection[] getValidRotations(World world, int x, int y, int z) {
         BlockSavable blockData = BlockHelper.getData(world, new ChunkCoordinates(x, y, z));
-        if (isBlockData(blockData)) {
-            Object obj = ((BlockData) blockData).runMethod(true, world, x, y, z);
-            if (obj != null) return (ForgeDirection[]) obj;
-        }
+        if (isBlockData(blockData))
+            return ((BlockData) blockData).runMethod(true, ForgeDirection[].class, null, world, x, y, z);
         return null;
     }
 
     @Override
     public float getPlayerRelativeBlockHardness(EntityPlayer player, World world, int x, int y, int z) {
         BlockSavable blockData = BlockHelper.getData(world, new ChunkCoordinates(x, y, z));
-        if (isBlockData(blockData)) {
-            Object obj = ((BlockData) blockData).runMethod(true, player, world, x, y, z);
-            if (obj != null) return (Float) obj;
-        }
+        if (isBlockData(blockData))
+            return ((BlockData) blockData).runMethod(true, Float.class, 0F, player, world, x, y, z);
         return 0;
     }
 
     @Override
     public int getComparatorInputOverride(World world, int x, int y, int z, int side) {
         BlockSavable blockData = BlockHelper.getData(world, new ChunkCoordinates(x, y, z));
-        if (isBlockData(blockData)) {
-            Object obj = ((BlockData) blockData).runMethod(true, world, x, y, z, side);
-            if (obj != null) return (Integer) obj;
-        }
+        if (isBlockData(blockData))
+            return ((BlockData) blockData).runMethod(true, Integer.class, 0, world, x, y, z, side);
         return 0;
     }
 
     @Override
     public float getExplosionResistance(Entity ent, World world, int x, int y, int z, double explosionX, double explosionY, double explosionZ) {
         BlockSavable blockData = BlockHelper.getData(world, new ChunkCoordinates(x, y, z));
-        if (isBlockData(blockData)) {
-            Object obj = ((BlockData) blockData).runMethod(true, ent, world, x, y, z, explosionX, explosionY, explosionZ);
-            if (obj != null) return (Float) obj;
-        }
+        if (isBlockData(blockData))
+            return ((BlockData) blockData).runMethod(true, Float.class, 0F, ent, world, x, y, z, explosionX, explosionY, explosionZ);
         return 0;
     }
 
     @Override
     public float getBlockHardness(World world, int x, int y, int z) {
         BlockSavable blockData = BlockHelper.getData(world, new ChunkCoordinates(x, y, z));
-        if (isBlockData(blockData)) {
-            Object obj = ((BlockData) blockData).runMethod(true, world, x, y, z);
-            if (obj != null) return (Float) obj;
-        }
+        if (isBlockData(blockData))
+            return ((BlockData) blockData).runMethod(true, Float.class, 0F, world, x, y, z);
         return 0;
     }
 
     @Override
     public boolean shouldCheckWeakPower(IBlockAccess access, int x, int y, int z, int side) {
         BlockSavable blockData = BlockHelper.getData(access, new ChunkCoordinates(x, y, z));
-        if (isBlockData(blockData)) {
-            Object obj = ((BlockData) blockData).runMethod(true, access, x, y, z, side);
-            if (obj != null) return (Boolean) obj;
-        }
+        if (isBlockData(blockData))
+            return ((BlockData) blockData).runMethod(true, Boolean.class, false, access, x, y, z, side);
         return false;
     }
 
     @Override
     public float getEnchantPowerBonus(World world, int x, int y, int z) {
         BlockSavable blockData = BlockHelper.getData(world, new ChunkCoordinates(x, y, z));
-        if (isBlockData(blockData)) {
-            Object obj = ((BlockData) blockData).runMethod(true,  world, x, y, z);
-            if (obj != null) return (Float) obj;
-        }
+        if (isBlockData(blockData))
+            return ((BlockData) blockData).runMethod(true, Float.class, 0F, world, x, y, z);
         return 0;
     }
 
     @Override
     @SideOnly(Side.CLIENT)
     public boolean shouldSideBeRendered(IBlockAccess access, int x, int y, int z, int side) {
-        BlockSavable blockData = BlockHelper.getData(FMLClientHandler.instance().getClient().theWorld, new ChunkCoordinates(x, y, z));
-        if (isBlockData(blockData)) {
-            Object obj = ((BlockData) blockData).runMethod(true, access, x, y, z, side);
-            if (obj != null) return (Boolean) obj;
-        }
+        ForgeDirection dir = BlockHelper.getRotatedSide(side, 0);
+        BlockSavable blockData = BlockHelper.getData(FMLClientHandler.instance().getClient().theWorld, new ChunkCoordinates(x + -dir.offsetZ, y + -dir.offsetY, z + dir.offsetX));
+        if (isBlockData(blockData))
+            return ((BlockData) blockData).runMethod(true, Boolean.class, false, access, x, y, z, side);
         return true;
     }
 
     @Override
     public boolean rotateBlock(World world, int x, int y, int z, ForgeDirection axis) {
         BlockSavable blockData = BlockHelper.getData(world, new ChunkCoordinates(x, y, z));
-        if (isBlockData(blockData)) {
-            Object obj = ((BlockData) blockData).runMethod(true, world, x, y, z, axis);
-            if (obj != null) return (Boolean) obj;
-        }
+        if (isBlockData(blockData))
+            return ((BlockData) blockData).runMethod(true, Boolean.class, false, world, x, y, z, axis);
         return false;
     }
 
     @Override
     public boolean recolourBlock(World world, int x, int y, int z, ForgeDirection side, int colour) {
         BlockSavable blockData = BlockHelper.getData(world, new ChunkCoordinates(x, y, z));
-        if (isBlockData(blockData)) {
-            Object obj = ((BlockData) blockData).runMethod(true, world, x, y, z, side, colour);
-            if (obj != null) return (Boolean) obj;
-        }
+        if (isBlockData(blockData))
+            return ((BlockData) blockData).runMethod(true, Boolean.class, false, world, x, y, z, side, colour);
         return false;
     }
 
     @Override
     public boolean isWood(IBlockAccess world, int x, int y, int z) {
         BlockSavable blockData = BlockHelper.getData(world, new ChunkCoordinates(x, y, z));
-        if (isBlockData(blockData)) {
-            Object obj = ((BlockData) blockData).runMethod(true, world, x, y, z);
-            if (obj != null) return (Boolean) obj;
-        }
+        if (isBlockData(blockData))
+            return ((BlockData) blockData).runMethod(true, Boolean.class, false, world, x, y, z);
         return false;
     }
 
     @Override
     public boolean isSideSolid(IBlockAccess access, int x, int y, int z, ForgeDirection side) {
         BlockSavable blockData = BlockHelper.getData(access, new ChunkCoordinates(x, y, z));
-        if (isBlockData(blockData)) {
-            Object obj = ((BlockData) blockData).runMethod(true, access, x, y, z, side);
-            if (obj != null) return (Boolean) obj;
-        }
+        if (isBlockData(blockData))
+            return ((BlockData) blockData).runMethod(true, Boolean.class, false, access, x, y, z, side);
         return true;
     }
 
     @Override
     public boolean isBeaconBase(IBlockAccess access, int x, int y, int z, int beaconX, int beaconY, int beaconZ) {
         BlockSavable blockData = BlockHelper.getData(access, new ChunkCoordinates(x, y, z));
-        if (isBlockData(blockData)) {
-            Object obj = ((BlockData) blockData).runMethod(true, access, x, y, z, beaconX, beaconY, beaconZ);
-            if (obj != null) return (Boolean) obj;
-        }
+        if (isBlockData(blockData))
+            return ((BlockData) blockData).runMethod(true, Boolean.class, false, access, x, y, z, beaconX, beaconY, beaconZ);
         return false;
     }
 
     @Override
     public boolean isBed(IBlockAccess access, int x, int y, int z, EntityLivingBase player) {
         BlockSavable blockData = BlockHelper.getData(access, new ChunkCoordinates(x, y, z));
-        if (isBlockData(blockData)) {
-            Object obj = ((BlockData) blockData).runMethod(true, access, x, y, z, player);
-            if (obj != null) return (Boolean) obj;
-        }
+        if (isBlockData(blockData))
+            return ((BlockData) blockData).runMethod(true, Boolean.class, false, access, x, y, z, player);
         return false;
     }
 
     @Override
     public boolean isBedFoot(IBlockAccess access, int x, int y, int z) {
         BlockSavable blockData = BlockHelper.getData(access, new ChunkCoordinates(x, y, z));
-        if (isBlockData(blockData)) {
-            Object obj = ((BlockData) blockData).runMethod(true, access, x, y, z);
-            if (obj != null) return (Boolean) obj;
-        }
+        if (isBlockData(blockData))
+            return ((BlockData) blockData).runMethod(true,Boolean.class, false,  access, x, y, z);
         return false;
     }
 
     @Override
     public boolean isBlockSolid(IBlockAccess access, int x, int y, int z, int meta) {
         BlockSavable blockData = BlockHelper.getData(access, new ChunkCoordinates(x, y, z));
-        if (isBlockData(blockData)) {
-            Object obj = ((BlockData) blockData).runMethod(true, access, x, y, z, meta);
-            if (obj != null) return (Boolean) obj;
-        }
+        if (isBlockData(blockData))
+            return ((BlockData) blockData).runMethod(true, Boolean.class, false, access, x, y, z, meta);
         return true;
     }
 
     @Override
     public boolean isBurning(IBlockAccess access, int x, int y, int z) {
         BlockSavable blockData = BlockHelper.getData(access, new ChunkCoordinates(x, y, z));
-        if (isBlockData(blockData)) {
-            Object obj = ((BlockData) blockData).runMethod(true, access, x, y, z);
-            if (obj != null) return (Boolean) obj;
-        }
+        if (isBlockData(blockData))
+            return ((BlockData) blockData).runMethod(true, Boolean.class, false, access, x, y, z);
         return false;
     }
 
     @Override
     public boolean isFertile(World world, int x, int y, int z) {
         BlockSavable blockData = BlockHelper.getData(world, new ChunkCoordinates(x, y, z));
-        if (isBlockData(blockData)) {
-            Object obj = ((BlockData) blockData).runMethod(true, world, x, y, z);
-            if (obj != null) return (Boolean) obj;
-        }
+        if (isBlockData(blockData))
+            return ((BlockData) blockData).runMethod(true, Boolean.class, false, world, x, y, z);
         return false;
     }
 
     @Override
     public boolean isFireSource(World world, int x, int y, int z, ForgeDirection side) {
         BlockSavable blockData = BlockHelper.getData(world, new ChunkCoordinates(x, y, z));
-        if (isBlockData(blockData)) {
-            Object obj = ((BlockData) blockData).runMethod(true,  world, x, y, z, side);
-            if (obj != null) return (Boolean) obj;
-        }
+        if (isBlockData(blockData))
+            return ((BlockData) blockData).runMethod(true, Boolean.class, false,  world, x, y, z, side);
         return false;
     }
 
     @Override
     public boolean isFlammable(IBlockAccess access, int x, int y, int z, ForgeDirection face) {
         BlockSavable blockData = BlockHelper.getData(access, new ChunkCoordinates(x, y, z));
-        if (isBlockData(blockData)) {
-            Object obj = ((BlockData) blockData).runMethod(true, access, x, y, z, face);
-            if (obj != null) return (Boolean) obj;
-        }
+        if (isBlockData(blockData))
+            return ((BlockData) blockData).runMethod(true, Boolean.class, false, access, x, y, z, face);
         return false;
     }
 
     @Override
     public boolean isFoliage(IBlockAccess access, int x, int y, int z) {
         BlockSavable blockData = BlockHelper.getData(access, new ChunkCoordinates(x, y, z));
-        if (isBlockData(blockData)) {
-            Object obj = ((BlockData) blockData).runMethod(true,access, x, y, z);
-            if (obj != null) return (Boolean) obj;
-        }
+        if (isBlockData(blockData))
+            return ((BlockData) blockData).runMethod(true, Boolean.class, false, access, x, y, z);
         return false;
     }
 
     @Override
     public boolean isLadder(IBlockAccess access, int x, int y, int z, EntityLivingBase entity) {
         BlockSavable blockData = BlockHelper.getData(access, new ChunkCoordinates(x, y, z));
-        if (isBlockData(blockData)) {
-            Object obj = ((BlockData) blockData).runMethod(true, access, x, y, z, entity);
-            if (obj != null) return (Boolean) obj;
-        }
+        if (isBlockData(blockData))
+            return ((BlockData) blockData).runMethod(true, Boolean.class, false, access, x, y, z, entity);
         return false;
     }
 
     @Override
     public boolean isLeaves(IBlockAccess access, int x, int y, int z) {
         BlockSavable blockData = BlockHelper.getData(access, new ChunkCoordinates(x, y, z));
-        if (isBlockData(blockData)) {
-            Object obj = ((BlockData) blockData).runMethod(true, access, x, y, z);
-            if (obj != null) return (Boolean) obj;
-        }
+        if (isBlockData(blockData))
+            return ((BlockData) blockData).runMethod(true, Boolean.class, false, access, x, y, z);
         return false;
     }
 
     @Override
     public boolean isNormalCube(IBlockAccess access, int x, int y, int z) {
         BlockSavable blockData = BlockHelper.getData(access, new ChunkCoordinates(x, y, z));
-        if (isBlockData(blockData)) {
-            Object obj = ((BlockData) blockData).runMethod(true, access, x, y, z);
-            if (obj != null) return (Boolean) obj;
-        }
+        if (isBlockData(blockData))
+            return ((BlockData) blockData).runMethod(true, Boolean.class, false, access, x, y, z);
         return false;
     }
 
     @Override
     public boolean isReplaceable(IBlockAccess access, int x, int y, int z) {
         BlockSavable blockData = BlockHelper.getData(access, new ChunkCoordinates(x, y, z));
-        if (isBlockData(blockData)) {
-            Object obj = ((BlockData) blockData).runMethod(true, access, x, y, z);
-            if (obj != null) return (Boolean) obj;
-        }
+        if (isBlockData(blockData))
+            return ((BlockData) blockData).runMethod(true, Boolean.class, false, access, x, y, z);
         return false;
     }
 
     @Override
     public boolean canPlaceTorchOnTop(World world, int x, int y, int z) {
         BlockSavable blockData = BlockHelper.getData(world, new ChunkCoordinates(x, y, z));
-        if (isBlockData(blockData)) {
-            Object obj = ((BlockData) blockData).runMethod(true, world, x, y, z);
-            if (obj != null) return (Boolean) obj;
-        }
+        if (isBlockData(blockData))
+            return ((BlockData) blockData).runMethod(true, Boolean.class, false, world, x, y, z);
         return false;
     }
 
     @Override
     public boolean canSustainPlant(IBlockAccess access, int x, int y, int z, ForgeDirection direction, IPlantable plantable) {
         BlockSavable blockData = BlockHelper.getData(access, new ChunkCoordinates(x, y, z));
-        if (isBlockData(blockData)) {
-            Object obj = ((BlockData) blockData).runMethod(true, access, x, y, z, direction, plantable);
-            if (obj != null) return (Boolean) obj;
-        }
+        if (isBlockData(blockData))
+            return ((BlockData) blockData).runMethod(true, Boolean.class, false, access, x, y, z, direction, plantable);
         return false;
     }
 
     @Override
     public boolean canSustainLeaves(IBlockAccess access, int x, int y, int z) {
         BlockSavable blockData = BlockHelper.getData(access, new ChunkCoordinates(x, y, z));
-        if (isBlockData(blockData)) {
-            Object obj = ((BlockData) blockData).runMethod(true, access, x, y, z);
-            if (obj != null) return (Boolean) obj;
-        }
+        if (isBlockData(blockData))
+            return ((BlockData) blockData).runMethod(true, Boolean.class, false, access, x, y, z);
         return false;
     }
 
     @Override
     public boolean getWeakChanges(IBlockAccess access, int x, int y, int z) {
         BlockSavable blockData = BlockHelper.getData(access, new ChunkCoordinates(x, y, z));
-        if (isBlockData(blockData)) {
-            Object obj = ((BlockData) blockData).runMethod(true, access, x, y, z);
-            if (obj != null) return (Boolean) obj;
-        }
+        if (isBlockData(blockData))
+            return ((BlockData) blockData).runMethod(true, Boolean.class, false, access, x, y, z);
         return false;
     }
 
     @Override
     public boolean canConnectRedstone(IBlockAccess access, int x, int y, int z, int side) {
         BlockSavable blockData = BlockHelper.getData(access, new ChunkCoordinates(x, y, z));
-        if (isBlockData(blockData)) {
-            Object obj = ((BlockData) blockData).runMethod(true, access, x, y, z, side);
-            if (obj != null) return (Boolean) obj;
-        }
+        if (isBlockData(blockData))
+            return ((BlockData) blockData).runMethod(true, Boolean.class, false, access, x, y, z, side);
         return false;
     }
 
     @Override
     public boolean canEntityDestroy(IBlockAccess access, int x, int y, int z, Entity entity) {
         BlockSavable blockData = BlockHelper.getData(access, new ChunkCoordinates(x, y, z));
-        if (isBlockData(blockData)) {
-            Object obj = ((BlockData) blockData).runMethod(true, access, x, y, z, entity);
-            if (obj != null) return (Boolean) obj;
-        }
+        if (isBlockData(blockData))
+            return ((BlockData) blockData).runMethod(true, Boolean.class, false, access, x, y, z, entity);
         return false;
     }
 
     @Override
     public boolean canCreatureSpawn(EnumCreatureType type, IBlockAccess access, int x, int y, int z) {
         BlockSavable blockData = BlockHelper.getData(access, new ChunkCoordinates(x, y, z));
-        if (isBlockData(blockData)) {
-            Object obj = ((BlockData) blockData).runMethod(true, type, access, x, y, z);
-            if (obj != null) return (Boolean) obj;
-        }
+        if (isBlockData(blockData))
+            return ((BlockData) blockData).runMethod(true, Boolean.class, false, type, access, x, y, z);
         return false;
     }
 
     @Override
     public boolean canBlockStay(World world, int x, int y, int z) {
         BlockSavable blockData = BlockHelper.getData(world, new ChunkCoordinates(x, y, z));
-        if (isBlockData(blockData)) {
-            Object obj = ((BlockData) blockData).runMethod(true, world, x, y, z);
-            if (obj != null) return (Boolean) obj;
-        }
+        if (isBlockData(blockData))
+            return ((BlockData) blockData).runMethod(true, Boolean.class, false, world, x, y, z);
         return false;
     }
 

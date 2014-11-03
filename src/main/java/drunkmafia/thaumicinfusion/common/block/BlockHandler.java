@@ -17,11 +17,11 @@ public class BlockHandler {
     private static HashMap<String, Integer> blockMethods = new HashMap<String, Integer>();
 
     public static void addBlock(String key, InfusedBlock block){
-        infusedBlocks.put(key, block);
+        infusedBlocks.put(key.toLowerCase(), block);
     }
 
     public static InfusedBlock getBlock(String key){
-        return infusedBlocks.get(key);
+        return infusedBlocks.get(key.toLowerCase());
     }
 
     public static Method getMethod(String methName, Class[] pars) {

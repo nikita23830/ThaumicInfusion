@@ -1,21 +1,15 @@
 package drunkmafia.thaumicinfusion.common.util;
 
-import cpw.mods.fml.client.FMLClientHandler;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
+import com.esotericsoftware.reflectasm.FieldAccess;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
 import drunkmafia.thaumicinfusion.net.packet.client.RequestBlockPacketS;
-import net.minecraft.block.Block;
-import net.minecraft.client.Minecraft;
 import net.minecraft.item.ItemStack;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChunkCoordinates;
-import net.minecraft.world.IBlockAccess;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldSavedData;
-import net.minecraft.world.WorldServer;
+import net.minecraft.world.*;
+import net.minecraftforge.common.util.ForgeDirection;
+
+import java.lang.reflect.Field;
 
 import static drunkmafia.thaumicinfusion.common.util.InfusionHelper.*;
 
@@ -36,8 +30,11 @@ public class BlockHelper {
         return data;
     }
 
-    public static BlockSavable getData(IBlockAccess world, ChunkCoordinates coords) {
-        return getData(getWorld(world, coords), coords);
+    public static BlockSavable getData(IBlockAccess access, ChunkCoordinates coords) {
+        World world = getWorld(access);
+        if(world == null)
+            return null;
+        return getData(world, coords);
     }
 
     public static TIWorldData getWorldData(World world) {
@@ -52,26 +49,85 @@ public class BlockHelper {
         }
     }
 
-    public static World getWorld(IBlockAccess blockAccess, ChunkCoordinates coordinates) {
-        return getWorld(blockAccess, coordinates.posX, coordinates.posY, coordinates.posZ);
-    }
+    static Field worldObj;
 
-    public static World getWorld(IBlockAccess blockAccess, int x, int y, int z) {
-        if (ThaumicInfusion.isServer) {
-            Block block = blockAccess.getBlock(x, y, z);
-            int meta = blockAccess.getBlockMetadata(x, y, z);
-            for (WorldServer world : MinecraftServer.getServer().worldServers) {
-                if (world.getBlock(x, y, z) == block && world.getBlockMetadata(x, y, z) == meta)
-                    return world;
+    public static World getWorld(IBlockAccess blockAccess) {
+        if(blockAccess instanceof ChunkCache) {
+            try {
+                if (worldObj == null) {
+                    worldObj = ChunkCache.class.getDeclaredField("worldObj");
+                    worldObj.setAccessible(true);
+                }
+                Object obj = worldObj.get(blockAccess);
+                if (obj != null)
+                    return (World) obj;
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        } else {
-            return getClientWorld();
+        }else if(blockAccess instanceof World){
+            return (World) blockAccess;
         }
         return null;
     }
 
-    @SideOnly(Side.CLIENT)
-    public static World getClientWorld() {
-        return FMLClientHandler.instance().getClient().theWorld;
+    /**
+     * Calculates which side is <i>side</i> given the block's orientation
+     * @author Two - Edited By DrunkMafia
+     * @param side the side that is searched for
+     * @param blockDir the facing of the block as CW 0 (south) to 3 (east)
+     * @return the side that corresponds to <i>side</i> according to the block's rotation.
+     */
+    public static ForgeDirection getRotatedSide(final int side, final int blockDir) {
+        switch (side) {
+            case 0:
+                return ForgeDirection.DOWN;
+            case 1:
+                return ForgeDirection.UP;
+            case 2: // north side
+                switch (blockDir & 3) {
+                    case 0:
+                        return ForgeDirection.EAST;
+                    case 1:
+                        return ForgeDirection.NORTH;
+                    case 2:
+                        return ForgeDirection.WEST;
+                    case 3:
+                        return ForgeDirection.SOUTH;
+                }
+            case 3: // south side
+                switch (blockDir & 3) {
+                    case 0:
+                        return ForgeDirection.WEST;
+                    case 1:
+                        return ForgeDirection.SOUTH;
+                    case 2:
+                        return ForgeDirection.EAST;
+                    case 3:
+                        return ForgeDirection.NORTH;
+                }
+            case 4: // west side
+                switch (blockDir & 3) {
+                    case 0:
+                        return ForgeDirection.NORTH;
+                    case 1:
+                        return ForgeDirection.WEST;
+                    case 2:
+                        return ForgeDirection.SOUTH;
+                    case 3:
+                        return ForgeDirection.EAST;
+                }
+            case 5: // east side
+                switch (blockDir & 3) {
+                    case 0:
+                        return ForgeDirection.SOUTH;
+                    case 1:
+                        return ForgeDirection.EAST;
+                    case 2:
+                        return ForgeDirection.NORTH;
+                    case 3:
+                        return ForgeDirection.WEST;
+                }
+        }
+        throw new IllegalArgumentException("Illegal side " + side);
     }
 }

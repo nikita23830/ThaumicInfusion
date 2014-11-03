@@ -36,7 +36,6 @@ public class BlockInfusionRecipe extends InfusionRecipe {
         recipeOutput = null;
 
         if (research.length()>0 && !ThaumcraftApiHelper.isResearchComplete(player.getCommandSenderName(), research)) {
-            System.out.println("Failed first check - research?!");
             return false;
         }
 
@@ -62,14 +61,13 @@ public class BlockInfusionRecipe extends InfusionRecipe {
         for(ItemStack phial : ii){
             AspectList phialList = ((ItemEssence)phial.getItem()).getAspects(phial);
             Aspect aspect = phialList.getAspects()[0];
-            if(aspect == null) {
-                System.out.println("Aspect is null");
+            if(aspect == null)
                 return false;
-            }
+
+
             Class effect = AspectHandler.getEffectFromAspect(aspect);
             Effect annot = (Effect) effect.getAnnotation(Effect.class);
             int amount = annot.cost() * central.stackSize;
-            System.out.println(aspect.getName() + " need: " + amount);
             infuseAspects.add(aspect, amount);
         }
 
@@ -96,7 +94,7 @@ public class BlockInfusionRecipe extends InfusionRecipe {
 
             recipeOutput = InfusionHelper.getInfusedItemStack(InfusionHelper.phialsToAspects(input), Block.getIdFromBlock(((ItemBlock)central.getItem()).field_150939_a), central.stackSize, central.getItemDamage());
         }
-        System.out.println("Mathes finshed: " + (recipeOutput != null && ii.size() > 0));
+        System.out.println((recipeOutput != null && ii.size() > 0));
 
         return recipeOutput != null && ii.size() > 0;
     }

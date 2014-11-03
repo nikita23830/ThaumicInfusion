@@ -77,21 +77,28 @@ public class InfusionHelper {
     }
 
     public static ItemStack getInfusedItemStack(ArrayList<Aspect> list, int infusedID, int size, int meta){
-        System.out.println("Infusion");
         if(list == null) return null;
         Class[] effects = getEffectsFromList(list);
-        if(effects.length == 0) return null;
-        ItemStack stack = new ItemStack(TIBlocks.infusedBlock, size, meta);
-        NBTTagCompound tag = new NBTTagCompound();
-        for(int i = 0; i < effects.length; i++){
-            tag.setString("infusedAspect_" + i, effects[i].getName());
+        if(effects.length == 0){
+            System.out.println("Failed to get an effect list");
+            return null;
         }
+        int blockID = getBlockID(effects);
+        if(blockID == -1){
+            System.out.println("Failed to get a block");
+            return null;
+        }
+        ItemStack stack = new ItemStack(Block.getBlockById(blockID), size, meta);
+        NBTTagCompound tag = new NBTTagCompound();
+        for(int i = 0; i < effects.length; i++)
+            tag.setString("infusedAspect_" + i, effects[i].getName());
+
         tag.setInteger("infusedAspect_Size", effects.length);
         tag.setInteger("infusedID", infusedID);
         stack.setTagCompound(tag);
 
         stack.setStackDisplayName("Infused " + new ItemStack(Block.getBlockById(infusedID), 1, meta).getDisplayName());
-
+        System.out.println("Infused stack obtained");
         return stack;
     }
 }

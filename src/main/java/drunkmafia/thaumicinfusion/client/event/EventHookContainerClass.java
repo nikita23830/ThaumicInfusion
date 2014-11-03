@@ -48,7 +48,7 @@ public class EventHookContainerClass {
             if(world.getBlock(pos.blockX, pos.blockY, pos.blockZ) instanceof InfusedBlock){
                 BlockSavable blockData = BlockHelper.getData(world, new ChunkCoordinates(pos.blockX, pos.blockY, pos.blockZ));
                 if (isBlockData(blockData))
-                    ((BlockData) blockData).runMethod(false, world, pos.blockX, pos.blockY, pos.blockZ, player, pos, event.partialTicks);
+                    ((BlockData) blockData).runMethod(false, Object.class, null, world, pos.blockX, pos.blockY, pos.blockZ, player, pos, event.partialTicks);
             }
         }
     }
@@ -62,7 +62,7 @@ public class EventHookContainerClass {
             if (data != null) {
                 Map.Entry[] worldDataEntries = data.getAllBocks();
                 for (Map.Entry ent : worldDataEntries)
-                    ((BlockData) ent.getValue()).runMethod(false, (ChunkCoordinates) ent.getKey(), event.context, event.partialTicks);
+                    ((BlockData) ent.getValue()).runMethod(false, Object.class, null, (ChunkCoordinates) ent.getKey(), event.context, event.partialTicks);
             }
         }
     }

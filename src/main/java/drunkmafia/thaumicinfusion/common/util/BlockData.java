@@ -65,19 +65,23 @@ public class BlockData extends BlockSavable {
         return effects;
     }
 
-    public Object runMethod(boolean shouldBlockRun, Object... pars) {
+    public <T>T runMethod(boolean shouldBlockRun, Class<T> type, T defRet, Object... pars) {
         if(blockAccess == null) blockAccess = MethodAccess.get(Block.class);
+        T ret = null;
         String methName = Thread.currentThread().getStackTrace()[2].getMethodName();
 
         for (int s = 0; s < dataEffects.size(); s++) {
             Savable effect = dataEffects.get(s);
             int effectIndex = AspectHandler.getMethod(effect.getClass(), methName);
             if (effectIndex != -1)
-                try { return dataAccess.get(s).invoke(effect, effectIndex, pars); } catch (Exception e) {}
+                try { ret = type.cast(dataAccess.get(s).invoke(effect, effectIndex, pars)); } catch (Exception e) {}
         }
         if(shouldBlockRun)
-            try {return blockAccess.invoke(getContainingBlock(),BlockHandler.getMethod(methName), pars);}catch (Exception e){}
-        return null;
+            try {ret = type.cast(blockAccess.invoke(getContainingBlock(),BlockHandler.getMethod(methName), pars));}catch (Exception e){}
+        if(ret == null)
+            return defRet;
+        else
+            return ret;
     }
 
     public Object runAspectMethod(String meth, Savable effect, Object... pars) {
