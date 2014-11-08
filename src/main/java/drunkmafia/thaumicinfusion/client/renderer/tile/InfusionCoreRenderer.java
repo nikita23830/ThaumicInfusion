@@ -42,7 +42,7 @@ public class InfusionCoreRenderer extends TileEntitySpecialRenderer {
         renderCore(pos, new Vector3(1, 1.3, 1), core.coreAxies, -core.angle, deltaTime);
         renderInventory(pos, tile, deltaTime);
 
-        Thaumcraft.instance.renderEventHandler.drawTextInAir(x, y, z, deltaTime, "Test");
+        Thaumcraft.instance.renderEventHandler.drawTextInAir(tile.xCoord, tile.yCoord, tile.zCoord, deltaTime, "Test");
     }
 
     void renderCore(Vector3 pos, Vector3 scale, Vector3 axies, float angle, float deltaTime){
@@ -67,9 +67,6 @@ public class InfusionCoreRenderer extends TileEntitySpecialRenderer {
         if(inv == null) return;
 
         ItemStack item = inv.copy();
-        item.stackSize = 1;
-        EntityItem entityitem = new EntityItem(tile.getWorldObj(), 0.0D, 0.0D, 0.0D, item);
-        entityitem.hoverStart = 0.0F;
 
         GL11.glPushMatrix();
 
@@ -78,10 +75,10 @@ public class InfusionCoreRenderer extends TileEntitySpecialRenderer {
         float hover = net.minecraft.util.MathHelper.sin(ticks % 32767.0F / 16.0F) * 0.05F;
 
         GL11.glTranslated(pos.x, pos.y + hover, pos.z);
-        GL11.glScalef(1.2F, 1.2F, 1.2F);
+        GL11.glScalef(0.25F, 0.25F, 0.25F);
         GL11.glRotatef(ticks % 360.0F, 0.0F, 1.0F, 0.0F);
 
-        RenderManager.instance.renderEntityWithPosYaw(entityitem, 0.0D, 0.0D, 0.0D, 0.0F, 0.0F);
+        RenderManager.instance.itemRenderer.renderItem(Minecraft.getMinecraft().thePlayer, item, 0);
         GL11.glPopMatrix();
     }
 

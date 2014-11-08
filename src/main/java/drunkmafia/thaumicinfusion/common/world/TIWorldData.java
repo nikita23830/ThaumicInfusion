@@ -49,7 +49,7 @@ public class TIWorldData extends WorldSavedData {
     public void postLoad(){
         if(world == null)
             return;
-        System.out.println("Post World Data Load");
+
         for(Map.Entry entry : getAllBocks()){
             BlockSavable savable = (BlockSavable) entry.getValue();
             ChunkCoordinates coords = savable.getCoords();

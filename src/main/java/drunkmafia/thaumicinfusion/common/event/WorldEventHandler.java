@@ -1,7 +1,8 @@
-package drunkmafia.thaumicinfusion.common.world;
+package drunkmafia.thaumicinfusion.common.event;
 
 import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import drunkmafia.thaumicinfusion.common.world.TIWorldData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;

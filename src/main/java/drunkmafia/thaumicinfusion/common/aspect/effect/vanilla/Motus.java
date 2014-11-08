@@ -1,5 +1,6 @@
 package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
+import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.util.EffectGUI;
 import drunkmafia.thaumicinfusion.common.util.Savable;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
@@ -13,8 +14,8 @@ import net.minecraftforge.common.util.ForgeDirection;
  * See http://www.wtfpl.net/txt/copying for licence
  */
 
-@Effect(aspect = ("motus"), cost = 3)
-public class Motus extends Savable {
+@Effect(aspect = ("motus"), cost = 4)
+public class Motus extends AspectEffect {
 
     private ForgeDirection dir;
 

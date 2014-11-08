@@ -18,6 +18,7 @@ import thaumcraft.api.aspects.AspectList;
 import thaumcraft.api.crafting.InfusionRecipe;
 import thaumcraft.common.items.ItemEssence;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 
@@ -66,9 +67,14 @@ public class BlockInfusionRecipe extends InfusionRecipe {
 
 
             Class effect = AspectHandler.getEffectFromAspect(aspect);
-            Effect annot = (Effect) effect.getAnnotation(Effect.class);
-            int amount = annot.cost() * central.stackSize;
-            infuseAspects.add(aspect, amount);
+            if(effect == null)
+                return false;
+            Annotation annot = effect.getAnnotation(Effect.class);
+            if(annot instanceof Effect) {
+                Effect effe = (Effect) annot;
+                int amount = effe.cost() * central.stackSize;
+                infuseAspects.add(aspect, amount);
+            }else return false;
         }
 
         aspects = infuseAspects;

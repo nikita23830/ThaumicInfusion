@@ -1,20 +1,28 @@
 package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
+import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.util.Savable;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
+import net.minecraft.block.material.Material;
 import net.minecraft.entity.Entity;
+import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+
+import static drunkmafia.thaumicinfusion.common.lib.BlockInfo.infusedBlock_UnlocalizedName;
 
 /**
  * Created by DrunkMafia on 01/11/2014.
  * See http://www.wtfpl.net/txt/copying for licence
  */
-@Effect(aspect = ("limus"), cost = 3)
-public class Limus extends Savable {
+@Effect(aspect = ("limus"), cost = 4, infusedBlock = "tile." + infusedBlock_UnlocalizedName + "_Aqua")
+public class Limus extends AspectEffect {
 
-    public void onEntityCollidedWithBlock (World world, int x, int y, int z, Entity entity) {
-        if (entity.motionY < 0)
-            entity.motionY *= -1.2F;
-        entity.fallDistance = 0;
+    public boolean isReplaceable(IBlockAccess access, int x, int y, int z) {
+        return false;
+    }
+
+    public AxisAlignedBB getCollisionBoundingBoxFromPool(World world, int x, int y, int z) {
+        return AxisAlignedBB.getBoundingBox(0, 0, 0, 0, 0, 0);
     }
 }

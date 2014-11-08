@@ -4,6 +4,9 @@ import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
+import drunkmafia.thaumicinfusion.common.aspect.AspectHandler;
+import drunkmafia.thaumicinfusion.common.aspect.effect.vanilla.Sensus;
+import drunkmafia.thaumicinfusion.common.lib.BlockInfo;
 import drunkmafia.thaumicinfusion.common.tab.TITab;
 import drunkmafia.thaumicinfusion.common.util.BlockData;
 import drunkmafia.thaumicinfusion.common.util.BlockHelper;
@@ -17,6 +20,7 @@ import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.particle.EffectRenderer;
 import net.minecraft.client.particle.EntityDiggingFX;
+import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.EnumCreatureType;
@@ -24,6 +28,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.MovingObjectPosition;
@@ -41,11 +46,44 @@ import static drunkmafia.thaumicinfusion.common.lib.BlockInfo.infusedBlock_Unloc
 
 public class InfusedBlock extends Block implements ITileEntityProvider {
 
+    public int pass = 1, renderType;
+    public boolean renderAsNormal = true;
+    public boolean isOpaqueCube = true;
+
     public InfusedBlock(Material mat, String blockName) {
         super(mat);
         setBlockName(blockName);
         setTickRandomly(true);
-        BlockHandler.addBlock(blockName, this);
+    }
+
+    public InfusedBlock setPass(int pass){
+        this.pass = pass;
+        return this;
+    }
+
+    public InfusedBlock setRenderAsNormal(Boolean renderAsNormal){
+        this.renderAsNormal = renderAsNormal;
+        return this;
+    }
+
+    public InfusedBlock setIsOpaqueCube(boolean isOpaqueCube){
+        this.isOpaqueCube = isOpaqueCube;
+        return this;
+    }
+
+    public InfusedBlock setSlipperiness(float slipperiness){
+        this.slipperiness = slipperiness;
+        return this;
+    }
+
+    public InfusedBlock setRenderType(int renderType){
+        this.renderType = renderType;
+        return this;
+    }
+
+    public InfusedBlock addBlockToHandler(){
+        BlockHandler.addBlock(getUnlocalizedName(), this);
+        return this;
     }
 
     public boolean isBlockData(BlockSavable savable){
@@ -54,11 +92,18 @@ public class InfusedBlock extends Block implements ITileEntityProvider {
     }
 
     @Override
+    public void registerBlockIcons(IIconRegister iconRegister) {
+        blockIcon = iconRegister.registerIcon(BlockInfo.infusedBlock_BlankTexture);
+    }
+
+    @Override
     @SideOnly(Side.CLIENT)
     public IIcon getIcon(IBlockAccess access, int x, int y, int z, int side) {
         BlockData data = (BlockData) BlockHelper.getData(access, new ChunkCoordinates(x, y, z));
         if (data != null && data.getContainingBlock() != null)
-            return data.getContainingBlock().getIcon(access, x, y, z, side);
+            return data.runMethod(false, IIcon.class,
+                    data.getContainingBlock().getIcon(access, x, y, z, side), access, x, y, z, side);
+
         return Blocks.stone.getIcon(access, x, y, z, side);
     }
 
@@ -82,10 +127,9 @@ public class InfusedBlock extends Block implements ITileEntityProvider {
     @Override
     public void onBlockPreDestroy(World world, int x, int y, int z, int meta) {
         BlockSavable blockData = BlockHelper.getData(world, new ChunkCoordinates(x, y, z));
-        if (!world.isRemote && blockData != null) {
-            BlockHelper.getWorldData(world).removeBlock(blockData.getCoords());
-            ChannelHandler.network.sendToAll(new BlockDestroyedPacketC(blockData.getCoords()));
-        }else RequestBlockPacketS.syncTimeouts.remove(new ChunkCoordinates(x, y, z));
+
+        if (isBlockData(blockData))
+            ((BlockData) blockData).runMethod(true, Object.class, null, world, x, y, z, meta);
     }
 
     public void updateTick(World world, int x, int y, int z, Random rand) {
@@ -99,7 +143,11 @@ public class InfusedBlock extends Block implements ITileEntityProvider {
         BlockSavable blockData = BlockHelper.getData(world, new ChunkCoordinates(x, y, z));
         if (isBlockData(blockData))
             ((BlockData) blockData).runMethod(true, Object.class, null, world, x, y, z, block, meta);
-        world.removeTileEntity(x, y, z);
+
+        if (!world.isRemote && blockData != null) {
+            BlockHelper.destroyBlock(world, blockData.getCoords());
+            ChannelHandler.network.sendToAll(new BlockDestroyedPacketC(blockData.getCoords()));
+        }else RequestBlockPacketS.syncTimeouts.remove(new ChunkCoordinates(x, y, z));
     }
 
     @Override
@@ -150,8 +198,29 @@ public class InfusedBlock extends Block implements ITileEntityProvider {
     }
 
     @Override
+    public int getRenderType() {
+        return renderType;
+    }
+
+    @Override
     public boolean canProvidePower() {
         return true;
+    }
+
+    @SideOnly(Side.CLIENT)
+    public int getRenderBlockPass()
+    {
+        return pass;
+    }
+
+    public boolean renderAsNormalBlock()
+    {
+        return renderAsNormal;
+    }
+
+    public boolean isOpaqueCube()
+    {
+        return isOpaqueCube;
     }
 
     @Override
@@ -165,7 +234,7 @@ public class InfusedBlock extends Block implements ITileEntityProvider {
     public void setBlockBoundsBasedOnState(IBlockAccess access, int x, int y, int z) {
         BlockSavable blockData = BlockHelper.getData(access, new ChunkCoordinates(x, y, z));
         if (isBlockData(blockData))
-            ((BlockData) blockData).runMethod(true, Object.class, null, access, x, y, z);
+            ((BlockData) blockData).runMethod(false, Object.class, null, access, x, y, z);
     }
 
     @Override
@@ -300,6 +369,15 @@ public class InfusedBlock extends Block implements ITileEntityProvider {
     }
 
     @Override
+    public AxisAlignedBB getCollisionBoundingBoxFromPool(World world, int x, int y, int z) {
+        AxisAlignedBB bb = super.getCollisionBoundingBoxFromPool(world, x, y, z);
+        BlockSavable blockData = BlockHelper.getData(world, new ChunkCoordinates(x, y, z));
+        if (isBlockData(blockData))
+            return ((BlockData) blockData).runMethod(true, AxisAlignedBB.class, bb, world, x, y, z);
+        return bb;
+    }
+
+    @Override
     public float getExplosionResistance(Entity ent, World world, int x, int y, int z, double explosionX, double explosionY, double explosionZ) {
         BlockSavable blockData = BlockHelper.getData(world, new ChunkCoordinates(x, y, z));
         if (isBlockData(blockData))
@@ -334,11 +412,8 @@ public class InfusedBlock extends Block implements ITileEntityProvider {
     @Override
     @SideOnly(Side.CLIENT)
     public boolean shouldSideBeRendered(IBlockAccess access, int x, int y, int z, int side) {
-        ForgeDirection dir = BlockHelper.getRotatedSide(side, 0);
-        BlockSavable blockData = BlockHelper.getData(FMLClientHandler.instance().getClient().theWorld, new ChunkCoordinates(x + -dir.offsetZ, y + -dir.offsetY, z + dir.offsetX));
-        if (isBlockData(blockData))
-            return ((BlockData) blockData).runMethod(true, Boolean.class, false, access, x, y, z, side);
-        return true;
+        Block block = access.getBlock(x, y, z);
+        return block != this;
     }
 
     @Override

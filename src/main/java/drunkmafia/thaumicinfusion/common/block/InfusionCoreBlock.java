@@ -38,7 +38,9 @@ public class InfusionCoreBlock extends BlockStoneDevice {
 
     @Override
     public void setBlockBoundsBasedOnState(IBlockAccess world, int x, int y, int z) {
-
+        InfusionCoreTile core = (InfusionCoreTile) world.getTileEntity(x, y, z);
+        if(core != null)
+            setBlockBounds(0.25F, 0.25F + core.yLevel, 0.25F, 0.75F, 0.75F  + core.yLevel, 0.75F);
     }
 
     @Override

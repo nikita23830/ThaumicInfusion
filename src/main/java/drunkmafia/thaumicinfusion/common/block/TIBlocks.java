@@ -15,13 +15,20 @@ import static drunkmafia.thaumicinfusion.common.lib.BlockInfo.*;
  */
 public class TIBlocks {
 
-    public static Block infusedBlock, aquaBlock;
+    public static InfusedBlock infusedBlock, aquaBlock, sensusBlock, gelumBlock;
     public static Block essentiaBlock;
     public static Block infusionCoreBlock;
 
     public static void initBlocks() {
-        GameRegistry.registerBlock(infusedBlock = new InfusedBlock(Material.rock, infusedBlock_UnlocalizedName), infusedBlock_RegistryName);
-        GameRegistry.registerBlock(aquaBlock = new InfusedBlock(Material.water, infusedBlock_UnlocalizedName + "_Aqua"), infusedBlock_RegistryName + "_Aqua");
+        infusedBlock = new InfusedBlock(Material.rock, infusedBlock_UnlocalizedName);
+        sensusBlock = new InfusedBlock(Material.rock, infusedBlock_UnlocalizedName + "_Sensus").setPass(0).setRenderAsNormal(false).setIsOpaqueCube(false);
+        gelumBlock = new InfusedBlock(Material.rock, infusedBlock_UnlocalizedName + "_Gelum").setSlipperiness(0.98F);
+        aquaBlock = new InfusedBlock(Material.water, infusedBlock_UnlocalizedName + "_Aqua").setRenderAsNormal(false).setIsOpaqueCube(false);
+
+        GameRegistry.registerBlock(infusedBlock.addBlockToHandler(), infusedBlock_RegistryName);
+        GameRegistry.registerBlock(sensusBlock.addBlockToHandler(), infusedBlock_RegistryName + "_Aqua");
+        GameRegistry.registerBlock(gelumBlock.addBlockToHandler(), infusedBlock_RegistryName + "_Sensus");
+        GameRegistry.registerBlock(aquaBlock.addBlockToHandler(), infusedBlock_RegistryName + "_Gelum");
 
         GameRegistry.registerBlock(essentiaBlock = new EssentiaBlock(), essentiaBlock_RegistryName);
         GameRegistry.registerBlock(infusionCoreBlock = new InfusionCoreBlock(), infusionCoreBlock_RegistryName);

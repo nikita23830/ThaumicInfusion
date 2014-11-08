@@ -1,5 +1,6 @@
 package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
+import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.lib.ModInfo;
 import drunkmafia.thaumicinfusion.common.util.Savable;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
@@ -31,13 +32,14 @@ import org.lwjgl.opengl.GL11;
 import thaumcraft.client.lib.UtilsFX;
 import thaumcraft.common.Thaumcraft;
 
+import static drunkmafia.thaumicinfusion.common.lib.BlockInfo.infusedBlock_UnlocalizedName;
+
 /**
  * Created by DrunkMafia on 08/10/2014.
  * See http://www.wtfpl.net/txt/copying for licence
  */
-@Effect(aspect = ("aqua"), cost = 1, infusedBlock = "aqua")
-public class Aqua extends Savable {
-
+@Effect(aspect = ("aqua"), cost = 1, infusedBlock = "tile." + infusedBlock_UnlocalizedName + "_Aqua")
+public class Aqua extends AspectEffect {
     public boolean isReplaceable(IBlockAccess access, int x, int y, int z) {
         return false;
     }

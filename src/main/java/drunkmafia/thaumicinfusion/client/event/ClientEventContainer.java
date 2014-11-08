@@ -23,7 +23,9 @@ import net.minecraftforge.client.event.DrawBlockHighlightEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.event.world.ChunkEvent;
 import org.lwjgl.opengl.GL11;
+import thaumcraft.api.aspects.Aspect;
 import thaumcraft.client.lib.UtilsFX;
+import thaumcraft.common.Thaumcraft;
 
 import java.util.Map;
 
@@ -32,7 +34,7 @@ import java.util.Map;
  * <p/>
  * See http://www.wtfpl.net/txt/copying for licence
  */
-public class EventHookContainerClass {
+public class ClientEventContainer {
 
     public boolean renderLast = false;
 
@@ -49,20 +51,6 @@ public class EventHookContainerClass {
                 BlockSavable blockData = BlockHelper.getData(world, new ChunkCoordinates(pos.blockX, pos.blockY, pos.blockZ));
                 if (isBlockData(blockData))
                     ((BlockData) blockData).runMethod(false, Object.class, null, world, pos.blockX, pos.blockY, pos.blockZ, player, pos, event.partialTicks);
-            }
-        }
-    }
-
-    @SideOnly(Side.CLIENT)
-    @SubscribeEvent
-    // void renderLast(ChunkCoordinates pos, RenderGlobal context, float partialTick)
-    public void renderLast(RenderWorldLastEvent event){
-        if(renderLast) {
-            TIWorldData data = BlockHelper.getWorldData(Minecraft.getMinecraft().theWorld);
-            if (data != null) {
-                Map.Entry[] worldDataEntries = data.getAllBocks();
-                for (Map.Entry ent : worldDataEntries)
-                    ((BlockData) ent.getValue()).runMethod(false, Object.class, null, (ChunkCoordinates) ent.getKey(), event.context, event.partialTicks);
             }
         }
     }

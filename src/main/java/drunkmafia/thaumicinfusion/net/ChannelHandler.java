@@ -22,15 +22,18 @@ public class ChannelHandler{
     public static void init() {
         network = NetworkRegistry.INSTANCE.newSimpleChannel(ModInfo.CHANNEL);
 
+        Side S = Side.SERVER, C = Side.CLIENT;
+
         //Server Handled Packets
-        network.registerMessage(RequestChunkPacketS.Handler.class, RequestChunkPacketS.class, 0, Side.SERVER);
-        network.registerMessage(RequestBlockPacketS.Handler.class, RequestBlockPacketS.class, 1, Side.SERVER);
-        network.registerMessage(RequestTilePacketS.Handler.class, RequestTilePacketS.class, 2, Side.SERVER);
+        network.registerMessage(RequestChunkPacketS.Handler.class, RequestChunkPacketS.class, 0, S);
+        network.registerMessage(RequestBlockPacketS.Handler.class, RequestBlockPacketS.class, 1, S);
+        network.registerMessage(RequestTilePacketS.Handler.class, RequestTilePacketS.class, 2, S);
 
         //Client Handled Packets
-        network.registerMessage(BlockDestroyedPacketC.Handler.class, BlockDestroyedPacketC.class, 2, Side.CLIENT);
-        network.registerMessage(BlockSyncPacketC.Handler.class, BlockSyncPacketC.class, 3, Side.CLIENT);
-        network.registerMessage(TileSyncPacketC.Handler.class, TileSyncPacketC.class, 4, Side.CLIENT);
+        network.registerMessage(BlockDestroyedPacketC.Handler.class, BlockDestroyedPacketC.class, 3, C);
+        network.registerMessage(BlockSyncPacketC.Handler.class, BlockSyncPacketC.class, 4, C);
+        network.registerMessage(TileSyncPacketC.Handler.class, TileSyncPacketC.class, 5, C);
+        network.registerMessage(SensusPacketC.Handler.class, SensusPacketC.class, 6, C);
     }
 
     public static EntityPlayer getPlayer(MessageContext ctx){

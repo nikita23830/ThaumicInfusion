@@ -38,5 +38,5 @@ public @interface Effect {
     @SideOnly(Side.CLIENT)
     Class<?> gui() default Object.class;
 
-    String infusedBlock() default BlockInfo.infusedBlock_UnlocalizedName;
+    String infusedBlock() default "tile." + BlockInfo.infusedBlock_UnlocalizedName;
 }
