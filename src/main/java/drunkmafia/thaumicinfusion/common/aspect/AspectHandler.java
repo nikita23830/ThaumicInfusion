@@ -6,12 +6,16 @@ import drunkmafia.thaumicinfusion.common.aspect.effect.vanilla.*;
 import drunkmafia.thaumicinfusion.common.util.EffectGUI;
 import drunkmafia.thaumicinfusion.common.util.Savable;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
+import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.tileentity.TileEntity;
 import thaumcraft.api.aspects.Aspect;
 
+import java.lang.reflect.Method;
 import java.util.*;
 
 public class AspectHandler {
+
+    public static IIconRegister iconRegister;
 
     private static HashMap<Aspect, Class> registeredEffects = new HashMap<Aspect, Class>();
     private static HashMap<Class, HashMap<String, Integer>> effectMethods = new HashMap<Class,HashMap<String, Integer>>();
@@ -26,21 +30,39 @@ public class AspectHandler {
             registerEffect(Permutatio.class);
             registerEffect(Aqua.class);
             registerEffect(Limus.class);
+            registerEffect(Messis.class);
+            registerEffect(Pannus.class);
+            registerEffect(Iter.class);
+            registerEffect(Gelum.class);
+            registerEffect(Tempestas.class);
+            registerEffect(Tenebrae.class);
+            registerEffect(Vacuos.class);
         }catch (Exception e){
             e.printStackTrace();
         }
     }
 
     public static void registerEffect(Class effect) throws Exception {
-        if (effect.isAnnotationPresent(Effect.class) && Savable.class.isAssignableFrom(effect)) {
+        if (effect.isAnnotationPresent(Effect.class) && AspectEffect.class.isAssignableFrom(effect)) {
             Effect annotation = (Effect) effect.getAnnotation(Effect.class);
-            Aspect aspect = Aspect.getAspect(annotation.aspect());
+            Aspect aspect = Aspect.getAspect(annotation.aspect().toLowerCase());
             if (!registeredEffects.containsKey(aspect) && !registeredEffects.containsValue(effect)) {
                 registerTile(annotation);
-                System.out.println(annotation.aspect() + " registered");
                 registeredEffects.put(aspect, effect);
                 phaseEffect(effect);
             }
+        }
+    }
+
+    public static void registerIcons(){
+        if(iconRegister == null)
+            return;
+        for(Map.Entry ent : registeredEffects.entrySet()){
+            try {
+                Class effect = (Class) ent.getValue();
+                Method meth = effect.getDeclaredMethod("registerIcons", IIconRegister.class);
+                meth.invoke(effect.newInstance(), iconRegister);
+            }catch (Exception e){}
         }
     }
 
@@ -48,7 +70,6 @@ public class AspectHandler {
         if(annotation.hasTileEntity() && TileEntity.class.isAssignableFrom(annotation.tileentity())){
             Class<? extends TileEntity> tile = (Class<? extends TileEntity>) annotation.tileentity();
             GameRegistry.registerTileEntity(tile,"tile_" + tile.getSimpleName());
-            System.out.println("Registered Effect Tile: " + tile.getSimpleName());
         }
     }
 

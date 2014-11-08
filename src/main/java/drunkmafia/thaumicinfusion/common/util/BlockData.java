@@ -1,17 +1,22 @@
 package drunkmafia.thaumicinfusion.common.util;
 
 import com.esotericsoftware.reflectasm.MethodAccess;
+import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
+import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.aspect.AspectHandler;
 import drunkmafia.thaumicinfusion.common.block.BlockHandler;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 import net.minecraft.block.Block;
+import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.world.World;
+import org.apache.logging.log4j.Logger;
 import thaumcraft.api.aspects.Aspect;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class BlockData extends BlockSavable {
 
@@ -21,8 +26,9 @@ public class BlockData extends BlockSavable {
     private boolean init;
 
     private ArrayList<MethodAccess> dataAccess = new ArrayList<MethodAccess>();
-    private ArrayList<Savable> dataEffects = new ArrayList<Savable>();
+    private ArrayList<AspectEffect> dataEffects = new ArrayList<AspectEffect>();
 
+    private World worldObj;
     private MethodAccess blockAccess;
 
     protected BlockData() {}
@@ -32,7 +38,7 @@ public class BlockData extends BlockSavable {
         this.blockID = blockID;
         this.containingID = containingID;
 
-        for (Savable effect : classesToEffects(list)){
+        for (AspectEffect effect : classesToEffects(list)){
             Effect annot = effect.getClass().getAnnotation(Effect.class);
 
             if(annot.hasTileEntity())
@@ -43,9 +49,11 @@ public class BlockData extends BlockSavable {
     }
 
     public void initAspects(World world, int x, int y, int z){
+        worldObj = world;
+
         for(int a = 0; a < dataEffects.size(); a++) {
-            Savable effect = dataEffects.get(a);
-            runAspectMethod(effect.getClass().getSimpleName().toLowerCase() + "Init", effect, world, x, y, z);
+            AspectEffect effect = dataEffects.get(a);
+            effect.aspectInit(world, getCoords());
         }
 
         if(tile == null)
@@ -55,11 +63,18 @@ public class BlockData extends BlockSavable {
         init = true;
     }
 
-    private Savable[] classesToEffects(Class[] list) {
-        Savable[] effects = new Savable[list.length];
+    public <T extends AspectEffect>T getEffect(Class<T> effect){
+        for(AspectEffect obj : dataEffects)
+            if(obj.getClass() == effect)
+                return effect.cast(obj);
+        return null;
+    }
+
+    private AspectEffect[] classesToEffects(Class[] list) {
+        AspectEffect[] effects = new AspectEffect[list.length];
         for (int i = 0; i < effects.length; i++) {
             try {
-                effects[i] = (Savable) list[i].newInstance();
+                effects[i] = (AspectEffect) list[i].newInstance();
             }catch (Exception e){}
         }
         return effects;
@@ -73,22 +88,31 @@ public class BlockData extends BlockSavable {
         for (int s = 0; s < dataEffects.size(); s++) {
             Savable effect = dataEffects.get(s);
             int effectIndex = AspectHandler.getMethod(effect.getClass(), methName);
-            if (effectIndex != -1)
-                try { ret = type.cast(dataAccess.get(s).invoke(effect, effectIndex, pars)); } catch (Exception e) {}
+            if (effectIndex != -1) {
+                try {ret = type.cast(dataAccess.get(s).invoke(effect, effectIndex, pars));} catch (Throwable e) {handleException(methName, e);}
+                break;
+            }
         }
-        if(shouldBlockRun)
-            try {ret = type.cast(blockAccess.invoke(getContainingBlock(),BlockHandler.getMethod(methName), pars));}catch (Exception e){}
-        if(ret == null)
-            return defRet;
-        else
-            return ret;
+
+        if(shouldBlockRun && ret == null)
+            try {ret = type.cast(blockAccess.invoke(getContainingBlock(), BlockHandler.getMethod(methName), pars));} catch (Throwable e){handleException(methName, e);}
+        else if(shouldBlockRun)
+            try {blockAccess.invoke(getContainingBlock(), BlockHandler.getMethod(methName), pars);}catch (Throwable e){handleException(methName, e);}
+
+        return ret == null ? defRet : ret;
     }
 
-    public Object runAspectMethod(String meth, Savable effect, Object... pars) {
-        int effectIndex = AspectHandler.getMethod(effect.getClass(), meth);
-        if (effectIndex != -1)
-             try { return dataAccess.get(dataEffects.indexOf(effect)).invoke(effect, effectIndex, pars); } catch (Exception e) {}
-        return null;
+    public void handleException(String method, Throwable e){
+        Logger logger = ThaumicInfusion.instance.logger;
+        ChunkCoordinates coordinates = getCoords();
+        if(worldObj != null) {
+            BlockHelper.destroyBlock(worldObj, coordinates);
+
+            logger.debug("WARNNING: Block Data encounted an error with the following method call: " + method);
+            logger.debug("Block at: " + coordinates.toString() + " has been removed to stop any more exception from occuring.");
+            logger.error("Printing Stacktrace, please report this to the mod Author via GitHub", e);
+            logger.info("End of Trace, have a nice day!");
+        }else logger.fatal("WARNNING: Block at: " + coordinates + " Is throwing exceptions and cannot be removed internally till post load. If this message does not stop spamming, stop the world and delete the data!", e);
     }
 
     public boolean isInit(){
@@ -155,7 +179,7 @@ public class BlockData extends BlockSavable {
         blockID = tagCompound.getInteger("BlockID");
 
         for (int i = 0; i < tagCompound.getInteger("length"); i++) {
-            dataEffects.add(Savable.loadDataFromNBT(tagCompound.getCompoundTag("effect: " + i)));
+            dataEffects.add((AspectEffect) Savable.loadDataFromNBT(tagCompound.getCompoundTag("effect: " + i)));
             dataAccess.add(MethodAccess.get(dataEffects.get(i).getClass()));
         }
 

@@ -1,5 +1,6 @@
 package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
+import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.util.BlockData;
 import drunkmafia.thaumicinfusion.common.util.BlockHelper;
 import drunkmafia.thaumicinfusion.common.util.Savable;
@@ -15,8 +16,8 @@ import net.minecraftforge.common.util.ForgeDirection;
  * <p/>
  * See http://www.wtfpl.net/txt/copying for licence
  */
-@Effect(aspect = ("potentia"), cost = 3)
-public class Potentia  extends Savable {
+@Effect(aspect = ("potentia"), cost = 4)
+public class Potentia  extends AspectEffect {
 
     public int isProvidingWeakPower(IBlockAccess access, int x, int y, int z, int side){
         return 15;

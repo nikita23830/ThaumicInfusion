@@ -13,17 +13,12 @@ import drunkmafia.thaumicinfusion.common.aspect.AspectHandler;
 import drunkmafia.thaumicinfusion.common.block.BlockHandler;
 import drunkmafia.thaumicinfusion.common.block.TIBlocks;
 import drunkmafia.thaumicinfusion.common.commands.InfusedInWorldCommand;
-import drunkmafia.thaumicinfusion.common.recipe.BlockInfusionRecipe;
+import drunkmafia.thaumicinfusion.common.event.WorldEventHandler;
 import drunkmafia.thaumicinfusion.common.tab.TITab;
-import drunkmafia.thaumicinfusion.common.world.WorldEventHandler;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
-import net.minecraft.item.Item;
+import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.MinecraftForge;
-import thaumcraft.api.ThaumcraftApi;
-import thaumcraft.api.crafting.InfusionRecipe;
-
-import java.lang.reflect.Field;
-import java.util.ArrayList;
+import org.apache.logging.log4j.Logger;
 
 import static drunkmafia.thaumicinfusion.common.lib.ModInfo.*;
 
@@ -36,17 +31,16 @@ public class ThaumicInfusion {
     @SidedProxy(clientSide = CLIENT_PROXY_PATH, serverSide = COMMON_PROXY_PATH)
     public static CommonProxy proxy;
 
-    public static boolean isServer;
-    public Item debug;
+    public boolean isServer;
+    public Logger logger;
 
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {
-        ThaumicInfusion.isServer = event.getSide().isServer();
+        logger = event.getModLog();
+        isServer = event.getSide().isServer();
         TITab.init();
         TIBlocks.initBlocks();
         AspectHandler.initEffects();
-
-        registerRecipe(new BlockInfusionRecipe("", 10));
     }
 
     @EventHandler
@@ -60,6 +54,8 @@ public class ThaumicInfusion {
     @EventHandler
     public void postInit(FMLPostInitializationEvent event){
         BlockHandler.init();
+        AspectHandler.registerIcons();
+        ThaumcraftIntergration.init();
     }
 
     @EventHandler
@@ -67,16 +63,7 @@ public class ThaumicInfusion {
         event.registerServerCommand(new InfusedInWorldCommand());
     }
 
-    public void registerRecipe(InfusionRecipe recipe){
-        try{
-            Field recipesF = ThaumcraftApi.class.getDeclaredField("craftingRecipes");
-            recipesF.setAccessible(true);
-            ArrayList recipes = (ArrayList) recipesF.get(null);
-            recipes.add(recipe);
-            recipesF.set(null, recipes);
-            System.out.println("Recipe was registered succesfully");
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+    public static String translate(String key, Object... params) {
+        return StatCollector.translateToLocalFormatted(key, params);
     }
 }

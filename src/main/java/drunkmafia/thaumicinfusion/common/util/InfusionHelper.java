@@ -1,23 +1,55 @@
 package drunkmafia.thaumicinfusion.common.util;
 
-import drunkmafia.thaumicinfusion.common.CommonProxy;
+import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import drunkmafia.thaumicinfusion.common.aspect.AspectHandler;
 import drunkmafia.thaumicinfusion.common.block.BlockHandler;
 import drunkmafia.thaumicinfusion.common.block.InfusedBlock;
-import drunkmafia.thaumicinfusion.common.block.TIBlocks;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 import net.minecraft.block.Block;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import thaumcraft.api.aspects.Aspect;
 import thaumcraft.api.aspects.AspectList;
 import thaumcraft.common.items.ItemEssence;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 public class InfusionHelper {
+
+    public static AspectList getInfusedAspects(ItemStack stack){
+        if (!isInfusedStack(stack))
+            return null;
+
+        AspectList list = new AspectList();
+        Class[] effects = getEffectsFromStack(stack);
+        for(Class c : effects){
+            Effect effect = (Effect) c.getAnnotation(Effect.class);
+            list.add(Aspect.getAspect(effect.aspect()), effect.cost());
+        }
+
+        return list;
+    }
+
+    public static AspectList addBlockAspects(ItemStack stack, AspectList list){
+        if(!isInfusedStack(stack))
+            return null;
+
+        NBTTagCompound tagCompound = stack.getTagCompound();
+
+        AspectList blockList = new AspectList(new ItemStack(Block.getBlockById(tagCompound.getInteger("infusedID")), 1, stack.getItemDamage()));
+        for(int i = 0; i < blockList.size(); i++){
+            Aspect aspect = blockList.getAspects()[i];
+            list.add(aspect, blockList.getAmount(aspect));
+        }
+
+        return list;
+    }
+
+    public static boolean isInfusedStack(ItemStack stack){
+        if(stack == null || (stack != null && !(Block.getBlockFromItem(stack.getItem()) instanceof InfusedBlock)))
+            return false;
+        return stack.hasTagCompound();
+    }
 
     public static int getBlockID(Class[] aspects){
         int defBlock = Block.getIdFromBlock(BlockHandler.getBlock("default"));
@@ -79,15 +111,13 @@ public class InfusionHelper {
     public static ItemStack getInfusedItemStack(ArrayList<Aspect> list, int infusedID, int size, int meta){
         if(list == null) return null;
         Class[] effects = getEffectsFromList(list);
-        if(effects.length == 0){
-            System.out.println("Failed to get an effect list");
+        if(effects.length == 0)
             return null;
-        }
+
         int blockID = getBlockID(effects);
-        if(blockID == -1){
-            System.out.println("Failed to get a block");
+        if(blockID == -1)
             return null;
-        }
+
         ItemStack stack = new ItemStack(Block.getBlockById(blockID), size, meta);
         NBTTagCompound tag = new NBTTagCompound();
         for(int i = 0; i < effects.length; i++)
@@ -97,8 +127,7 @@ public class InfusionHelper {
         tag.setInteger("infusedID", infusedID);
         stack.setTagCompound(tag);
 
-        stack.setStackDisplayName("Infused " + new ItemStack(Block.getBlockById(infusedID), 1, meta).getDisplayName());
-        System.out.println("Infused stack obtained");
+        stack.setStackDisplayName(ThaumicInfusion.translate("key.infusedBlock.infused") + new ItemStack(Block.getBlockById(infusedID), 1, meta).getDisplayName());
         return stack;
     }
 }

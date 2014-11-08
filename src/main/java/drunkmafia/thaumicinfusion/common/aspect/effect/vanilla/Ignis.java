@@ -1,5 +1,6 @@
 package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
+import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.util.Savable;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 import net.minecraft.world.IBlockAccess;
@@ -12,7 +13,7 @@ import net.minecraftforge.common.util.ForgeDirection;
  * See http://www.wtfpl.net/txt/copying for licence
  */
 @Effect(aspect = ("ignis"), cost = 1)
-public class Ignis  extends Savable {
+public class Ignis  extends AspectEffect {
 
     public int getFlammability(IBlockAccess world, int x, int y, int z, ForgeDirection face){
         return 0;

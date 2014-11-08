@@ -30,6 +30,5 @@ public class Savable {
         tagCompound.setString("class", this.getClass().getCanonicalName());
     }
 
-    public void readNBT(NBTTagCompound tagCompound) {
-    }
+    public void readNBT(NBTTagCompound tagCompound) {}
 }
