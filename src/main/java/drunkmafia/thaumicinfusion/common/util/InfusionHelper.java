@@ -127,7 +127,7 @@ public class InfusionHelper {
         tag.setInteger("infusedID", infusedID);
         stack.setTagCompound(tag);
 
-        stack.setStackDisplayName(ThaumicInfusion.translate("key.infusedBlock.infused") + new ItemStack(Block.getBlockById(infusedID), 1, meta).getDisplayName());
+        stack.setStackDisplayName(ThaumicInfusion.translate("key.infusedBlock.infused") + " " + new ItemStack(Block.getBlockById(infusedID), 1, meta).getDisplayName());
         return stack;
     }
 }
