@@ -1,5 +1,6 @@
-package drunkmafia.thaumicinfusion.common.util;
+package drunkmafia.thaumicinfusion.common.world;
 
+import drunkmafia.thaumicinfusion.common.world.BlockSavable;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ChunkCoordinates;
 import thaumcraft.api.aspects.Aspect;
@@ -13,7 +14,7 @@ public class EssentiaData extends BlockSavable {
 
     private Aspect aspect;
 
-    protected EssentiaData(){}
+    public EssentiaData(){}
 
     public EssentiaData(ChunkCoordinates coordinates, Aspect aspect){
         super(coordinates);

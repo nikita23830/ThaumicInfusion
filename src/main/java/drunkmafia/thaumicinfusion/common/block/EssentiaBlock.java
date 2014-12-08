@@ -4,8 +4,9 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import drunkmafia.thaumicinfusion.common.tab.TITab;
 import drunkmafia.thaumicinfusion.common.util.BlockHelper;
-import drunkmafia.thaumicinfusion.common.util.BlockSavable;
-import drunkmafia.thaumicinfusion.common.util.EssentiaData;
+import drunkmafia.thaumicinfusion.common.world.BlockData;
+import drunkmafia.thaumicinfusion.common.world.BlockSavable;
+import drunkmafia.thaumicinfusion.common.world.EssentiaData;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
 import drunkmafia.thaumicinfusion.net.packet.server.BlockDestroyedPacketC;
 import net.minecraft.block.Block;
@@ -87,7 +88,7 @@ public class EssentiaBlock extends Block {
 
     @Override
     public void onNeighborBlockChange(World world, int x, int y, int z, Block block) {
-         BlockHelper.getData(world, new ChunkCoordinates(x, y, z));
+         BlockHelper.getData(BlockData.class, world, new ChunkCoordinates(x, y, z));
         world.markBlockRangeForRenderUpdate(x, y, z, x, y, z);
     }
 
@@ -105,7 +106,7 @@ public class EssentiaBlock extends Block {
 
     @Override
     public ItemStack getPickBlock(MovingObjectPosition target, World world, int x, int y, int z) {
-        BlockSavable data = BlockHelper.getData(world, new ChunkCoordinates(x, y, z));
+        BlockSavable data = BlockHelper.getData(BlockData.class, world, new ChunkCoordinates(x, y, z));
         if(data != null) {
             int meta = world.getBlockMetadata(x, y, z);
             ItemStack stack = new ItemStack(this, 1, meta);
@@ -124,10 +125,9 @@ public class EssentiaBlock extends Block {
     @Override
     public void breakBlock(World world, int x, int y, int z, Block block, int meta) {
         if(!world.isRemote){
-            BlockSavable data = BlockHelper.getData(world, new ChunkCoordinates(x, y, z));
+            BlockSavable data = BlockHelper.getData(BlockData.class, world, new ChunkCoordinates(x, y, z));
             if(data != null) {
                 BlockHelper.getWorldData(world).removeBlock(data.getCoords());
-                ChannelHandler.network.sendToAll(new BlockDestroyedPacketC(data.getCoords()));
 
                 ItemStack stack = new ItemStack(this, 1, meta);
                 NBTTagCompound tagCompound = new NBTTagCompound();
@@ -145,7 +145,7 @@ public class EssentiaBlock extends Block {
 
     @SideOnly(Side.CLIENT)
     public int colorMultiplier(IBlockAccess access, int x, int y, int z){
-        EssentiaData data = (EssentiaData) BlockHelper.getData(access, new ChunkCoordinates(x, y, z));
+        EssentiaData data = BlockHelper.getData(EssentiaData.class, access, new ChunkCoordinates(x, y, z));
         if(data == null || data.getAspect() == null)
             return 0;
         return data.getAspect().getColor();

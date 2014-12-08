@@ -2,6 +2,8 @@ package drunkmafia.thaumicinfusion.common.util;
 
 import com.esotericsoftware.reflectasm.FieldAccess;
 import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
+import drunkmafia.thaumicinfusion.common.world.BlockData;
+import drunkmafia.thaumicinfusion.common.world.BlockSavable;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
 import drunkmafia.thaumicinfusion.net.packet.client.RequestBlockPacketS;
@@ -26,18 +28,18 @@ public class BlockHelper {
         }else return null;
     }
 
-    public static BlockSavable getData(World world, ChunkCoordinates coords) {
-        BlockSavable data = getWorldData(world).getBlock(coords);
+    public static <T>T getData(Class<T> type, World world, ChunkCoordinates coords) {
+        T data = getWorldData(world).getBlock(type, coords);
         if (data == null && world.isRemote)
-            ChannelHandler.network.sendToServer(new RequestBlockPacketS(coords));
+            ChannelHandler.network.sendToServer(new RequestBlockPacketS((Class<? extends BlockSavable>) type, coords));
         return data;
     }
 
-    public static BlockSavable getData(IBlockAccess access, ChunkCoordinates coords) {
+    public static <T>T getData(Class<T> type, IBlockAccess access, ChunkCoordinates coords) {
         World world = getWorld(access);
         if(world == null)
             return null;
-        return getData(world, coords);
+        return getData(type, world, coords);
     }
 
     public static TIWorldData getWorldData(World world) {
@@ -60,25 +62,21 @@ public class BlockHelper {
         world.removeTileEntity(coords.posX, coords.posY, coords.posZ);
     }
 
-    static Field worldObj;
+    static FieldAccess worldObj;
+    static int worldObjIndex;
 
     public static World getWorld(IBlockAccess blockAccess) {
         if(ThaumicInfusion.instance.isServer) {
             if (blockAccess instanceof ChunkCache) {
-                try {
-                    if (worldObj == null) {
-                        worldObj = ChunkCache.class.getDeclaredField("worldObj");
-                        worldObj.setAccessible(true);
-                    }
-                    Object obj = worldObj.get(blockAccess);
-                    if (obj != null)
-                        return (World) obj;
-                } catch (Exception e) {
-                    e.printStackTrace();
+                if(worldObj == null) {
+                    worldObj = FieldAccess.get(ChunkCache.class);
+                    worldObjIndex = worldObj.getIndex("worldObj");
                 }
-            } else if (blockAccess instanceof World) {
+
+                if(worldObj != null)
+                    return (World) worldObj.get(blockAccess, worldObjIndex);
+            } else if (blockAccess instanceof World)
                 return (World) blockAccess;
-            }
         }
         return Minecraft.getMinecraft().theWorld;
     }

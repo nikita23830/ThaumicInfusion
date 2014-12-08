@@ -1,7 +1,18 @@
 #en_US
 
 itemGroup.thaumicinfusion=Thaumic Infusion
+
 tile.local_infusionCore.name=Infusion Core
+tile.local_infused.default=Infused Block
+tile.local_infused.aqua=Infused Block
+tile.local_infused.gelum=Infused Block
+tile.local_infused.limus=Infused Block
+tile.local_infused.sensus=Infused Block
+tile.local_infused.spiritus=Infused Block
+
+key.infusedBlock.infused=Infused
+key.essentiaBlock.brick=Brick
+key.essentiaBlock.chiseled=Chiseled
 
 tc.research_category.THAUMICINFUSION=Thaumic Infusion
 tc.research_name.BLOCKINFUSION=Block Infusion
@@ -13,6 +24,27 @@ tc.research_name.ESSENTIABLOCKS=Essentia Block
 tc.research_text.ESSENTIABLOCKS=These blocks are aspects captured in block form
 tc.research_page.ESSENTIABLOCKS.1=Simply aspects solidified as blocks
 
-key.infusedBlock.infused=Infused
-key.essentiaBlock.brick=Brick
-key.essentiaBlock.chiseled=Chiseled
+tc.research_name.ASPECTEFFECTS=The Effects of Aspects
+tc.research_text.ASPECTEFFECTS=Effects of aspects upon being infused
+
+ti.effect_info.VACUOS=Give the block an intractable inventory, allows a stack of a single item
+ti.effect_info.FABRICO=A Builders dream, shift clicking = Insta-Break
+ti.effect_info.POTENTIA=A Redstone block
+ti.effect_info.LUX=A Light source
+ti.effect_info.SANO=Refills health based upon hunger
+ti.effect_info.PANNUS=Pads all falling damagae
+ti.effect_info.AQUA=A Water source block
+ti.effect_info.GELUM=Slippery Block
+ti.effect_info.LIMUS=Allows swimming though the block
+ti.effect_info.COGNITIO=Provides Enchantment levels to table
+ti.effect_info.ALIENIS=Randomly teleports entites upon contact
+ti.effect_info.TEMPESTAS=Causes random lighting strikes upon block during storms
+ti.effect_info.VOLATUS=A burst of upwards motion
+ti.effect_info.SPIRITUS=No Collisions with the block
+ti.effect_info.FAMES=Drains hunger from nearby players
+ti.effect_info.TENEBRAE=Only solid in darkness
+ti.effect_info.BESTIA=Mobs cannot spawn ontop of this block
+ti.effect_info.VITIUM=Will destroy all forms of solid taint next to it
+ti.effect_info.MESSIS=Allows the placement of plants on the block
+ti.effect_info.IGNIS=Supports fire on the block
+ti.effect_info.SENSUS=Block is only viewable when goggles are on

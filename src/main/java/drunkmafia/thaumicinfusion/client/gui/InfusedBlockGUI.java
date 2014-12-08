@@ -4,24 +4,16 @@ import cpw.mods.fml.client.FMLClientHandler;
 import drunkmafia.thaumicinfusion.common.aspect.AspectHandler;
 import drunkmafia.thaumicinfusion.common.container.InfusedBlockContainer;
 import drunkmafia.thaumicinfusion.common.lib.ModInfo;
-import drunkmafia.thaumicinfusion.common.util.BlockData;
+import drunkmafia.thaumicinfusion.common.world.BlockData;
 import drunkmafia.thaumicinfusion.common.util.BlockHelper;
 import drunkmafia.thaumicinfusion.common.util.EffectGUI;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.client.renderer.entity.RenderManager;
-import net.minecraft.entity.item.EntityItem;
-import net.minecraft.inventory.Container;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
-import org.lwjgl.opengl.GL11;
 import thaumcraft.api.aspects.Aspect;
-
-import java.util.ArrayList;
 
 /**
  * Created by DrunkMafia on 12/07/2014.
@@ -44,7 +36,7 @@ public class InfusedBlockGUI extends GuiContainer {
         ySize = 104;
 
         world = FMLClientHandler.instance().getClient().theWorld;
-        data = (BlockData) BlockHelper.getData(world, coordinates);
+        data = BlockHelper.getData(BlockData.class, world, coordinates);
     }
 
     public void setupEffect(Aspect aspects){

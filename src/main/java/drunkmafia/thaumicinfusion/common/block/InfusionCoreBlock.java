@@ -11,6 +11,7 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import thaumcraft.common.blocks.BlockStoneDevice;
 import thaumcraft.common.items.wands.ItemWandCasting;
+
 import thaumcraft.common.lib.utils.InventoryUtils;
 import thaumcraft.common.tiles.TilePedestal;
 

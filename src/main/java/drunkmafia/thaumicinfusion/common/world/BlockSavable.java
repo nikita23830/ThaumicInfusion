@@ -1,7 +1,9 @@
-package drunkmafia.thaumicinfusion.common.util;
+package drunkmafia.thaumicinfusion.common.world;
 
+import drunkmafia.thaumicinfusion.common.util.Savable;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ChunkCoordinates;
+import net.minecraft.world.World;
 
 /**
  * Created by DrunkMafia on 29/06/2014.

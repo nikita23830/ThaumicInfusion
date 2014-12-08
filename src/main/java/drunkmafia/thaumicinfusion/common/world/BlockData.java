@@ -1,37 +1,27 @@
-package drunkmafia.thaumicinfusion.common.util;
+package drunkmafia.thaumicinfusion.common.world;
 
-import com.esotericsoftware.reflectasm.MethodAccess;
-import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.aspect.AspectHandler;
-import drunkmafia.thaumicinfusion.common.block.BlockHandler;
-import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 import net.minecraft.block.Block;
-import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.world.World;
-import org.apache.logging.log4j.Logger;
 import thaumcraft.api.aspects.Aspect;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class BlockData extends BlockSavable {
 
     private int containingID, blockID;
-    private Class<? extends TileEntity> tileClass;
     private TileEntity tile;
     private boolean init;
 
-    private ArrayList<MethodAccess> dataAccess = new ArrayList<MethodAccess>();
     private ArrayList<AspectEffect> dataEffects = new ArrayList<AspectEffect>();
 
     private World worldObj;
-    private MethodAccess blockAccess;
 
-    protected BlockData() {}
+    public BlockData() {}
 
     public BlockData(ChunkCoordinates coords, Class[] list, int containingID, int blockID) {
         super(coords);
@@ -39,12 +29,10 @@ public class BlockData extends BlockSavable {
         this.containingID = containingID;
 
         for (AspectEffect effect : classesToEffects(list)){
-            Effect annot = effect.getClass().getAnnotation(Effect.class);
-
-            if(annot.hasTileEntity())
-                tileClass = (Class<? extends TileEntity>)annot.tileentity();
+            TileEntity tempTile = effect.createTileEntity(null, 0);
+            if(tempTile != null)
+                tile = tempTile;
             dataEffects.add(effect);
-            dataAccess.add(MethodAccess.get(effect.getClass()));
         }
     }
 
@@ -55,9 +43,6 @@ public class BlockData extends BlockSavable {
             AspectEffect effect = dataEffects.get(a);
             effect.aspectInit(world, getCoords());
         }
-
-        if(tile == null)
-            tile = getTileEntity();
         if(tile != null)
             world.setTileEntity(x, y, z, tile);
         init = true;
@@ -80,39 +65,31 @@ public class BlockData extends BlockSavable {
         return effects;
     }
 
-    public <T>T runMethod(boolean shouldBlockRun, Class<T> type, T defRet, Object... pars) {
-        if(blockAccess == null) blockAccess = MethodAccess.get(Block.class);
-        T ret = null;
+    public Block runBlockMethod(){
         String methName = Thread.currentThread().getStackTrace()[2].getMethodName();
+        Block block = null;
+        for (AspectEffect dataEffect : dataEffects)
+            if (dataEffect.hasMethod(methName))
+                block = dataEffect;
 
-        for (int s = 0; s < dataEffects.size(); s++) {
-            Savable effect = dataEffects.get(s);
-            int effectIndex = AspectHandler.getMethod(effect.getClass(), methName);
-            if (effectIndex != -1) {
-                try {ret = type.cast(dataAccess.get(s).invoke(effect, effectIndex, pars));} catch (Throwable e) {handleException(methName, e);}
-                break;
-            }
-        }
-
-        if(shouldBlockRun && ret == null)
-            try {ret = type.cast(blockAccess.invoke(getContainingBlock(), BlockHandler.getMethod(methName), pars));} catch (Throwable e){handleException(methName, e);}
-        else if(shouldBlockRun)
-            try {blockAccess.invoke(getContainingBlock(), BlockHandler.getMethod(methName), pars);}catch (Throwable e){handleException(methName, e);}
-
-        return ret == null ? defRet : ret;
+        return block == null ? getContainingBlock() : block;
     }
 
-    public void handleException(String method, Throwable e){
-        Logger logger = ThaumicInfusion.instance.logger;
-        ChunkCoordinates coordinates = getCoords();
-        if(worldObj != null) {
-            BlockHelper.destroyBlock(worldObj, coordinates);
+    public AspectEffect[] runAllAspectMethod(){
+        String methName = Thread.currentThread().getStackTrace()[2].getMethodName();
+        ArrayList<AspectEffect> effects = new ArrayList<AspectEffect>();
+        for (AspectEffect dataEffect : dataEffects)
+            if (dataEffect.hasMethod(methName))
+                effects.add(dataEffect);
+        return effects.toArray(new AspectEffect[effects.size()]);
+    }
 
-            logger.debug("WARNNING: Block Data encounted an error with the following method call: " + method);
-            logger.debug("Block at: " + coordinates.toString() + " has been removed to stop any more exception from occuring.");
-            logger.error("Printing Stacktrace, please report this to the mod Author via GitHub", e);
-            logger.info("End of Trace, have a nice day!");
-        }else logger.fatal("WARNNING: Block at: " + coordinates + " Is throwing exceptions and cannot be removed internally till post load. If this message does not stop spamming, stop the world and delete the data!", e);
+    public AspectEffect runAspectMethod(){
+        String methName = Thread.currentThread().getStackTrace()[2].getMethodName();
+        for (AspectEffect dataEffect : dataEffects)
+            if (dataEffect.hasMethod(methName))
+                return dataEffect;
+        return null;
     }
 
     public boolean isInit(){
@@ -120,17 +97,8 @@ public class BlockData extends BlockSavable {
     }
 
     public boolean canOpenGUI(){
-        for(Savable effect : dataEffects) return AspectHandler.getEffectGUI(effect.getClass()) != null;
+        for(AspectEffect effect : dataEffects) return AspectHandler.getEffectGUI(effect.getClass()) != null;
         return false;
-    }
-
-    public TileEntity getTileEntity(){
-        if(tileClass == null)
-            return null;
-
-        NBTTagCompound tagCompound = new NBTTagCompound();
-        tagCompound.setString("id", "tile_" + tileClass.getSimpleName());
-        return TileEntity.createAndLoadEntity(tagCompound);
     }
 
     public Block getContainingBlock() {
@@ -149,7 +117,7 @@ public class BlockData extends BlockSavable {
 
     public ArrayList<Aspect> getAspects(){
         ArrayList<Aspect> aspects = new ArrayList<Aspect>();
-        for(Savable effect : dataEffects)
+        for(AspectEffect effect : dataEffects)
              aspects.add(AspectHandler.getAspectsFromEffect(effect.getClass()));
         return aspects;
     }
@@ -178,11 +146,8 @@ public class BlockData extends BlockSavable {
         super.readNBT(tagCompound);
         blockID = tagCompound.getInteger("BlockID");
 
-        for (int i = 0; i < tagCompound.getInteger("length"); i++) {
-            dataEffects.add((AspectEffect) Savable.loadDataFromNBT(tagCompound.getCompoundTag("effect: " + i)));
-            dataAccess.add(MethodAccess.get(dataEffects.get(i).getClass()));
-        }
-
+        for (int i = 0; i < tagCompound.getInteger("length"); i++)
+            dataEffects.add(AspectEffect.loadDataFromNBT(tagCompound.getCompoundTag("effect: " + i)));
         containingID = tagCompound.getInteger("ContainingID");
 
         if(tagCompound.hasKey("Tile"))

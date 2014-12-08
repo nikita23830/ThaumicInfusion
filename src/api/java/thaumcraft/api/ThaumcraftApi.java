@@ -22,6 +22,8 @@ import thaumcraft.api.crafting.InfusionEnchantmentRecipe;
 import thaumcraft.api.crafting.InfusionRecipe;
 import thaumcraft.api.crafting.ShapedArcaneRecipe;
 import thaumcraft.api.crafting.ShapelessArcaneRecipe;
+import thaumcraft.api.internal.DummyInternalMethodHandler;
+import thaumcraft.api.internal.IInternalMethodHandler;
 import thaumcraft.api.research.IScanEventHandler;
 import thaumcraft.api.research.ResearchCategories;
 import thaumcraft.api.research.ResearchCategoryList;
@@ -40,9 +42,13 @@ public class ThaumcraftApi {
 	
 	//Materials	
 	public static ToolMaterial toolMatThaumium = EnumHelper.addToolMaterial("THAUMIUM", 3, 400, 7F, 2, 22);
+	public static ToolMaterial toolMatVoid = EnumHelper.addToolMaterial("VOID", 4, 150, 8F, 3, 10);
 	public static ToolMaterial toolMatElemental = EnumHelper.addToolMaterial("THAUMIUM_ELEMENTAL", 3, 1500, 10F, 3, 18);
 	public static ArmorMaterial armorMatThaumium = EnumHelper.addArmorMaterial("THAUMIUM", 25, new int[] { 2, 6, 5, 2 }, 25);
 	public static ArmorMaterial armorMatSpecial = EnumHelper.addArmorMaterial("SPECIAL", 25, new int[] { 1, 3, 2, 1 }, 25);
+	public static ArmorMaterial armorMatThaumiumFortress = EnumHelper.addArmorMaterial("FORTRESS", 40, new int[] { 3, 7, 6, 3 }, 25);
+	public static ArmorMaterial armorMatVoid = EnumHelper.addArmorMaterial("VOID", 10, new int[] { 3, 7, 6, 3 }, 10);
+	public static ArmorMaterial armorMatVoidFortress = EnumHelper.addArmorMaterial("VOIDFORTRESS", 18, new int[] { 4, 8, 7, 4 }, 10);
 	
 	//Enchantment references
 	public static int enchantFrugal;
@@ -58,6 +64,9 @@ public class ThaumcraftApi {
 	 */
 	public static ArrayList<Block> portableHoleBlackList = new ArrayList<Block>();
 	
+	//Internal (Do not alter this unless you like pretty explosions)
+	//Calling methods from this will only work properly once Thaumcraft is past the FMLPreInitializationEvent phase.
+	public static IInternalMethodHandler internalMethods = new DummyInternalMethodHandler();	
 	
 	//RESEARCH/////////////////////////////////////////
 	public static ArrayList<IScanEventHandler> scanEventhandlers = new ArrayList<IScanEventHandler>();
@@ -258,6 +267,20 @@ public class ThaumcraftApi {
 	}
 	
 	/**
+	 * @param hash the unique recipe code
+	 * @return the recipe
+	 */
+	public static CrucibleRecipe getCrucibleRecipeFromHash(int hash) {
+		for (Object r:getCraftingRecipes()) {
+			if (r instanceof CrucibleRecipe) {
+				if (((CrucibleRecipe)r).hash==hash)
+					return (CrucibleRecipe)r;
+			}
+		}
+		return null;
+	}
+	
+	/**
 	 * Used by the thaumonomicon drilldown feature.
 	 * @param stack the item
 	 * @return the thaumcraft recipe key that produces that item. 
@@ -278,6 +301,16 @@ public class ThaumcraftApi {
 				if (ri.getPages()==null) continue;
 				for (int a=0;a<ri.getPages().length;a++) {
 					ResearchPage page = ri.getPages()[a];
+					if (page.recipe!=null && page.recipe instanceof CrucibleRecipe[]) {
+						CrucibleRecipe[] crs = (CrucibleRecipe[]) page.recipe;
+						for (CrucibleRecipe cr:crs) {
+							if (cr.getRecipeOutput().isItemEqual(stack)) {
+								keyCache.put(key,new Object[] {ri.key,a});
+								if (ThaumcraftApiHelper.isResearchComplete(player.getCommandSenderName(), ri.key))
+									return new Object[] {ri.key,a};
+							}
+						}
+					} else
 					if (page.recipeOutput!=null && stack !=null && page.recipeOutput.isItemEqual(stack)) {
 						keyCache.put(key,new Object[] {ri.key,a});
 						if (ThaumcraftApiHelper.isResearchComplete(player.getCommandSenderName(), ri.key))
@@ -295,6 +328,7 @@ public class ThaumcraftApi {
 	//ASPECTS////////////////////////////////////////
 	
 	public static ConcurrentHashMap<List,AspectList> objectTags = new ConcurrentHashMap<List,AspectList>();
+	public static ConcurrentHashMap<List,int[]> groupedObjectTags = new ConcurrentHashMap<List,int[]>();
 	
 	/**
 	 * Checks to see if the passed item/block already has aspects associated with it.
@@ -342,8 +376,12 @@ public class ThaumcraftApi {
 	 */
 	public static void registerObjectTag(ItemStack item, int[] meta, AspectList aspects) {
 		if (aspects==null) aspects=new AspectList();
-		try {
-		objectTags.put(Arrays.asList(item.getItem(),meta), aspects);
+		try {			
+			objectTags.put(Arrays.asList(item.getItem(),meta[0]), aspects);
+			for (int m:meta) {				
+				groupedObjectTags.put(Arrays.asList(item.getItem(),m), meta);
+			}
+			
 		} catch (Exception e) {}
 	}
 	
@@ -369,6 +407,7 @@ public class ThaumcraftApi {
 	 * Attempts to automatically generate aspect tags by checking registered recipes.
 	 * Here is an example of the declaration for pistons:<p>
 	 * <i>ThaumcraftApi.registerComplexObjectTag(new ItemStack(Blocks.cobblestone), (new AspectList()).add(Aspect.MECHANISM, 2).add(Aspect.MOTION, 4));</i>
+	 * IMPORTANT - this should only be used if you are not happy with the default aspects the object would be assigned.
 	 * @param item, pass OreDictionary.WILDCARD_VALUE to meta if all damage values of this item/block should have the same aspects
 	 * @param aspects A ObjectTags object of the associated aspects
 	 */
@@ -394,7 +433,8 @@ public class ThaumcraftApi {
 		private static HashMap<Object,Integer> warpMap = new HashMap<Object,Integer>();
 		
 		/**
-		 * This method is used to determine how much warp is gained if the item is crafted
+		 * This method is used to determine how much warp is gained if the item is crafted. The warp
+		 * added is "sticky" warp
 		 * @param craftresult The item crafted
 		 * @param amount how much warp is gained
 		 */
@@ -403,7 +443,7 @@ public class ThaumcraftApi {
 		}
 		
 		/**
-		 * This method is used to determine how much warp is gained if the sent item is crafted
+		 * This method is used to determine how much permanent warp is gained if the research is completed
 		 * @param in The item crafted
 		 * @param amount how much warp is gained
 		 */
@@ -485,9 +525,9 @@ public class ThaumcraftApi {
 	 * in your @Mod.Init method using the "dimensionBlacklist" string message in the format "[dimension]:[level]"
 	 * The level values are as follows:
 	 * [0] stop all tc spawning and generation
-	 * [1] allow ore and node generation
+	 * [1] allow ore and node generation (and node special features)
 	 * [2] allow mob spawning
-	 * [3] allow ore and node gen + mob spawning
+	 * [3] allow ore and node gen + mob spawning (and node special features)
 	 * Example: 
 	 * FMLInterModComms.sendMessage("Thaumcraft", "dimensionBlacklist", "15:1");
 	 */
@@ -498,9 +538,9 @@ public class ThaumcraftApi {
 	 * in your @Mod.Init method using the "biomeBlacklist" string message in the format "[biome id]:[level]"
 	 * The level values are as follows:
 	 * [0] stop all tc spawning and generation
-	 * [1] allow ore and node generation
+	 * [1] allow ore and node generation (and node special features)
 	 * [2] allow mob spawning
-	 * [3] allow ore and node gen + mob spawning
+	 * [3] allow ore and node gen + mob spawning (and node special features)
 	 * Example: 
 	 * FMLInterModComms.sendMessage("Thaumcraft", "biomeBlacklist", "180:2");
 	 */

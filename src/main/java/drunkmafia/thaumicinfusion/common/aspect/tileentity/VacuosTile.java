@@ -25,7 +25,7 @@ public class VacuosTile extends EffectTile implements IInventory {
 
     @Override
     public int getSizeInventory() {
-        return 32;
+        return 1;
     }
 
     @Override
@@ -119,11 +119,7 @@ public class VacuosTile extends EffectTile implements IInventory {
 
     @Override
     public boolean isItemValidForSlot(int slot, ItemStack stack) {
-        boolean ret = false;
-        for(ItemStack item : inv)
-            if(item != null && item.getItem() == stack.getItem())
-                ret = true;
-        return ret;
+        return true;
     }
 
     @Override

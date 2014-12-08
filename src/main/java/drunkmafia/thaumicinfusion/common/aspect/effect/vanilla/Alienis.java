@@ -1,0 +1,71 @@
+package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
+
+import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
+import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.ChunkCoordinates;
+import net.minecraft.world.World;
+
+import java.util.ArrayList;
+
+/**
+ * Created by DrunkMafia on 12/11/2014.
+ * See http://www.wtfpl.net/txt/copying for licence
+ */
+@Effect(aspect = "alienis", cost = 1)
+public class Alienis extends AspectEffect {
+
+    private int size = 10;
+
+    @Override
+    public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float htiX, float hitY, float hitZ) {
+        if(world.isRemote)
+            return true;
+        warpEntity(player);
+        return true;
+    }
+
+    @Override
+    public void onEntityCollidedWithBlock(World world, int x, int y, int z, Entity entity) {
+        if(!world.isRemote && entity instanceof EntityLivingBase)
+            warpEntity((EntityLivingBase)entity);
+    }
+
+    @Override
+    public void onEntityWalking(World world, int x, int y, int z, Entity entity) {
+        if(!world.isRemote && entity instanceof EntityLivingBase)
+            warpEntity((EntityLivingBase)entity);
+    }
+
+    @Override
+    public void onFallenUpon(World world, int x, int y, int z, Entity entity, float dist) {
+        if(!world.isRemote && entity instanceof EntityLivingBase)
+            warpEntity((EntityLivingBase)entity);
+    }
+
+    public void warpEntity(EntityLivingBase entity){
+        ChunkCoordinates[] possibleCoords = getPossibleWarps();
+        if(possibleCoords == null || possibleCoords.length == 0)
+            return;
+        ChunkCoordinates warp = possibleCoords[worldObj.rand.nextInt(possibleCoords.length)];
+        entity.setPositionAndUpdate(warp.posX + 0.5D, warp.posY, warp.posZ + 0.5D);
+    }
+
+    public ChunkCoordinates[] getPossibleWarps(){
+        ChunkCoordinates pos = getPos();
+        ArrayList<ChunkCoordinates> warps = new ArrayList<ChunkCoordinates>();
+        for (int x = -size + pos.posX; x < size + pos.posX; x++){
+            for (int y = -size + pos.posY; y < size + pos.posY; y++){
+                for (int z = -size + pos.posZ; z < size + pos.posZ; z++){
+                    if(!worldObj.isAirBlock(x, y - 1, z) && worldObj.isAirBlock(x, y, z) && worldObj.isAirBlock(x, y + 1, z))
+                        warps.add(new ChunkCoordinates(x, y, z));
+                }
+            }
+        }
+        ChunkCoordinates[] retWarps = new ChunkCoordinates[warps.size()];
+        warps.toArray(retWarps);
+        return retWarps;
+    }
+}

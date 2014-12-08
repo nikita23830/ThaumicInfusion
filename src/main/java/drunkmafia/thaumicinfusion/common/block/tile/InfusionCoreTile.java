@@ -11,6 +11,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import thaumcraft.api.wands.IWandable;
 import thaumcraft.codechicken.lib.vec.Vector3;
+import thaumcraft.common.Thaumcraft;
 import thaumcraft.common.tiles.TileInfusionMatrix;
 import thaumcraft.common.tiles.TilePedestal;
 
@@ -39,10 +40,13 @@ public class InfusionCoreTile extends TilePedestal implements IWandable {
     public void updateEntity() {
         if(matrix == null)
             getMatrixTile();
-        else{
-            if(matrix.crafting && shouldCheck)
-                shouldCheck = checkInfusion();
-            else shouldCheck = true;
+        else {
+            if(!worldObj.isRemote) {
+                if (matrix.crafting && shouldCheck)
+                    shouldCheck = checkInfusion();
+                else shouldCheck = true;
+            }else if(matrix.crafting)
+                Thaumcraft.proxy.burst(worldObj, xCoord + 0.5F, yCoord + 0.5F + yLevel, zCoord + 0.5F, 0.5F);
         }
     }
 

@@ -30,10 +30,11 @@ public class InfusionHelper {
         return list;
     }
 
-    public static AspectList addBlockAspects(ItemStack stack, AspectList list){
+    public static AspectList addBlockAspects(ItemStack stack){
         if(!isInfusedStack(stack))
             return null;
 
+        AspectList list = new AspectList();
         NBTTagCompound tagCompound = stack.getTagCompound();
 
         AspectList blockList = new AspectList(new ItemStack(Block.getBlockById(tagCompound.getInteger("infusedID")), 1, stack.getItemDamage()));
@@ -56,8 +57,8 @@ public class InfusionHelper {
         for(Class aspect : aspects){
             if(aspect.isAnnotationPresent(Effect.class)) {
                 Effect annotation = (Effect) aspect.getAnnotation(Effect.class);
-                int effectBlock = Block.getIdFromBlock(BlockHandler.getBlock(annotation.infusedBlock()));
-                if(defBlock != effectBlock) return effectBlock;
+                if(annotation.hasCustomBlock())
+                    return Block.getIdFromBlock(BlockHandler.getBlock(annotation.aspect()));
             }
         }
         return defBlock;
@@ -89,10 +90,9 @@ public class InfusionHelper {
 
     private static Class[] getEffectsFromList(ArrayList<Aspect> list) {
         Class[] effects = new Class[list.size()];
-        for(int i = 0; i < effects.length; i++) {
+        for(int i = 0; i < effects.length; i++)
             effects[i] = AspectHandler.getEffectFromAspect(list.get(i));
-            System.out.println(effects[i]);
-        }
+
         return effects;
     }
 

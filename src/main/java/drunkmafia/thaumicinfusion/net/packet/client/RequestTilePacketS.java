@@ -3,10 +3,8 @@ package drunkmafia.thaumicinfusion.net.packet.client;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
-import drunkmafia.thaumicinfusion.common.util.BlockHelper;
-import drunkmafia.thaumicinfusion.common.util.BlockSavable;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
-import drunkmafia.thaumicinfusion.net.packet.server.BlockSyncPacketC;
+import drunkmafia.thaumicinfusion.net.packet.CooldownPacket;
 import drunkmafia.thaumicinfusion.net.packet.server.TileSyncPacketC;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;
@@ -18,12 +16,13 @@ import net.minecraft.util.ChunkCoordinates;
  * Created by DrunkMafia on 01/11/2014.
  * See http://www.wtfpl.net/txt/copying for licence
  */
-public class RequestTilePacketS implements IMessage {
+public class RequestTilePacketS extends CooldownPacket {
 
     protected ChunkCoordinates coordinates;
 
     public RequestTilePacketS(ChunkCoordinates coordinates){
-        this.coordinates = coordinates;
+        if(canSend(coordinates))
+            this.coordinates = coordinates;
     }
 
     @Override

@@ -3,13 +3,11 @@ package drunkmafia.thaumicinfusion.net.packet.server;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
-import drunkmafia.thaumicinfusion.common.util.BlockData;
 import drunkmafia.thaumicinfusion.common.util.BlockHelper;
-import drunkmafia.thaumicinfusion.common.util.BlockSavable;
+import drunkmafia.thaumicinfusion.common.world.BlockSavable;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.block.Block;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ChunkCoordinates;
@@ -59,8 +57,7 @@ public class BlockSyncPacketC implements IMessage {
             World world = ChannelHandler.getPlayer(ctx).worldObj;
             ChunkCoordinates pos = data.getCoords();
             BlockHelper.getWorldData(world).addBlock(world, message.data);
-            Block block = world.getBlock(pos.posX, pos.posY, pos.posZ);
-            world.markAndNotifyBlock(pos.posX, pos.posY, pos.posZ, world.getChunkFromBlockCoords(pos.posX, pos.posZ), block, block, 2);
+            Minecraft.getMinecraft().renderGlobal.markBlockForUpdate(pos.posX, pos.posY, pos.posZ);
             return null;
         }
     }

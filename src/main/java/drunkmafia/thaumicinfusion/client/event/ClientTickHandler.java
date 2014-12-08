@@ -5,11 +5,14 @@ import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import drunkmafia.thaumicinfusion.common.lib.ModInfo;
 import drunkmafia.thaumicinfusion.common.util.InfusionHelper;
+import drunkmafia.thaumicinfusion.common.util.RGB;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
@@ -78,16 +81,47 @@ public class ClientTickHandler {
             if (isMouseOverSlot(var23, var16, var17, guiLeft, guiTop)) {
                 if (var23.getStack() != null){
                     ItemStack stack = var23.getStack();
-                    AspectList tags = InfusionHelper.getInfusedAspects(stack);
-                    if (tags == null) {
-                        tags = InfusionHelper.addBlockAspects(stack, tags);
+                    AspectList infusedTag = InfusionHelper.getInfusedAspects(stack);
+                    if (infusedTag != null) {
+                        AspectList tags = InfusionHelper.addBlockAspects(stack);
                         if (tags != null) {
                             int x = var16 + 17;
                             int y = var17 + 7 - 33;
                             GL11.glDisable(2929);
 
                             int index = 0;
-                            if (tags.size() > 0) {
+                            if (infusedTag.size() > 0) {
+                                for (Aspect tag : infusedTag.getAspectsSortedAmount()) {
+                                    if (tag != null) {
+                                        x = var16 + 17 + index * 18;
+                                        y = var17 + 7 - 33;
+
+                                        UtilsFX.bindTexture(ModInfo.MODID, "textures/aspects/_back.png");
+                                        GL11.glPushMatrix();
+                                        GL11.glEnable(3042);
+                                        GL11.glBlendFunc(770, 771);
+                                        GL11.glTranslated(x + shiftx - 2, y + shifty - 2, 0.0D);
+                                        GL11.glScaled(1.25D, 1.25D, 0.0D);
+
+                                        UtilsFX.drawTexturedQuadFull(0, 0, UtilsFX.getGuiZLevel(gui));
+                                        GL11.glDisable(3042);
+                                        GL11.glPopMatrix();
+                                        if (Thaumcraft.proxy.playerKnowledge.hasDiscoveredAspect(player.getCommandSenderName(), tag))
+                                            UtilsFX.drawTag(x + shiftx, y + shifty, tag, tags.getAmount(tag), 0, UtilsFX.getGuiZLevel(gui));
+                                        else {
+                                            UtilsFX.bindTexture("textures/aspects/_unknown.png");
+                                            GL11.glPushMatrix();
+                                            GL11.glEnable(3042);
+                                            GL11.glBlendFunc(770, 771);
+                                            GL11.glTranslated(x + shiftx, y + shifty, 0.0D);
+                                            UtilsFX.drawTexturedQuadFull(0, 0, UtilsFX.getGuiZLevel(gui));
+                                            GL11.glDisable(3042);
+                                            GL11.glPopMatrix();
+                                        }
+                                        index++;
+                                    }
+                                }
+
                                 for (Aspect tag : tags.getAspectsSortedAmount()) {
                                     if (tag != null) {
                                         x = var16 + 17 + index * 18;

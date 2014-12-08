@@ -9,6 +9,4 @@ import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
  * See http://www.wtfpl.net/txt/copying for licence
  */
 @Effect(aspect = ("permutatio"), cost = 4)
-public class Permutatio  extends AspectEffect {
-
-}
+public class Permutatio  extends AspectEffect {}

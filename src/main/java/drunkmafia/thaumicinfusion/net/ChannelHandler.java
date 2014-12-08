@@ -25,15 +25,14 @@ public class ChannelHandler{
         Side S = Side.SERVER, C = Side.CLIENT;
 
         //Server Handled Packets
-        network.registerMessage(RequestChunkPacketS.Handler.class, RequestChunkPacketS.class, 0, S);
-        network.registerMessage(RequestBlockPacketS.Handler.class, RequestBlockPacketS.class, 1, S);
-        network.registerMessage(RequestTilePacketS.Handler.class, RequestTilePacketS.class, 2, S);
+        network.registerMessage(RequestBlockPacketS.Handler.class, RequestBlockPacketS.class, 0, S);
+        network.registerMessage(RequestTilePacketS.Handler.class, RequestTilePacketS.class, 1, S);
 
         //Client Handled Packets
-        network.registerMessage(BlockDestroyedPacketC.Handler.class, BlockDestroyedPacketC.class, 3, C);
-        network.registerMessage(BlockSyncPacketC.Handler.class, BlockSyncPacketC.class, 4, C);
-        network.registerMessage(TileSyncPacketC.Handler.class, TileSyncPacketC.class, 5, C);
-        network.registerMessage(SensusPacketC.Handler.class, SensusPacketC.class, 6, C);
+        network.registerMessage(BlockDestroyedPacketC.Handler.class, BlockDestroyedPacketC.class, 2, C);
+        network.registerMessage(BlockSyncPacketC.Handler.class, BlockSyncPacketC.class, 3, C);
+        network.registerMessage(TileSyncPacketC.Handler.class, TileSyncPacketC.class, 4, C);
+        network.registerMessage(EffectSyncPacketC.Handler.class, EffectSyncPacketC.class, 5, C);
     }
 
     public static EntityPlayer getPlayer(MessageContext ctx){

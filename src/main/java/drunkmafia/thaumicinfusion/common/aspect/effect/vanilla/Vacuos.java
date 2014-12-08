@@ -24,20 +24,24 @@ import thaumcraft.common.lib.utils.InventoryUtils;
  * Created by DrunkMafia on 06/11/2014.
  * See http://www.wtfpl.net/txt/copying for licence
  */
-@Effect(aspect = ("vacuos"), cost = 4, tileentity = VacuosTile.class, hasTileEntity = true)
+@Effect(aspect = ("vacuos"), cost = 4)
 public class Vacuos extends AspectEffect {
 
     VacuosTile tile;
 
+    @Override
+    public TileEntity createTileEntity(World world, int metadata) {
+        return new VacuosTile();
+    }
+
+    @Override
     public void onBlockClicked(World world, int x, int y, int z, EntityPlayer player) {
         if(world.isRemote)
             return;
 
         getTile(world, x, y, z);
-        if(tile == null) {
-            System.out.println("Tile is null");
+        if(tile == null)
             return;
-        }
 
         ItemStack inv = null;
         int index = -1;
@@ -74,11 +78,14 @@ public class Vacuos extends AspectEffect {
         player.worldObj.spawnEntityInWorld(entityItem);
     }
 
+    @Override
     public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float hitX, float hitY, float hitZ) {
         if(world.isRemote)
             return true;
 
         getTile(world, x, y, z);
+        if(tile == null)
+            return false;
         ItemStack inv = tile.getStackInSlot(0);
         ItemStack equipped = player.getCurrentEquippedItem();
         if (inv != null) {
@@ -88,7 +95,7 @@ public class Vacuos extends AspectEffect {
                 player.inventory.markDirty();
                 world.playSoundEffect(x, y, z, "random.pop", 0.2F, ((world.rand.nextFloat() - world.rand.nextFloat()) * 0.7F + 1.0F) * 1.5F);
                 return true;
-            }else System.out.println("Failed Item check");
+            }
         }
 
         if (equipped != null && inv == null) {
@@ -106,6 +113,7 @@ public class Vacuos extends AspectEffect {
         return false;
     }
 
+    @Override
     public void breakBlock(World world, int x, int y, int z, Block block, int meta) {
         if(world.isRemote)
             return;
@@ -113,6 +121,7 @@ public class Vacuos extends AspectEffect {
     }
 
     @SideOnly(Side.CLIENT)
+    @Override
     public void blockHighlight(World world, int x, int y, int z, EntityPlayer player, MovingObjectPosition pos, float partialTicks){
         getTile(world, x, y, z);
         if(tile == null)

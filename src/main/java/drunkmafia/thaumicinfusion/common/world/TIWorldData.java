@@ -1,14 +1,15 @@
 package drunkmafia.thaumicinfusion.common.world;
 
-import drunkmafia.thaumicinfusion.common.util.BlockData;
-import drunkmafia.thaumicinfusion.common.util.BlockSavable;
+import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import drunkmafia.thaumicinfusion.common.util.Savable;
+import drunkmafia.thaumicinfusion.net.ChannelHandler;
+import drunkmafia.thaumicinfusion.net.packet.server.BlockDestroyedPacketC;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ChunkCoordinates;
-import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldSavedData;
 import net.minecraft.world.chunk.Chunk;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,15 +23,17 @@ import java.util.Map;
 public class TIWorldData extends WorldSavedData {
 
     public World world;
-    private HashMap<ChunkCoordinates, BlockSavable> blocksData;
+    private HashMap<ChunkCoordinates, ArrayList<BlockSavable>> blocksData;
 
     public TIWorldData(String mapname) {
         super(mapname);
-        blocksData = new HashMap<ChunkCoordinates, BlockSavable>();
+        blocksData = new HashMap<ChunkCoordinates, ArrayList<BlockSavable>>();
         setDirty(true);
     }
 
     public boolean addBlock(World world, BlockSavable block) {
+        this.world = world;
+
         if (block != null && block.getCoords() != null) {
             if(block instanceof BlockData){
                 BlockData data = (BlockData)block;
@@ -39,7 +42,14 @@ public class TIWorldData extends WorldSavedData {
                     data.initAspects(world, pos.posX, pos.posY, pos.posZ);
                 }
             }
-            blocksData.put(block.getCoords(), block);
+
+            if(blocksData.containsKey(block.getCoords())) {
+                blocksData.get(block.getCoords()).add(block);
+            }else {
+                ArrayList<BlockSavable> datas = new ArrayList<BlockSavable>();
+                datas.add(block);
+                blocksData.put(block.getCoords(), datas);
+            }
             setDirty(true);
             return true;
         }
@@ -50,8 +60,7 @@ public class TIWorldData extends WorldSavedData {
         if(world == null)
             return;
 
-        for(Map.Entry entry : getAllBocks()){
-            BlockSavable savable = (BlockSavable) entry.getValue();
+        for(BlockSavable savable : getAllBocks()){
             ChunkCoordinates coords = savable.getCoords();
             if(savable instanceof BlockData && !((BlockData)savable).isInit())
                 ((BlockData)savable).initAspects(world, coords.posX, coords.posY, coords.posZ);
@@ -59,51 +68,80 @@ public class TIWorldData extends WorldSavedData {
     }
 
     public void removeBlock(ChunkCoordinates coords) {
+        if(!blocksData.containsKey(coords))
+            return;
+
         blocksData.remove(coords);
         setDirty(true);
+        ChannelHandler.network.sendToAll(new BlockDestroyedPacketC(coords));
     }
 
-    public BlockSavable getBlock(ChunkCoordinates coords) {
-        return blocksData.get(coords);
+    public <T>T getBlock(Class<T> type, ChunkCoordinates coords) {
+        ArrayList<BlockSavable> datas = blocksData.get(coords);
+        if(datas == null)
+            return null;
+        for(BlockSavable block : datas)
+            if(type.isAssignableFrom(block.getClass()))
+                return (T) block;
+        return null;
     }
 
-    public ArrayList<BlockSavable> getBlocksInChunk(Chunk chunk) {
-        World world = chunk.worldObj;
-        Object[] blocks = blocksData.entrySet().toArray();
-        ArrayList<BlockSavable> data = new ArrayList<BlockSavable>();
-        for (Object obj : blocks) {
-            BlockSavable block = (BlockSavable) ((Map.Entry) obj).getValue();
-            if (world.getChunkFromBlockCoords(block.getCoords().posX, block.getCoords().posZ).isAtLocation(chunk.xPosition, chunk.zPosition))
-                data.add(block);
+    public BlockSavable[][] getAllStoredData(){
+        Map.Entry<ChunkCoordinates, ArrayList<BlockSavable>>[] entries = blocksData.entrySet().toArray(new Map.Entry[blocksData.size()]);
+        BlockSavable[][] savables = new BlockSavable[entries.length][0];
+        for(int i = 0; i < savables.length; i++){
+            ArrayList<BlockSavable> stored = entries[i].getValue();
+            savables[i] = new BlockSavable[stored.size()];
+            for(int s = 0; s < stored.size(); s++)
+                savables[i][s] = stored.get(s);
         }
-        return data;
+        return savables;
     }
 
     public int getNoOfBlocks() {
         return blocksData.size();
     }
 
-    public Map.Entry[] getAllBocks(){
-        return blocksData.entrySet().toArray(new Map.Entry[blocksData.size()]);
+    public BlockSavable[] getAllBocks(){
+        Map.Entry[] entries = blocksData.entrySet().toArray(new Map.Entry[blocksData.size()]);
+        ArrayList<BlockSavable> blocks = new ArrayList<BlockSavable>();
+        for(Map.Entry<ChunkCoordinates, ArrayList<BlockSavable>> data : entries){
+            blocks.addAll(data.getValue());
+        }
+        BlockSavable[] array = new BlockSavable[blocks.size()];
+        array = blocks.toArray(array);
+        return array;
     }
 
     @Override
     public void readFromNBT(NBTTagCompound tag) {
-        for (int i = 0; i < tag.getInteger("Size"); i++) {
-            BlockSavable data = (BlockSavable) Savable.loadDataFromNBT(tag.getCompoundTag("Tag: " + i));
-            if (data != null)
-                blocksData.put(data.getCoords(), data);
+        for(int i = 0; i < tag.getInteger("Positions"); i++){
+            for(int p = 0; p < tag.getInteger("Pos: " + i); p++){
+                NBTTagCompound dataTag = tag.getCompoundTag("Pos: " + i + " Tag: " + p);
+                BlockSavable data = (BlockSavable) BlockSavable.loadDataFromNBT(dataTag);
+
+                if(blocksData.containsKey(data.getCoords())) {
+                    blocksData.get(data.getCoords()).add(data);
+                }else {
+                    ArrayList<BlockSavable> datas = new ArrayList<BlockSavable>();
+                    datas.add(data);
+                    blocksData.put(data.getCoords(), datas);
+                }
+            }
         }
     }
 
     @Override
     public void writeToNBT(NBTTagCompound tag) {
-        Object[] objs = blocksData.entrySet().toArray();
-        tag.setInteger("Size", objs.length);
-        for (int i = 0; i < objs.length; i++) {
-            NBTTagCompound dataTag = new NBTTagCompound();
-            blocksData.get(((Map.Entry) objs[i]).getKey()).writeNBT(dataTag);
-            tag.setTag("Tag: " + i, dataTag);
+        BlockSavable[][] storedData = getAllStoredData();
+        tag.setInteger("Positions", storedData.length);
+        for(int i = 0; i < storedData.length; i++){
+            tag.setInteger("Pos: " + i, storedData[i].length);
+            for(int p = 0; p < storedData[i].length; p++){
+                NBTTagCompound dataTag = new NBTTagCompound();
+                storedData[i][p].writeNBT(dataTag);
+                tag.setTag("Pos: " + i + " Tag: " + p, dataTag);
+            }
         }
     }
 }

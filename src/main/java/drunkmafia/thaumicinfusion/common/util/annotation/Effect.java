@@ -2,6 +2,7 @@ package drunkmafia.thaumicinfusion.common.util.annotation;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import drunkmafia.thaumicinfusion.common.block.InfusedBlock;
 import drunkmafia.thaumicinfusion.common.block.TIBlocks;
 import drunkmafia.thaumicinfusion.common.lib.BlockInfo;
 import drunkmafia.thaumicinfusion.common.util.EffectGUI;
@@ -28,15 +29,11 @@ public @interface Effect {
 
     int cost();
 
-    boolean hasTileEntity() default false;
-
-    Class<?> tileentity() default Object.class;
+    boolean hasCustomBlock() default false;
 
     /**
      * Gui Must extend GuiContainer
      */
     @SideOnly(Side.CLIENT)
     Class<?> gui() default Object.class;
-
-    String infusedBlock() default "tile." + BlockInfo.infusedBlock_UnlocalizedName;
 }

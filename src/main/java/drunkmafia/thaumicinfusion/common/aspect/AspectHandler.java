@@ -1,101 +1,122 @@
 package drunkmafia.thaumicinfusion.common.aspect;
 
-import com.esotericsoftware.reflectasm.MethodAccess;
+import cpw.mods.fml.common.Loader;
+import cpw.mods.fml.common.LoaderState;
 import cpw.mods.fml.common.registry.GameRegistry;
-import drunkmafia.thaumicinfusion.common.aspect.effect.vanilla.*;
+import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
+import drunkmafia.thaumicinfusion.common.block.BlockHandler;
+import drunkmafia.thaumicinfusion.common.block.InfusedBlock;
+import drunkmafia.thaumicinfusion.common.lib.BlockInfo;
+import drunkmafia.thaumicinfusion.common.lib.ModInfo;
 import drunkmafia.thaumicinfusion.common.util.EffectGUI;
-import drunkmafia.thaumicinfusion.common.util.Savable;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
-import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.tileentity.TileEntity;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.Logger;
 import thaumcraft.api.aspects.Aspect;
 
-import java.lang.reflect.Method;
 import java.util.*;
 
 public class AspectHandler {
 
-    public static IIconRegister iconRegister;
+    private static ArrayList<Class> classesToRegister = new ArrayList<Class>();
+    private static ArrayList<Class<? extends AspectEffect>> effectsToRegister = new ArrayList<Class<? extends AspectEffect>>();
 
     private static HashMap<Aspect, Class> registeredEffects = new HashMap<Aspect, Class>();
-    private static HashMap<Class, HashMap<String, Integer>> effectMethods = new HashMap<Class,HashMap<String, Integer>>();
 
-    public static void initEffects(){
-        try {
-            registerEffect(Lux.class);
-            registerEffect(Ignis.class);
-            registerEffect(Motus.class);
-            registerEffect(Potentia.class);
-            registerEffect(Sensus.class);
-            registerEffect(Permutatio.class);
-            registerEffect(Aqua.class);
-            registerEffect(Limus.class);
-            registerEffect(Messis.class);
-            registerEffect(Pannus.class);
-            registerEffect(Iter.class);
-            registerEffect(Gelum.class);
-            registerEffect(Tempestas.class);
-            registerEffect(Tenebrae.class);
-            registerEffect(Vacuos.class);
-        }catch (Exception e){
-            e.printStackTrace();
+    /**
+     * Can only be called during the {@link cpw.mods.fml.common.event.FMLConstructionEvent} state, once registered the effect will be handled.
+     */
+    public static void addEffect(Class<? extends AspectEffect>... classes){
+        Loader loader = Loader.instance();
+        if(!loader.isInState(LoaderState.CONSTRUCTING)) {
+            ThaumicInfusion.instance.logger.fatal(loader.activeModContainer().getName() + " Attempted to register a package to the aspect handler outside the COSTRUCTION state.");
+            return;
         }
+        for(Class<? extends AspectEffect> c : classes)
+            if(!classesToRegister.contains(c))
+                classesToRegister.add(c);
     }
 
-    public static void registerEffect(Class effect) throws Exception {
-        if (effect.isAnnotationPresent(Effect.class) && AspectEffect.class.isAssignableFrom(effect)) {
-            Effect annotation = (Effect) effect.getAnnotation(Effect.class);
-            Aspect aspect = Aspect.getAspect(annotation.aspect().toLowerCase());
-            if (!registeredEffects.containsKey(aspect) && !registeredEffects.containsValue(effect)) {
-                registerTile(annotation);
-                registeredEffects.put(aspect, effect);
-                phaseEffect(effect);
+    public static void preInit(){
+        Logger logger = ThaumicInfusion.instance.logger;
+        if(isInCorretState(LoaderState.PREINITIALIZATION)) {
+            logger.warn("Pre Init cannot be called outside it's state");
+            return;
+        }
+
+        for(Class<?> c : classesToRegister) {
+            if (isClassAEffect(c)) {
+                try {
+                    Class<? extends AspectEffect> effect = (Class<? extends AspectEffect>) c;
+                    Effect annotation = effect.getAnnotation(Effect.class);
+                    if(annotation.hasCustomBlock() || annotation.aspect().equals("default")) {
+                        AspectEffect effectInstace = effect.newInstance();
+
+                        InfusedBlock block = effectInstace.getBlock();
+                        block.setBlockName(BlockInfo.infusedBlock_UnlocalizedName + "." + annotation.aspect());
+
+                        if (!BlockHandler.hasBlock(block.getUnlocalizedName())) {
+                            GameRegistry.registerBlock(block.addBlockToHandler(), "reg_InfusedBlock" + annotation.aspect());
+                            TileEntity tileEntity = effectInstace.createTileEntity(null, 0);
+                            if (tileEntity != null)
+                                GameRegistry.registerTileEntity(tileEntity.getClass(), "tile_InfusedBlock" + annotation.aspect());
+                        }
+                    }
+                    if(annotation.aspect() != "default")
+                        effectsToRegister.add(effect);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
             }
         }
     }
 
-    public static void registerIcons(){
-        if(iconRegister == null)
+    public static void postInit(){
+        Logger logger = ThaumicInfusion.instance.logger;
+        if(isInCorretState(LoaderState.POSTINITIALIZATION)) {
+            logger.warn("Post Init cannot be called outside it's state");
             return;
-        for(Map.Entry ent : registeredEffects.entrySet()){
-            try {
-                Class effect = (Class) ent.getValue();
-                Method meth = effect.getDeclaredMethod("registerIcons", IIconRegister.class);
-                meth.invoke(effect.newInstance(), iconRegister);
-            }catch (Exception e){}
+        }
+
+        for(Class<? extends AspectEffect> effect : effectsToRegister){
+            Effect annotation = effect.getAnnotation(Effect.class);
+            Aspect aspect = Aspect.getAspect(annotation.aspect().toLowerCase());
+            if(aspect != null) {
+                if (!registeredEffects.containsKey(aspect) && !registeredEffects.containsValue(effect))
+                    registeredEffects.put(aspect, effect);
+            }else
+                logger.log(Level.ERROR, "Aspect: " + annotation.aspect() + " does not exist in the instance");
         }
     }
 
-    private static void registerTile(Effect annotation){
-        if(annotation.hasTileEntity() && TileEntity.class.isAssignableFrom(annotation.tileentity())){
-            Class<? extends TileEntity> tile = (Class<? extends TileEntity>) annotation.tileentity();
-            GameRegistry.registerTileEntity(tile,"tile_" + tile.getSimpleName());
-        }
+    private static boolean isInCorretState(LoaderState state){
+        Loader loader = Loader.instance();
+        return !loader.isInState(state) && loader.activeModContainer().getModId().matches(ModInfo.MODID);
     }
 
-    private static void phaseEffect(Class effect){
-        MethodAccess methodAccess = MethodAccess.get(effect);
-        String[] methods = methodAccess.getMethodNames();
-
-        HashMap<String, Integer> effectsMeth = new HashMap<String, Integer>();
-        for(String name : methods) {
-            effectsMeth.put(name, methodAccess.getIndex(name));
-        }
-        effectMethods.put(effect, effectsMeth);
-    }
-
-    public static int getMethod(Class effect, String name){
-        if(effectMethods.get(effect).containsKey(name))
-            return effectMethods.get(effect).get(name);
-        return -1;
-    }
-
-    public static boolean isAspectAnEffect(Aspect aspects){
-        return registeredEffects.containsKey(aspects);
+    private static boolean isClassAEffect(Class<?> c){
+        return c != null && c.isAnnotationPresent(Effect.class) && AspectEffect.class.isAssignableFrom(c);
     }
 
     public static Class getEffectFromAspect(Aspect aspects) {
         return registeredEffects.get(aspects);
+    }
+
+    public static int getCostOfEffect(Aspect aspect){
+        Class c = getEffectFromAspect(aspect);
+        if(c == null || (c != null && c.getAnnotation(Effect.class) == null))
+            return -1;
+        Effect annot = (Effect) c.getAnnotation(Effect.class);
+        return annot.cost();
+    }
+
+    public static Aspect[] getAspects(){
+        Map.Entry<Aspect, Class>[] entries = registeredEffects.entrySet().toArray(new Map.Entry[registeredEffects.size()]);
+        Aspect[] aspects = new Aspect[entries.length];
+        for(int i = 0; i < aspects.length; i++)
+            aspects[i] = entries[i].getKey();
+        return aspects;
     }
 
     public static Aspect getAspectsFromEffect(Class effect) {
@@ -119,6 +140,4 @@ public class AspectHandler {
         }
         return null;
     }
-
-
 }

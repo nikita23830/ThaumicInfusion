@@ -1,11 +1,13 @@
 package drunkmafia.thaumicinfusion.client;
 
 import cpw.mods.fml.client.registry.ClientRegistry;
+import cpw.mods.fml.client.registry.RenderingRegistry;
 import cpw.mods.fml.common.FMLCommonHandler;
 import drunkmafia.thaumicinfusion.client.event.ClientEventContainer;
 import drunkmafia.thaumicinfusion.client.event.ClientTickHandler;
 import drunkmafia.thaumicinfusion.client.gui.CreativeInfusionGUI;
 import drunkmafia.thaumicinfusion.client.gui.InfusedBlockGUI;
+import drunkmafia.thaumicinfusion.client.renderer.RenderInfused;
 import drunkmafia.thaumicinfusion.client.renderer.item.*;
 import drunkmafia.thaumicinfusion.client.renderer.tile.*;
 import drunkmafia.thaumicinfusion.common.CommonProxy;
@@ -25,11 +27,15 @@ public class ClientProxy extends CommonProxy {
         MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(TIBlocks.infusionCoreBlock), new CoreItemRenderer());
 
         InfusedBlock[] blocks = BlockHandler.getBlocks();
-        for(InfusedBlock block : blocks)
+        for(InfusedBlock block : blocks) {
             MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(block), new InfusedItemRenderer());
 
-        ClientRegistry.bindTileEntitySpecialRenderer(InfusionCoreTile.class, new InfusionCoreRenderer());
+        }
 
+        RenderingRegistry.registerBlockHandler(new RenderInfused());
+
+        ClientRegistry.bindTileEntitySpecialRenderer(InfusionCoreTile.class, new InfusionCoreRenderer());
+        
         FMLCommonHandler.instance().bus().register(new ClientTickHandler());
         MinecraftForge.EVENT_BUS.register(new ClientEventContainer());
     }

@@ -1,17 +1,14 @@
 package drunkmafia.thaumicinfusion.common.block;
 
-import com.esotericsoftware.reflectasm.MethodAccess;
-import drunkmafia.thaumicinfusion.client.renderer.item.InfusedItemRenderer;
 import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import net.minecraft.block.Block;
-import net.minecraft.item.Item;
-import net.minecraftforge.client.MinecraftForgeClient;
+import net.minecraft.block.ITileEntityProvider;
+import net.minecraftforge.common.config.Configuration;
 
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+
+import static drunkmafia.thaumicinfusion.common.lib.BlockInfo.infusedBlock_UnlocalizedName;
 
 /**
  * Created by DrunkMafia on 04/07/2014.
@@ -20,15 +17,18 @@ import java.util.Set;
  */
 public class BlockHandler {
 
+    private static ArrayList<String> whitelistedBlocks = new ArrayList<String>();
+
     private static HashMap<String, InfusedBlock> infusedBlocks = new HashMap<String, InfusedBlock>();
     private static HashMap<String, Integer> blockMethods = new HashMap<String, Integer>();
 
     public static void addBlock(String key, InfusedBlock block){
-        infusedBlocks.put(key.toLowerCase(), block);
+        if(!infusedBlocks.containsKey(key.toLowerCase()))
+            infusedBlocks.put(key.toLowerCase(), block);
     }
 
     public static InfusedBlock getBlock(String key){
-        return infusedBlocks.get(key.toLowerCase());
+        return infusedBlocks.get(("tile." + infusedBlock_UnlocalizedName + "." + key).toLowerCase());
     }
 
     public static Method getMethod(String methName, Class[] pars) {
@@ -38,19 +38,41 @@ public class BlockHandler {
         return null;
     }
 
+    static String CATEGORY = "BLOCKLIST";
     public static void whitelistBlocks(){
-        Iterator blocksIter = Block.blockRegistry.iterator();
-        while(blocksIter.hasNext()){
-            Class block = blocksIter.next().getClass();
-        }
+        Configuration config = new Configuration(ThaumicInfusion.instance.configFile);
+        config.load();
+        String[] configBlocks = config.get(CATEGORY, "BLOCKS", new String[]{}).getStringList();
+        configBlocks = new String[0];
+        if(configBlocks.length == 0) {
+            ArrayList<String> blocks = new ArrayList<String>();
+            Iterator blocksIter = Block.blockRegistry.iterator();
+            while (blocksIter.hasNext()) {
+                Block block = (Block) blocksIter.next();
+                if (!(block instanceof ITileEntityProvider) && block.createTileEntity(null, 0) == null) {
+                    whitelistedBlocks.add(block.getUnlocalizedName());
+                    blocks.add(block.getUnlocalizedName());
+                }
+            }
+            String[] blockA = new String[blocks.size()];
+            blocks.toArray(blockA);
+            config.get(CATEGORY, "BLOCKS", new String[]{}).set(blockA);
+        }else
+            for(String block : configBlocks)
+                whitelistedBlocks.add(block);
+        config.save();
+        ThaumicInfusion.instance.logger.info("Whitelisted: " + whitelistedBlocks.size() + " out of " + Block.blockRegistry.getKeys().size());
     }
 
-    public static void phaseBlock(){
-        MethodAccess methodAccess = MethodAccess.get(Block.class);
-        String[] methods = methodAccess.getMethodNames();
-        for(String name : methods){
-            blockMethods.put(name, methodAccess.getIndex(name));
-        }
+    public static boolean isBlockWhitelisted(Block block){
+        for(String unlocal : whitelistedBlocks)
+            if(unlocal.toLowerCase().matches(block.getUnlocalizedName().toLowerCase()))
+                return true;
+        return false;
+    }
+
+    public static boolean hasBlock(String unlocal){
+        return infusedBlocks.containsKey(unlocal);
     }
 
     public static InfusedBlock[] getBlocks(){
@@ -67,9 +89,5 @@ public class BlockHandler {
 
     public static int getMethod(String methName){
         return blockMethods.get(methName);
-    }
-
-    public static void init() {
-        phaseBlock();
     }
 }

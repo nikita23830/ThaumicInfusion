@@ -22,6 +22,7 @@ public class Savable {
                 return data;
             }
         } catch (Exception e) {
+            e.printStackTrace();
         }
         return null;
     }
