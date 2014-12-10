@@ -1,6 +1,7 @@
 package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
+import drunkmafia.thaumicinfusion.common.util.WorldCoord;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -54,11 +55,11 @@ public class Alienis extends AspectEffect {
     }
 
     public ChunkCoordinates[] getPossibleWarps(){
-        ChunkCoordinates pos = getPos();
+        WorldCoord pos = getPos();
         ArrayList<ChunkCoordinates> warps = new ArrayList<ChunkCoordinates>();
-        for (int x = -size + pos.posX; x < size + pos.posX; x++){
-            for (int y = -size + pos.posY; y < size + pos.posY; y++){
-                for (int z = -size + pos.posZ; z < size + pos.posZ; z++){
+        for (int x = -size + pos.x; x < size + pos.x; x++){
+            for (int y = -size + pos.y; y < size + pos.y; y++){
+                for (int z = -size + pos.z; z < size + pos.z; z++){
                     if(!worldObj.isAirBlock(x, y - 1, z) && worldObj.isAirBlock(x, y, z) && worldObj.isAirBlock(x, y + 1, z))
                         warps.add(new ChunkCoordinates(x, y, z));
                 }

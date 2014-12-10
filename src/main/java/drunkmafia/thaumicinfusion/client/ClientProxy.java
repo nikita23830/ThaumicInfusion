@@ -13,6 +13,7 @@ import drunkmafia.thaumicinfusion.client.renderer.tile.*;
 import drunkmafia.thaumicinfusion.common.CommonProxy;
 import drunkmafia.thaumicinfusion.common.block.*;
 import drunkmafia.thaumicinfusion.common.block.tile.*;
+import drunkmafia.thaumicinfusion.common.util.WorldCoord;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.util.ChunkCoordinates;
@@ -43,7 +44,7 @@ public class ClientProxy extends CommonProxy {
     @Override
     public Object getClientGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) {
         switch (ID){
-            case 0: return new InfusedBlockGUI(new ChunkCoordinates(x, y, z));
+            case 0: return new InfusedBlockGUI(new WorldCoord(x, y, z));
             case 1: return new CreativeInfusionGUI(player);
             default: return null;
         }

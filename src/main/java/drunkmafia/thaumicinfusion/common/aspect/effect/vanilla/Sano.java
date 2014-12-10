@@ -1,6 +1,7 @@
 package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
+import drunkmafia.thaumicinfusion.common.util.WorldCoord;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.AxisAlignedBB;
@@ -18,10 +19,10 @@ import java.util.Random;
 @Effect(aspect = "sano", cost = 1)
 public class Sano extends AspectEffect {
     @Override
-    public void aspectInit(World world,ChunkCoordinates pos) {
+    public void aspectInit(World world, WorldCoord pos) {
         super.aspectInit(world, pos);
         if(!world.isRemote)
-            updateTick(world, pos.posX, pos.posY, pos.posZ, new Random());
+            updateTick(world, pos.x, pos.y, pos.z, new Random());
     }
 
     @Override

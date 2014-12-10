@@ -112,6 +112,7 @@ public class ThaumcraftIntergration {
                 Aqua.class,
                 Gelum.class,
                 Ignis.class,
+                Iter.class,
                 Limus.class,
                 Lux.class,
                 Messis.class,
@@ -121,7 +122,7 @@ public class ThaumcraftIntergration {
                 Spiritus.class,
                 Tempestas.class,
                 Tenebrae.class,
-                Vacuos.class,
+                //Vacuos.class,
                 Alienis.class,
                 Vitium.class,
                 Bestia.class,
@@ -132,7 +133,9 @@ public class ThaumcraftIntergration {
                 Sano.class,
                 Infernus.class,
                 Superbia.class,
-                Tutamen.class);
+                Tutamen.class,
+                Ordo.class,
+                Perditio.class);
     }
 }
 

@@ -4,6 +4,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import drunkmafia.thaumicinfusion.common.tab.TITab;
 import drunkmafia.thaumicinfusion.common.util.BlockHelper;
+import drunkmafia.thaumicinfusion.common.util.WorldCoord;
 import drunkmafia.thaumicinfusion.common.world.BlockData;
 import drunkmafia.thaumicinfusion.common.world.BlockSavable;
 import drunkmafia.thaumicinfusion.common.world.EssentiaData;
@@ -88,7 +89,7 @@ public class EssentiaBlock extends Block {
 
     @Override
     public void onNeighborBlockChange(World world, int x, int y, int z, Block block) {
-         BlockHelper.getData(BlockData.class, world, new ChunkCoordinates(x, y, z));
+         BlockHelper.getData(BlockData.class, world, new WorldCoord(x, y, z));
         world.markBlockRangeForRenderUpdate(x, y, z, x, y, z);
     }
 
@@ -97,7 +98,7 @@ public class EssentiaBlock extends Block {
         if(!world.isRemote) {
             NBTTagCompound tagCompound = stack.getTagCompound();
             if (tagCompound != null) {
-                EssentiaData data = new EssentiaData(new ChunkCoordinates(x, y, z), Aspect.getAspect(tagCompound.getString("aspectTag")));
+                EssentiaData data = new EssentiaData(new WorldCoord(x, y, z), Aspect.getAspect(tagCompound.getString("aspectTag")));
                 BlockHelper.getWorldData(world).addBlock(world, data);
                 world.setBlockMetadataWithNotify(x, y, z, stack.getItemDamage(), 3);
             } else world.setBlock(x, y, z, Blocks.air);
@@ -106,7 +107,7 @@ public class EssentiaBlock extends Block {
 
     @Override
     public ItemStack getPickBlock(MovingObjectPosition target, World world, int x, int y, int z) {
-        BlockSavable data = BlockHelper.getData(BlockData.class, world, new ChunkCoordinates(x, y, z));
+        BlockSavable data = BlockHelper.getData(BlockData.class, world, new WorldCoord(x, y, z));
         if(data != null) {
             int meta = world.getBlockMetadata(x, y, z);
             ItemStack stack = new ItemStack(this, 1, meta);
@@ -125,7 +126,7 @@ public class EssentiaBlock extends Block {
     @Override
     public void breakBlock(World world, int x, int y, int z, Block block, int meta) {
         if(!world.isRemote){
-            BlockSavable data = BlockHelper.getData(BlockData.class, world, new ChunkCoordinates(x, y, z));
+            BlockSavable data = BlockHelper.getData(BlockData.class, world, new WorldCoord(x, y, z));
             if(data != null) {
                 BlockHelper.getWorldData(world).removeBlock(data.getCoords());
 
@@ -145,7 +146,7 @@ public class EssentiaBlock extends Block {
 
     @SideOnly(Side.CLIENT)
     public int colorMultiplier(IBlockAccess access, int x, int y, int z){
-        EssentiaData data = BlockHelper.getData(EssentiaData.class, access, new ChunkCoordinates(x, y, z));
+        EssentiaData data = BlockHelper.getData(EssentiaData.class, access, new WorldCoord(x, y, z));
         if(data == null || data.getAspect() == null)
             return 0;
         return data.getAspect().getColor();

@@ -5,6 +5,7 @@ import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.util.BlockHelper;
+import drunkmafia.thaumicinfusion.common.util.WorldCoord;
 import drunkmafia.thaumicinfusion.common.world.BlockData;
 import drunkmafia.thaumicinfusion.common.world.BlockSavable;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
@@ -58,12 +59,12 @@ public class EffectSyncPacketC  implements IMessage {
             AspectEffect effect = message.effect;
             if (effect == null || ctx.side.isServer()) return null;
             World world = ChannelHandler.getPlayer(ctx).worldObj;
-            ChunkCoordinates pos = effect.getPos();
+            WorldCoord pos = effect.getPos();
             BlockData data = BlockHelper.getWorldData(world).getBlock(BlockData.class, effect.getPos());
             if(data != null &&  data.getEffect(effect.getClass()) != null)
                 data.getEffect(effect.getClass()).readNBT(message.tagCompound);
 
-            Minecraft.getMinecraft().renderGlobal.markBlockForUpdate(pos.posX, pos.posY, pos.posZ);
+            Minecraft.getMinecraft().renderGlobal.markBlockForUpdate(pos.x, pos.y, pos.z);
             return null;
         }
     }

@@ -4,6 +4,7 @@ import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import drunkmafia.thaumicinfusion.common.util.BlockHelper;
+import drunkmafia.thaumicinfusion.common.util.WorldCoord;
 import drunkmafia.thaumicinfusion.common.world.BlockData;
 import drunkmafia.thaumicinfusion.common.world.BlockSavable;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
@@ -23,10 +24,10 @@ public class RequestBlockPacketS extends CooldownPacket {
 
     public RequestBlockPacketS() {}
 
-    private ChunkCoordinates coordinates;
+    private WorldCoord coordinates;
     private Class<? extends BlockSavable> type;
 
-    public RequestBlockPacketS(Class<? extends BlockSavable> type, ChunkCoordinates coordinates) {
+    public RequestBlockPacketS(Class<? extends BlockSavable> type, WorldCoord coordinates) {
         if(!canSend(coordinates))
             return;
         this.coordinates = coordinates;
@@ -36,7 +37,8 @@ public class RequestBlockPacketS extends CooldownPacket {
     @Override
     public void fromBytes(ByteBuf buf) {
         if(buf.readByte() == 1){
-            coordinates = new ChunkCoordinates(buf.readInt(), buf.readInt(), buf.readInt());
+            coordinates = new WorldCoord();
+            coordinates.fromBytes(buf);
             try {
                 byte[] typeBytes = new byte[buf.readInt()];
                 buf.readBytes(typeBytes);
@@ -51,9 +53,7 @@ public class RequestBlockPacketS extends CooldownPacket {
     public void toBytes(ByteBuf buf) {
         if(coordinates != null) {
             buf.writeByte(1);
-            buf.writeInt(coordinates.posX);
-            buf.writeInt(coordinates.posY);
-            buf.writeInt(coordinates.posZ);
+            coordinates.toBytes(buf);
             byte[] typeBytes = type.getCanonicalName().getBytes();
             buf.writeInt(typeBytes.length);
             buf.writeBytes(typeBytes);

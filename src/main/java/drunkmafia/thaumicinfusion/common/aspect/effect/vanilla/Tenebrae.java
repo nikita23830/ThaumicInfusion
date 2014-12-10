@@ -6,12 +6,14 @@ import cpw.mods.fml.relauncher.SideOnly;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.block.InfusedBlock;
 import drunkmafia.thaumicinfusion.common.util.BlockHelper;
+import drunkmafia.thaumicinfusion.common.util.WorldCoord;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 import drunkmafia.thaumicinfusion.common.world.BlockData;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
 import drunkmafia.thaumicinfusion.net.packet.server.EffectSyncPacketC;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.AxisAlignedBB;
@@ -37,10 +39,10 @@ public class Tenebrae extends AspectEffect {
     }
 
     @Override
-    public void aspectInit(World world,ChunkCoordinates pos) {
+    public void aspectInit(World world,WorldCoord pos) {
         super.aspectInit(world, pos);
         if(!world.isRemote)
-            updateTick(world, pos.posX, pos.posY, pos.posZ, new Random());
+            updateTick(world, pos.x, pos.y, pos.z, new Random());
     }
 
     public boolean isLit, oldIsLit;
@@ -68,10 +70,10 @@ public class Tenebrae extends AspectEffect {
         else return super.getCollisionBoundingBoxFromPool(world, x, y, z);
     }
 
+    @Override
     @SideOnly(Side.CLIENT)
-    public IIcon getIcon(IBlockAccess access, int x, int y, int z, int side) {
-        IIcon icon = BlockHelper.getData(BlockData.class, access, new ChunkCoordinates(x, y, z)).getContainingBlock().getIcon(access, x, y, z, side);
-        return isLit ? access.getBlock(x, y, z).getIcon(0, 0) : icon;
+    public boolean shouldRender(World world, int x, int y, int z, RenderBlocks render) {
+        return !isLit;
     }
 
     @Override

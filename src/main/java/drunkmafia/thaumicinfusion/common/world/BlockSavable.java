@@ -1,9 +1,11 @@
 package drunkmafia.thaumicinfusion.common.world;
 
 import drunkmafia.thaumicinfusion.common.util.Savable;
+import drunkmafia.thaumicinfusion.common.util.WorldCoord;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.world.World;
+import thaumcraft.api.WorldCoordinates;
 
 /**
  * Created by DrunkMafia on 29/06/2014.
@@ -12,27 +14,27 @@ import net.minecraft.world.World;
  */
 public class BlockSavable extends Savable {
 
-    private ChunkCoordinates coordinates;
+    private WorldCoord coordinates;
 
     public BlockSavable() {
     }
 
-    public BlockSavable(ChunkCoordinates coordinates) {
+    public BlockSavable(WorldCoord coordinates) {
         this.coordinates = coordinates;
     }
 
-    public ChunkCoordinates getCoords() {
+    public WorldCoord getCoords() {
         return coordinates;
     }
 
     public void writeNBT(NBTTagCompound tagCompound) {
         super.writeNBT(tagCompound);
-        tagCompound.setIntArray("coords", new int[]{coordinates.posX, coordinates.posY, coordinates.posZ});
+        coordinates.writeNBT(tagCompound);
     }
 
     public void readNBT(NBTTagCompound tagCompound) {
         super.readNBT(tagCompound);
-        int[] coords = tagCompound.getIntArray("coords");
-        coordinates = new ChunkCoordinates(coords[0], coords[1], coords[2]);
+        coordinates = new WorldCoord();
+        coordinates.readNBT(tagCompound);
     }
 }

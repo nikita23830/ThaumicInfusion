@@ -3,6 +3,7 @@ package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
+import drunkmafia.thaumicinfusion.common.util.WorldCoord;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
@@ -33,10 +34,10 @@ import java.util.Random;
 public class Vitium extends AspectEffect {
 
     @Override
-    public void aspectInit(World world,ChunkCoordinates pos) {
+    public void aspectInit(World world,WorldCoord pos) {
         super.aspectInit(world, pos);
         if(!world.isRemote)
-            updateTick(world, pos.posX, pos.posY, pos.posZ, new Random());
+            updateTick(world, pos.x, pos.y, pos.z, new Random());
     }
 
     public void updateTick(World world, int x, int y, int z, Random random){

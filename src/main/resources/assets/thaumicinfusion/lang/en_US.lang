@@ -48,3 +48,5 @@ ti.effect_info.VITIUM=Will destroy all forms of solid taint next to it
 ti.effect_info.MESSIS=Allows the placement of plants on the block
 ti.effect_info.IGNIS=Supports fire on the block
 ti.effect_info.SENSUS=Block is only viewable when goggles are on
+ti.effect_info.ORDO=Adds stability to infusion alters
+ti.effect_info.PERDITO=Block is prone to exploding

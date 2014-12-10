@@ -1,6 +1,7 @@
 package drunkmafia.thaumicinfusion.net.packet;
 
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
+import drunkmafia.thaumicinfusion.common.util.WorldCoord;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.util.ChunkCoordinates;
 
@@ -12,12 +13,12 @@ import java.util.HashMap;
  */
 public abstract class CooldownPacket implements IMessage {
 
-    public static HashMap<ChunkCoordinates, Long> syncTimeouts = new HashMap<ChunkCoordinates, Long>();
+    public static HashMap<WorldCoord, Long> syncTimeouts = new HashMap<WorldCoord, Long>();
     private static long maxTimeout = 10000;
 
     public CooldownPacket() {}
 
-    public boolean canSend(ChunkCoordinates coordinates){
+    public boolean canSend(WorldCoord coordinates){
         if (syncTimeouts.containsKey(coordinates)) {
             long timeout = syncTimeouts.get(coordinates);
             if ((timeout + maxTimeout) < System.currentTimeMillis()) {

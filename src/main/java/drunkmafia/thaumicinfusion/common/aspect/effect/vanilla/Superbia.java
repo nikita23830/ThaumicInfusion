@@ -2,6 +2,7 @@ package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
 import cpw.mods.fml.common.network.NetworkRegistry;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
+import drunkmafia.thaumicinfusion.common.util.WorldCoord;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
 import drunkmafia.thaumicinfusion.net.packet.server.EffectSyncPacketC;
@@ -28,9 +29,9 @@ public class Superbia extends AspectEffect {
     private int disguisedMeta;
 
     @Override
-    public void aspectInit(World world, ChunkCoordinates pos) {
+    public void aspectInit(World world, WorldCoord pos) {
         super.aspectInit(world, pos);
-        ChannelHandler.network.sendToAllAround(new EffectSyncPacketC(this), new NetworkRegistry.TargetPoint(world.getWorldInfo().getVanillaDimension(), pos.posX, pos.posY, pos.posZ, 50));
+        ChannelHandler.network.sendToAllAround(new EffectSyncPacketC(this), new NetworkRegistry.TargetPoint(world.getWorldInfo().getVanillaDimension(), pos.x, pos.y, pos.z, 50));
     }
 
     @Override

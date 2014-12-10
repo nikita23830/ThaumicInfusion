@@ -4,6 +4,7 @@ import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import drunkmafia.thaumicinfusion.common.util.BlockHelper;
+import drunkmafia.thaumicinfusion.common.util.WorldCoord;
 import drunkmafia.thaumicinfusion.common.world.BlockSavable;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
 import io.netty.buffer.ByteBuf;
@@ -55,9 +56,9 @@ public class BlockSyncPacketC implements IMessage {
             BlockSavable data = message.data;
             if (data == null || ctx.side.isServer()) return null;
             World world = ChannelHandler.getPlayer(ctx).worldObj;
-            ChunkCoordinates pos = data.getCoords();
+            WorldCoord pos = data.getCoords();
             BlockHelper.getWorldData(world).addBlock(world, message.data);
-            Minecraft.getMinecraft().renderGlobal.markBlockForUpdate(pos.posX, pos.posY, pos.posZ);
+            Minecraft.getMinecraft().renderGlobal.markBlockForUpdate(pos.x, pos.y, pos.z);
             return null;
         }
     }

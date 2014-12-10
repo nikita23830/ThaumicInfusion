@@ -2,6 +2,7 @@ package drunkmafia.thaumicinfusion.common.world;
 
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.aspect.AspectHandler;
+import drunkmafia.thaumicinfusion.common.util.WorldCoord;
 import net.minecraft.block.Block;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -23,7 +24,7 @@ public class BlockData extends BlockSavable {
 
     public BlockData() {}
 
-    public BlockData(ChunkCoordinates coords, Class[] list, int containingID, int blockID) {
+    public BlockData(WorldCoord coords, Class[] list, int containingID, int blockID) {
         super(coords);
         this.blockID = blockID;
         this.containingID = containingID;
@@ -53,6 +54,10 @@ public class BlockData extends BlockSavable {
             if(obj.getClass() == effect)
                 return effect.cast(obj);
         return null;
+    }
+
+    public boolean hasEffect(Class<? extends AspectEffect> effect){
+        return getEffect(effect) != null;
     }
 
     private AspectEffect[] classesToEffects(Class[] list) {
@@ -109,10 +114,9 @@ public class BlockData extends BlockSavable {
         return Block.getBlockById(blockID);
     }
 
-    public Class[] getEffects() {
-        Class[] classes = new Class[dataEffects.size()];
-        for (int i = 0; i < classes.length; i++) classes[i] = dataEffects.get(i).getClass();
-        return classes;
+    public AspectEffect[] getEffects() {
+        AspectEffect[] classes = new AspectEffect[dataEffects.size()];
+        return dataEffects.toArray(classes);
     }
 
     public ArrayList<Aspect> getAspects(){

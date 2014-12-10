@@ -13,6 +13,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.world.*;
 import net.minecraftforge.common.util.ForgeDirection;
+import thaumcraft.api.WorldCoordinates;
 
 import java.lang.reflect.Field;
 
@@ -23,19 +24,19 @@ public class BlockHelper {
     public static BlockData getDataFromStack(ItemStack stack, int x, int y, int z) {
         Class[] classes = getEffectsFromStack(stack);
         if(classes != null) {
-            BlockData data = new BlockData(new ChunkCoordinates(x, y, z), classes, getInfusedID(stack), getBlockID(classes));
+            BlockData data = new BlockData(new WorldCoord(x, y, z), classes, getInfusedID(stack), getBlockID(classes));
             return data;
         }else return null;
     }
 
-    public static <T>T getData(Class<T> type, World world, ChunkCoordinates coords) {
+    public static <T>T getData(Class<T> type, World world, WorldCoord coords) {
         T data = getWorldData(world).getBlock(type, coords);
         if (data == null && world.isRemote)
             ChannelHandler.network.sendToServer(new RequestBlockPacketS((Class<? extends BlockSavable>) type, coords));
         return data;
     }
 
-    public static <T>T getData(Class<T> type, IBlockAccess access, ChunkCoordinates coords) {
+    public static <T>T getData(Class<T> type, IBlockAccess access, WorldCoord coords) {
         World world = getWorld(access);
         if(world == null)
             return null;
@@ -54,12 +55,12 @@ public class BlockHelper {
         }
     }
 
-    public static void destroyBlock(World world, ChunkCoordinates coords){
+    public static void destroyBlock(World world, WorldCoord coords){
         TIWorldData data = getWorldData(world);
         data.removeBlock(coords);
 
-        world.setBlock(coords.posX, coords.posY, coords.posZ, Blocks.air);
-        world.removeTileEntity(coords.posX, coords.posY, coords.posZ);
+        world.setBlock(coords.x, coords.y, coords.z, Blocks.air);
+        world.removeTileEntity(coords.x, coords.y, coords.z);
     }
 
     static FieldAccess worldObj;

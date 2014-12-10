@@ -3,14 +3,18 @@ package drunkmafia.thaumicinfusion.common.aspect;
 import drunkmafia.thaumicinfusion.common.block.InfusedBlock;
 import drunkmafia.thaumicinfusion.common.lib.BlockInfo;
 import drunkmafia.thaumicinfusion.common.util.Savable;
+import drunkmafia.thaumicinfusion.common.util.WorldCoord;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
+import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import thaumcraft.api.WorldCoordinates;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -28,7 +32,7 @@ public class AspectEffect extends Block {
     private static HashMap<Class, ArrayList<String>> phasedMethods = new HashMap<Class, ArrayList<String>>();
     private List<String> methods;
 
-    protected ChunkCoordinates pos;
+    protected WorldCoord pos;
     protected World worldObj;
 
     public AspectEffect() {
@@ -38,12 +42,12 @@ public class AspectEffect extends Block {
         methods = phasedMethods.get(getClass());
     }
 
-    public void aspectInit(World world, ChunkCoordinates pos){
+    public void aspectInit(World world, WorldCoord pos){
         worldObj = world;
         this.pos = pos;
     }
 
-    public ChunkCoordinates getPos(){
+    public WorldCoord getPos(){
         return pos;
     }
 
@@ -53,6 +57,10 @@ public class AspectEffect extends Block {
 
     public boolean hasMethod(String meth){
         return methods.contains(meth);
+    }
+
+    public boolean shouldRender(World world, int x, int y, int z, RenderBlocks renderBlocks){
+        return true;
     }
 
     public void blockHighlight(World world, int x, int y, int z, EntityPlayer player, MovingObjectPosition pos, float partialTicks){}
@@ -83,14 +91,15 @@ public class AspectEffect extends Block {
         phasedMethods.put(getClass(), meths);
     }
 
+    public void renderBlocksInWorld(IBlockAccess access, int x, int y, int z, Block block, int meta, RenderBlocks renderBlocks){}
+
     public void writeNBT(NBTTagCompound tagCompound) {
         tagCompound.setString("class", this.getClass().getCanonicalName());
-        tagCompound.setInteger("X" , pos.posX);
-        tagCompound.setInteger("Y" , pos.posY);
-        tagCompound.setInteger("Z" , pos.posZ);
+        pos.writeNBT(tagCompound);
     }
 
     public void readNBT(NBTTagCompound tagCompound) {
-        pos = new ChunkCoordinates(tagCompound.getInteger("X"), tagCompound.getInteger("Y"), tagCompound.getInteger("Z"));
+        pos = new WorldCoord();
+        pos.readNBT(tagCompound);
     }
 }

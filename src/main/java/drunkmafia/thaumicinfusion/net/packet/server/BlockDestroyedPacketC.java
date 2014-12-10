@@ -8,6 +8,7 @@ import drunkmafia.thaumicinfusion.net.ChannelHandler;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ChunkCoordinates;
+import thaumcraft.api.WorldCoordinates;
 
 /**
  * Created by DrunkMafia on 28/06/2014.
@@ -18,22 +19,22 @@ public class BlockDestroyedPacketC implements IMessage {
 
     public BlockDestroyedPacketC(){}
 
-    private ChunkCoordinates coordinates;
+    private WorldCoordinates coordinates;
 
-    public BlockDestroyedPacketC(ChunkCoordinates coordinates){
+    public BlockDestroyedPacketC(WorldCoordinates coordinates){
         this.coordinates = coordinates;
     }
 
     @Override
     public void fromBytes(ByteBuf buf) {
-        coordinates = new ChunkCoordinates(buf.readInt(), buf.readInt(), buf.readInt());
+        coordinates = new WorldCoordinates(buf.readInt(), buf.readInt(), buf.readInt(), 0);
     }
 
     @Override
     public void toBytes(ByteBuf buf) {
-        buf.writeInt(coordinates.posX);
-        buf.writeInt(coordinates.posY);
-        buf.writeInt(coordinates.posZ);
+        buf.writeInt(coordinates.x);
+        buf.writeInt(coordinates.y);
+        buf.writeInt(coordinates.z);
     }
 
     public static class Handler implements IMessageHandler<BlockDestroyedPacketC, IMessage> {

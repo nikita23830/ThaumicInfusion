@@ -2,15 +2,17 @@ package drunkmafia.thaumicinfusion.client.renderer;
 
 import cpw.mods.fml.client.registry.ISimpleBlockRenderingHandler;
 import cpw.mods.fml.client.registry.RenderingRegistry;
-import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
+import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.util.BlockHelper;
+import drunkmafia.thaumicinfusion.common.util.WorldCoord;
 import drunkmafia.thaumicinfusion.common.world.BlockData;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderBlocks;
+import net.minecraft.src.FMLRenderAccessLibrary;
 import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.world.IBlockAccess;
-import org.apache.logging.log4j.Logger;
+import org.lwjgl.opengl.GL11;
 
 /**
  * Created by DrunkMafia on 25/07/2014.
@@ -31,12 +33,16 @@ public class RenderInfused implements ISimpleBlockRenderingHandler {
 
     @Override
     public boolean renderWorldBlock(IBlockAccess access, int x, int y, int z, Block block, int meta, RenderBlocks renderBlocks) {
-        BlockData data = BlockHelper.getData(BlockData.class, Minecraft.getMinecraft().theWorld, new ChunkCoordinates(x, y, z));
-
+        BlockData data = BlockHelper.getData(BlockData.class, Minecraft.getMinecraft().theWorld, new WorldCoord(x, y, z));
         if(data == null)
             return false;
 
-        return renderBlocks.renderBlockByRenderType(data.getContainingBlock(), x, y, z);
+        for(AspectEffect effects : data.getEffects())
+            if(!effects.shouldRender(Minecraft.getMinecraft().theWorld, x, y, z, renderBlocks))
+                return false;
+
+        renderBlocks.renderBlockByRenderType(data.getContainingBlock(), x, y, z);
+        return true;
     }
 
     @Override

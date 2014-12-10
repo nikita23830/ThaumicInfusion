@@ -5,11 +5,11 @@ import drunkmafia.thaumicinfusion.common.util.Savable;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
 import drunkmafia.thaumicinfusion.net.packet.server.BlockDestroyedPacketC;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldSavedData;
 import net.minecraft.world.chunk.Chunk;
 import org.apache.logging.log4j.Logger;
+import thaumcraft.api.WorldCoordinates;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,11 +23,11 @@ import java.util.Map;
 public class TIWorldData extends WorldSavedData {
 
     public World world;
-    private HashMap<ChunkCoordinates, ArrayList<BlockSavable>> blocksData;
+    private HashMap<WorldCoordinates, ArrayList<BlockSavable>> blocksData;
 
     public TIWorldData(String mapname) {
         super(mapname);
-        blocksData = new HashMap<ChunkCoordinates, ArrayList<BlockSavable>>();
+        blocksData = new HashMap<WorldCoordinates, ArrayList<BlockSavable>>();
         setDirty(true);
     }
 
@@ -38,8 +38,8 @@ public class TIWorldData extends WorldSavedData {
             if(block instanceof BlockData){
                 BlockData data = (BlockData)block;
                 if(!data.isInit()) {
-                    ChunkCoordinates pos = data.getCoords();
-                    data.initAspects(world, pos.posX, pos.posY, pos.posZ);
+                    WorldCoordinates pos = data.getCoords();
+                    data.initAspects(world, pos.x, pos.y, pos.z);
                 }
             }
 
@@ -61,13 +61,13 @@ public class TIWorldData extends WorldSavedData {
             return;
 
         for(BlockSavable savable : getAllBocks()){
-            ChunkCoordinates coords = savable.getCoords();
+            WorldCoordinates coords = savable.getCoords();
             if(savable instanceof BlockData && !((BlockData)savable).isInit())
-                ((BlockData)savable).initAspects(world, coords.posX, coords.posY, coords.posZ);
+                ((BlockData)savable).initAspects(world, coords.x, coords.y, coords.z);
         }
     }
 
-    public void removeBlock(ChunkCoordinates coords) {
+    public void removeBlock(WorldCoordinates coords) {
         if(!blocksData.containsKey(coords))
             return;
 
@@ -76,7 +76,7 @@ public class TIWorldData extends WorldSavedData {
         ChannelHandler.network.sendToAll(new BlockDestroyedPacketC(coords));
     }
 
-    public <T>T getBlock(Class<T> type, ChunkCoordinates coords) {
+    public <T>T getBlock(Class<T> type, WorldCoordinates coords) {
         ArrayList<BlockSavable> datas = blocksData.get(coords);
         if(datas == null)
             return null;
@@ -87,7 +87,7 @@ public class TIWorldData extends WorldSavedData {
     }
 
     public BlockSavable[][] getAllStoredData(){
-        Map.Entry<ChunkCoordinates, ArrayList<BlockSavable>>[] entries = blocksData.entrySet().toArray(new Map.Entry[blocksData.size()]);
+        Map.Entry<WorldCoordinates, ArrayList<BlockSavable>>[] entries = blocksData.entrySet().toArray(new Map.Entry[blocksData.size()]);
         BlockSavable[][] savables = new BlockSavable[entries.length][0];
         for(int i = 0; i < savables.length; i++){
             ArrayList<BlockSavable> stored = entries[i].getValue();
@@ -105,7 +105,7 @@ public class TIWorldData extends WorldSavedData {
     public BlockSavable[] getAllBocks(){
         Map.Entry[] entries = blocksData.entrySet().toArray(new Map.Entry[blocksData.size()]);
         ArrayList<BlockSavable> blocks = new ArrayList<BlockSavable>();
-        for(Map.Entry<ChunkCoordinates, ArrayList<BlockSavable>> data : entries){
+        for(Map.Entry<WorldCoordinates, ArrayList<BlockSavable>> data : entries){
             blocks.addAll(data.getValue());
         }
         BlockSavable[] array = new BlockSavable[blocks.size()];

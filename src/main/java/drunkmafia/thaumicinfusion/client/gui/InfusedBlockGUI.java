@@ -4,6 +4,7 @@ import cpw.mods.fml.client.FMLClientHandler;
 import drunkmafia.thaumicinfusion.common.aspect.AspectHandler;
 import drunkmafia.thaumicinfusion.common.container.InfusedBlockContainer;
 import drunkmafia.thaumicinfusion.common.lib.ModInfo;
+import drunkmafia.thaumicinfusion.common.util.WorldCoord;
 import drunkmafia.thaumicinfusion.common.world.BlockData;
 import drunkmafia.thaumicinfusion.common.util.BlockHelper;
 import drunkmafia.thaumicinfusion.common.util.EffectGUI;
@@ -29,7 +30,7 @@ public class InfusedBlockGUI extends GuiContainer {
 
     private EffectGUI currentEffect;
 
-    public InfusedBlockGUI(ChunkCoordinates coordinates) {
+    public InfusedBlockGUI(WorldCoord coordinates) {
         super(new InfusedBlockContainer());
 
         xSize = 180;
