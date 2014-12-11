@@ -10,6 +10,7 @@ import cpw.mods.fml.common.network.NetworkRegistry;
 import drunkmafia.thaumicinfusion.common.aspect.AspectHandler;
 import drunkmafia.thaumicinfusion.common.block.BlockHandler;
 import drunkmafia.thaumicinfusion.common.block.TIBlocks;
+import drunkmafia.thaumicinfusion.common.event.CommonEventContainer;
 import drunkmafia.thaumicinfusion.common.event.WorldEventHandler;
 import drunkmafia.thaumicinfusion.common.intergration.ThaumcraftIntergration;
 import drunkmafia.thaumicinfusion.common.tab.TITab;
@@ -57,6 +58,7 @@ public class ThaumicInfusion {
         BlockHandler.whitelistBlocks();
         NetworkRegistry.INSTANCE.registerGuiHandler(instance, proxy);
         MinecraftForge.EVENT_BUS.register(new WorldEventHandler());
+        MinecraftForge.EVENT_BUS.register(new CommonEventContainer());
         proxy.initRenderers();
     }
 

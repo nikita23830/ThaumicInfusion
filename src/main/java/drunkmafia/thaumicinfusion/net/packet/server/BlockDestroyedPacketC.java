@@ -4,7 +4,9 @@ import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import drunkmafia.thaumicinfusion.common.util.BlockHelper;
+import drunkmafia.thaumicinfusion.common.util.WorldCoord;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
+import drunkmafia.thaumicinfusion.net.packet.CooldownPacket;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ChunkCoordinates;
@@ -19,22 +21,20 @@ public class BlockDestroyedPacketC implements IMessage {
 
     public BlockDestroyedPacketC(){}
 
-    private WorldCoordinates coordinates;
+    private WorldCoord coordinates;
 
-    public BlockDestroyedPacketC(WorldCoordinates coordinates){
+    public BlockDestroyedPacketC(WorldCoord coordinates){
         this.coordinates = coordinates;
     }
 
     @Override
     public void fromBytes(ByteBuf buf) {
-        coordinates = new WorldCoordinates(buf.readInt(), buf.readInt(), buf.readInt(), 0);
+        coordinates = WorldCoord.get(buf);
     }
 
     @Override
     public void toBytes(ByteBuf buf) {
-        buf.writeInt(coordinates.x);
-        buf.writeInt(coordinates.y);
-        buf.writeInt(coordinates.z);
+        coordinates.toBytes(buf);
     }
 
     public static class Handler implements IMessageHandler<BlockDestroyedPacketC, IMessage> {
@@ -42,6 +42,7 @@ public class BlockDestroyedPacketC implements IMessage {
         @Override
         public IMessage onMessage(BlockDestroyedPacketC message, MessageContext ctx) {
             if(message.coordinates == null || ctx.side.isServer()) return null;
+            CooldownPacket.syncTimeouts.remove(message.coordinates);
             EntityPlayer player = ChannelHandler.getPlayer(ctx);
             BlockHelper.getWorldData(player.worldObj).removeBlock(message.coordinates);
             return null;

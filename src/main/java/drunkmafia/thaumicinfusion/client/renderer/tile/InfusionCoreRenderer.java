@@ -41,13 +41,9 @@ public class InfusionCoreRenderer extends TileEntitySpecialRenderer {
         renderCore(pos, new Vector3(1.4, 1.3, 1.4), core.coreAxies, core.angle, deltaTime);
         renderCore(pos, new Vector3(1, 1.3, 1), core.coreAxies, -core.angle, deltaTime);
         renderInventory(pos, tile);
-
-        if(core.getStackInSlot(0) != null && !core.matrix.crafting)
-            Thaumcraft.instance.renderEventHandler.drawTextInAir(pos.x, pos.y, pos.z, deltaTime, core.getStackInSlot(0).stackSize + " ");
     }
 
     void renderCore(Vector3 pos, Vector3 scale, Vector3 axies, float angle, float deltaTime){
-
         GL11.glPushMatrix();
         GL11.glTranslated(pos.x, pos.y + hover, pos.z);
         GL11.glScaled(scale.x, scale.y, scale.z);

@@ -9,7 +9,6 @@ import drunkmafia.thaumicinfusion.common.block.BlockHandler;
 import drunkmafia.thaumicinfusion.common.block.TIBlocks;
 import drunkmafia.thaumicinfusion.common.block.tile.InfusionCoreTile;
 import drunkmafia.thaumicinfusion.common.lib.ModInfo;
-import drunkmafia.thaumicinfusion.common.util.ClassLoading;
 import drunkmafia.thaumicinfusion.common.util.InfusionHelper;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 import net.minecraft.block.Block;
@@ -122,7 +121,7 @@ public class ThaumcraftIntergration {
                 Spiritus.class,
                 Tempestas.class,
                 Tenebrae.class,
-                //Vacuos.class,
+                Vacuos.class,
                 Alienis.class,
                 Vitium.class,
                 Bestia.class,

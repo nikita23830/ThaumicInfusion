@@ -49,7 +49,7 @@ public class BlockHandler {
             Iterator blocksIter = Block.blockRegistry.iterator();
             while (blocksIter.hasNext()) {
                 Block block = (Block) blocksIter.next();
-                if (!(block instanceof ITileEntityProvider) && block.createTileEntity(null, 0) == null) {
+                if (!(block instanceof ITileEntityProvider)) {
                     whitelistedBlocks.add(block.getUnlocalizedName());
                     blocks.add(block.getUnlocalizedName());
                 }

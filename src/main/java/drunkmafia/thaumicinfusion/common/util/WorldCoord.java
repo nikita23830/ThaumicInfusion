@@ -20,6 +20,18 @@ public class WorldCoord extends WorldCoordinates {
         return new WorldCoord(x, y, z);
     }
 
+    public static WorldCoord get(ByteBuf buf){
+        WorldCoord coord = new WorldCoord();
+        coord.fromBytes(buf);
+        return coord;
+    }
+
+    public static WorldCoord get(NBTTagCompound nbt){
+        WorldCoord coord = new WorldCoord();
+        coord.readNBT(nbt);
+        return coord;
+    }
+
     public WorldCoord(){}
 
     public WorldCoord(String id, int x, int y, int z){

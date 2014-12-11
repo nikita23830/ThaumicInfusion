@@ -26,6 +26,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
@@ -40,9 +41,9 @@ import thaumcraft.common.items.wands.ItemWandCasting;
 
 import java.util.Random;
 
-public class InfusedBlock extends Block implements ITileEntityProvider, IInfusionStabiliser {
+public class InfusedBlock extends Block implements IWorldData, ITileEntityProvider, IInfusionStabiliser {
 
-    public int pass = 1;
+    public int pass = 0;
 
     public InfusedBlock(Material mat) {
         super(mat);
@@ -75,26 +76,29 @@ public class InfusedBlock extends Block implements ITileEntityProvider, IInfusio
     }
 
     @Override
-    protected void dropBlockAsItem(World world, int x, int y, int z, ItemStack stack) {
-        if(world.isRemote)
+    protected void dropBlockAsItem(World world, int x, int y, int z, ItemStack stack) {}
+
+    @Override
+    public BlockSavable getData(World world, ItemStack stack, WorldCoord coord) {
+        world.setBlockMetadataWithNotify(coord.x, coord.y, coord.z, stack.getItemDamage(), 3);
+        return BlockHelper.getDataFromStack(stack, coord.x, coord.y, coord.z);
+    }
+
+    @Override
+    public void breakBlock(World world, BlockSavable data) {
+        if(!(data instanceof BlockData))
             return;
-        BlockData data = BlockHelper.getData(BlockData.class, world, new WorldCoord(x, y, z));
-        if (data != null)
-            super.dropBlockAsItem(world, x, y, z, InfusionHelper.getInfusedItemStack(data.getAspects(), Block.getIdFromBlock(data.getContainingBlock()), 1, world.getBlockMetadata(x, y, z)));
+
+        BlockData block = (BlockData)data;
+        WorldCoord pos = data.getCoords();
+        super.dropBlockAsItem(world, pos.x, pos.y, pos.z, InfusionHelper.getInfusedItemStack(block.getAspects(), Block.getIdFromBlock(block.getContainingBlock()), 1, world.getBlockMetadata(pos.x, pos.y, pos.z)));
     }
 
     @Override
     public void onBlockPlacedBy(World world, int x, int y, int z, EntityLivingBase ent, ItemStack stack) {
-        if (!world.isRemote) {
-            BlockData data = BlockHelper.getDataFromStack(stack, x, y, z);
-            if (data != null)
-                BlockHelper.getWorldData(world).addBlock(world, data);
-            else{
-                world.setBlock(x, y, z, Blocks.air);
-                return;
-            }
-            world.setBlockMetadataWithNotify(x, y, z, stack.getItemDamage(), 3);
-        }else RequestBlockPacketS.syncTimeouts.remove(new WorldCoord(x, y, z));
+        if (world.isRemote)
+            RequestBlockPacketS.syncTimeouts.remove(new WorldCoord(x, y, z));
+
         BlockData blockData = BlockHelper.getData(BlockData.class, world, new WorldCoord(x, y, z));
         if (isBlockData(blockData))
             blockData.runBlockMethod().onBlockPlacedBy (world, x, y, z, ent, stack);
