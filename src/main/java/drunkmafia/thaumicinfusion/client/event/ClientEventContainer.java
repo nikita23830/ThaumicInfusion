@@ -15,6 +15,7 @@ import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.DrawBlockHighlightEvent;
+import net.minecraftforge.client.event.RenderPlayerEvent;
 
 /**
  * Created by DrunkMafia on 27/06/2014.
@@ -22,8 +23,6 @@ import net.minecraftforge.client.event.DrawBlockHighlightEvent;
  * See http://www.wtfpl.net/txt/copying for licence
  */
 public class ClientEventContainer {
-
-    public boolean renderLast = false;
 
     @SideOnly(Side.CLIENT)
     @SubscribeEvent

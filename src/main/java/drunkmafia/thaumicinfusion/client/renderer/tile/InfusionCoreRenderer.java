@@ -24,7 +24,7 @@ import static drunkmafia.thaumicinfusion.common.lib.BlockInfo.*;
  */
 public class InfusionCoreRenderer extends TileEntitySpecialRenderer {
 
-    IModelCustom model = AdvancedModelLoader.loadModel(infusionCore_Model);
+    static IModelCustom model = AdvancedModelLoader.loadModel(infusionCore_Model);
     float transSpeed = 0.025F, rotSpeed = 2F, hover, ticks;
 
     @Override
@@ -38,12 +38,12 @@ public class InfusionCoreRenderer extends TileEntitySpecialRenderer {
 
         Vector3 pos = new Vector3(x + 0.5D, y + 0.5D + core.yLevel, z + 0.5D);
 
-        renderCore(pos, new Vector3(1.4, 1.3, 1.4), core.coreAxies, core.angle, deltaTime);
-        renderCore(pos, new Vector3(1, 1.3, 1), core.coreAxies, -core.angle, deltaTime);
+        renderCore(pos, new Vector3(1.4, 1.3, 1.4), core.coreAxies, core.angle, hover, deltaTime);
+        renderCore(pos, new Vector3(1, 1.3, 1), core.coreAxies, -core.angle, hover, deltaTime);
         renderInventory(pos, tile);
     }
 
-    void renderCore(Vector3 pos, Vector3 scale, Vector3 axies, float angle, float deltaTime){
+     public static void renderCore(Vector3 pos, Vector3 scale, Vector3 axies, float angle, float hover, float deltaTime){
         GL11.glPushMatrix();
         GL11.glTranslated(pos.x, pos.y + hover, pos.z);
         GL11.glScaled(scale.x, scale.y, scale.z);

@@ -23,23 +23,25 @@ public class InfusedItemRenderer implements IItemRenderer {
 
     @Override
     public void renderItem(ItemRenderType type, ItemStack item, Object... data) {
-        NBTTagCompound tag = item.stackTagCompound;
-        if (tag != null) {
+        if(item.stackTagCompound == null)
+            return;
+        NBTTagCompound tag = item.stackTagCompound.getCompoundTag("InfuseTag");
 
-            ItemStack infused = new ItemStack(Block.getBlockById(tag.getInteger("infusedID")), 1, item.getItemDamage());
-            EntityPlayer player = FMLClientHandler.instance().getClient().thePlayer;
+        if (tag == null || !tag.hasKey("infusedID"))
+            return;
 
-            GL11.glPushMatrix();
+        ItemStack infused = new ItemStack(Block.getBlockById(tag.getInteger("infusedID")), 1, item.getItemDamage());
+        EntityPlayer player = FMLClientHandler.instance().getClient().thePlayer;
 
-            if(type == ItemRenderType.EQUIPPED)
-                GL11.glTranslatef(0.5F, 0.5F, 0.5F);
-            else if(type == ItemRenderType.EQUIPPED_FIRST_PERSON)
-                GL11.glTranslatef(0.45F, 0.50F, 0.50F);
+        GL11.glPushMatrix();
 
-            RenderManager.instance.itemRenderer.renderItem(player, infused, 0);
+        if(type == ItemRenderType.EQUIPPED)
+            GL11.glTranslatef(0.5F, 0.5F, 0.5F);
+        else if(type == ItemRenderType.EQUIPPED_FIRST_PERSON)
+            GL11.glTranslatef(0.45F, 0.50F, 0.50F);
 
-            GL11.glPopMatrix();
+        RenderManager.instance.itemRenderer.renderItem(player, infused, 0);
 
-        }
+        GL11.glPopMatrix();
     }
 }

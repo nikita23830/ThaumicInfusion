@@ -29,4 +29,7 @@ public class ModInfo {
     public static final String CREATIVETAB_UNLOCAL = "thaumicinfusion";
     public static final String EXTRA_INFO_XML = "https://dl.dropboxusercontent.com/u/101919880/Thaumic%20Infusion/ThaumicInfusion.xml";
 
+    /* Logger ID */
+
+    public static final String LOGGER_ID = "[" + MODID + "] ";
 }

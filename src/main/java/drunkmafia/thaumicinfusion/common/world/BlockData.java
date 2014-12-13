@@ -30,7 +30,7 @@ public class BlockData extends BlockSavable {
         this.containingID = containingID;
 
         for (AspectEffect effect : classesToEffects(list)){
-            TileEntity tempTile = effect.createTileEntity(null, 0);
+            TileEntity tempTile = effect.getTile();
             if(tempTile != null)
                 tile = tempTile;
             dataEffects.add(effect);
@@ -119,10 +119,12 @@ public class BlockData extends BlockSavable {
         return dataEffects.toArray(classes);
     }
 
-    public ArrayList<Aspect> getAspects(){
-        ArrayList<Aspect> aspects = new ArrayList<Aspect>();
-        for(AspectEffect effect : dataEffects)
-             aspects.add(AspectHandler.getAspectsFromEffect(effect.getClass()));
+    public Aspect[] getAspects(){
+        AspectEffect[] effects = getEffects();
+        Aspect[] aspects = new Aspect[effects.length];
+        for(int i = 0; i < effects.length; i++)
+            aspects[i] = AspectHandler.getAspectsFromEffect(effects[i].getClass());
+
         return aspects;
     }
 

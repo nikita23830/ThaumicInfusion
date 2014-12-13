@@ -64,7 +64,7 @@ public class ThaumcraftIntergration {
                 ShapedArcaneRecipe recipe = ThaumcraftApi.addArcaneCraftingRecipe("ESSENTIABLOCKS", stack, new AspectList().add(Aspect.ENTROPY, 10), "PP", "PP", Character.valueOf('P'), phial);
                 if (essentiaRecipe == null)
                     essentiaRecipe = recipe;
-                if(essentiaBlock == null)
+                if (essentiaBlock == null)
                     essentiaBlock = stack;
             }
         }
@@ -82,13 +82,13 @@ public class ThaumcraftIntergration {
         ThaumcraftApi.getCraftingRecipes().add(new BlockInfusionRecipe("", 10));
     }
 
-    private static AspectEffectPage[] getPages(){
+    private static AspectEffectPage[] getPages() {
         Aspect[] aspects = AspectHandler.getAspects();
         Aspect[] current = new Aspect[3];
         ArrayList<AspectEffectPage> pages = new ArrayList<AspectEffectPage>();
         int index = 0;
-        for(Aspect aspect : aspects){
-            if(aspect != null) {
+        for (Aspect aspect : aspects) {
+            if (aspect != null) {
                 current[index] = aspect;
                 if (index == 1) {
                     pages.add(new AspectEffectPage(current));
@@ -99,42 +99,10 @@ public class ThaumcraftIntergration {
             }
         }
         AspectEffectPage[] researchPages = new AspectEffectPage[pages.size()];
-        for(int p = 0; p < researchPages.length; p++)
+        for (int p = 0; p < researchPages.length; p++)
             researchPages[p] = pages.get(p);
 
         return researchPages;
-    }
-
-    public static void registerEffects(){
-        AspectHandler.addEffect(
-                AspectEffect.class,
-                Aqua.class,
-                Gelum.class,
-                Ignis.class,
-                Iter.class,
-                Limus.class,
-                Lux.class,
-                Messis.class,
-                Pannus.class,
-                Potentia.class,
-                Sensus.class,
-                Spiritus.class,
-                Tempestas.class,
-                Tenebrae.class,
-                Vacuos.class,
-                Alienis.class,
-                Vitium.class,
-                Bestia.class,
-                Fames.class,
-                Fabrico.class,
-                Volatus.class,
-                Cognitio.class,
-                Sano.class,
-                Infernus.class,
-                Superbia.class,
-                Tutamen.class,
-                Ordo.class,
-                Perditio.class);
     }
 }
 
@@ -225,8 +193,9 @@ class BlockInfusionRecipe extends InfusionRecipe {
                 e.printStackTrace();
             }
 
-            recipeOutput = InfusionHelper.getInfusedItemStack(InfusionHelper.phialsToAspects(input), Block.getIdFromBlock(((ItemBlock) central.getItem()).field_150939_a), central.stackSize, central.getItemDamage());
+            recipeOutput = InfusionHelper.getInfusedItemStack(InfusionHelper.phialsToAspects(input), central, central.stackSize, central.getItemDamage());
         }
+        System.out.println(recipeOutput != null && ii.size() > 0 ? "Success" : "Failed");
         return recipeOutput != null && ii.size() > 0;
     }
 }

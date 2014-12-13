@@ -91,7 +91,11 @@ public class InfusedBlock extends Block implements IWorldData, ITileEntityProvid
 
         BlockData block = (BlockData)data;
         WorldCoord pos = data.getCoords();
-        super.dropBlockAsItem(world, pos.x, pos.y, pos.z, InfusionHelper.getInfusedItemStack(block.getAspects(), Block.getIdFromBlock(block.getContainingBlock()), 1, world.getBlockMetadata(pos.x, pos.y, pos.z)));
+
+        block.runBlockMethod().breakBlock (world, pos.x, pos.y, pos.z, block.getContainingBlock(), world.getBlockMetadata(pos.x, pos.y, pos.z));
+        ItemStack stack = InfusionHelper.getInfusedItemStack(block.getAspects(), new ItemStack(block.getContainingBlock()), 1, world.getBlockMetadata(pos.x, pos.y, pos.z));
+        if(stack != null)
+            super.dropBlockAsItem(world, pos.x, pos.y, pos.z, stack);
     }
 
     @Override
@@ -115,18 +119,6 @@ public class InfusedBlock extends Block implements IWorldData, ITileEntityProvid
         BlockData blockData = BlockHelper.getData(BlockData.class, world, new WorldCoord(x, y, z));
         if (isBlockData(blockData))
             blockData.runBlockMethod().updateTick(world, x, y, z, rand);
-    }
-
-    @Override
-    public void breakBlock(World world, int x, int y, int z, Block block, int meta) {
-        BlockData blockData = BlockHelper.getData(BlockData.class, world, new WorldCoord(x, y, z));
-        if (isBlockData(blockData))
-            blockData.runBlockMethod().breakBlock (world, x, y, z, block, meta);
-
-        if (!world.isRemote && blockData != null)
-            BlockHelper.destroyBlock(world, blockData.getCoords());
-        else
-            RequestBlockPacketS.syncTimeouts.remove(new WorldCoord(x, y, z));
     }
 
     @Override

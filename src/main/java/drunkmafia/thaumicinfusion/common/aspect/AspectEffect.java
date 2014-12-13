@@ -1,15 +1,21 @@
 package drunkmafia.thaumicinfusion.common.aspect;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import drunkmafia.thaumicinfusion.common.block.InfusedBlock;
 import drunkmafia.thaumicinfusion.common.lib.BlockInfo;
+import drunkmafia.thaumicinfusion.common.util.BlockHelper;
 import drunkmafia.thaumicinfusion.common.util.Savable;
 import drunkmafia.thaumicinfusion.common.util.WorldCoord;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
+import drunkmafia.thaumicinfusion.common.world.BlockData;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.RenderBlocks;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.IBlockAccess;
@@ -51,19 +57,34 @@ public class AspectEffect extends Block {
         return pos;
     }
 
+    public boolean shouldRegister(){
+        return true;
+    }
+
     public InfusedBlock getBlock(){
         return new InfusedBlock(Material.rock);
+    }
+
+    public TileEntity getTile(){return null;}
+
+    public BlockData getData(){
+        if(worldObj == null)
+            return null;
+        return BlockHelper.getData(BlockData.class, worldObj, getPos());
     }
 
     public boolean hasMethod(String meth){
         return methods.contains(meth);
     }
 
+    @SideOnly(Side.CLIENT)
     public boolean shouldRender(World world, int x, int y, int z, RenderBlocks renderBlocks){
         return true;
     }
 
     public void blockHighlight(World world, int x, int y, int z, EntityPlayer player, MovingObjectPosition pos, float partialTicks){}
+
+    public void worldBlockInteracted(EntityPlayer player, World world, int x, int y, int z, int face) {}
 
     public static AspectEffect loadDataFromNBT(NBTTagCompound tag) {
         if (!tag.hasKey("class")) return null;
@@ -91,6 +112,7 @@ public class AspectEffect extends Block {
         phasedMethods.put(getClass(), meths);
     }
 
+    @SideOnly(Side.CLIENT)
     public void renderBlocksInWorld(IBlockAccess access, int x, int y, int z, Block block, int meta, RenderBlocks renderBlocks){}
 
     public void writeNBT(NBTTagCompound tagCompound) {

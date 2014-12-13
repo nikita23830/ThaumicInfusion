@@ -1,41 +1,28 @@
 package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
+import drunkmafia.thaumicinfusion.common.aspect.tileentity.VolatusTile;
+import drunkmafia.thaumicinfusion.common.util.WorldCoord;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.World;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Created by DrunkMafia on 12/11/2014.
  * See http://www.wtfpl.net/txt/copying for licence
  */
-@Effect(aspect = "Volatus", cost = 4)
+@Effect(aspect = "volatus", cost = 4, hasTileEntity = true)
 public class Volatus extends AspectEffect {
     @Override
-    public void onFallenUpon(World world, int x, int y, int z, Entity entity, float fall) {
-        if(world.isRemote)
-            return;
-        AddMotion(entity);
-    }
-
-    @Override
-    public void onEntityCollidedWithBlock(World world, int x, int y, int z, Entity entity) {
-        if(world.isRemote)
-            return;
-        AddMotion(entity);
-    }
-
-    @Override
-    public void onEntityWalking(World world, int x, int y, int z, Entity entity) {
-        if(world.isRemote)
-            return;
-        AddMotion(entity);
-    }
-
-    void AddMotion(Entity ent){
-        if(!(ent instanceof EntityLivingBase))
-            return;
-        ent.addVelocity(0, ent.worldObj.rand.nextInt(20), 0);
+    public TileEntity getTile() {
+        return new VolatusTile();
     }
 }

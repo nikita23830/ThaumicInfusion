@@ -31,6 +31,8 @@ public @interface Effect {
 
     boolean hasCustomBlock() default false;
 
+    boolean hasTileEntity() default false;
+
     /**
      * Gui Must extend GuiContainer
      */

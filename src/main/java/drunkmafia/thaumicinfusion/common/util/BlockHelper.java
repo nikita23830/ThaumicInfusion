@@ -81,23 +81,4 @@ public class BlockHelper {
         }
         return Minecraft.getMinecraft().theWorld;
     }
-
-    public static ForgeDirection getRotatedSide(final int side) {
-        switch (side){
-            case 0:
-                return ForgeDirection.DOWN;
-            case 1:
-                return ForgeDirection.UP;
-            case 2:
-                return ForgeDirection.NORTH;
-            case 3:
-                return ForgeDirection.SOUTH;
-            case 4:
-                return ForgeDirection.WEST;
-            case 5:
-                return ForgeDirection.EAST;
-            default:
-                return ForgeDirection.UNKNOWN;
-        }
-    }
 }

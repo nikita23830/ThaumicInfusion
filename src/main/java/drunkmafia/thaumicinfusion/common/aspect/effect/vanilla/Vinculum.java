@@ -1,9 +1,44 @@
 package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
+import cpw.mods.fml.common.network.NetworkRegistry;
+import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
+import drunkmafia.thaumicinfusion.common.util.WorldCoord;
+import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
+import drunkmafia.thaumicinfusion.net.ChannelHandler;
+import drunkmafia.thaumicinfusion.net.packet.server.EffectSyncPacketC;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.world.World;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
 /**
  * Created by DrunkMafia on 25/07/2014.
  * <p/>
  * See http://www.wtfpl.net/txt/copying for licence
  */
-public class Vinculum {
+@Effect(aspect = ("vinculum"), cost = 4)
+public class Vinculum extends AspectEffect {
+
+    @Override
+    public void aspectInit(World world,WorldCoord pos) {
+        super.aspectInit(world, pos);
+        if(!world.isRemote)
+            updateTick(world, pos.x, pos.y, pos.z, new Random());
+    }
+
+    public void updateTick(World world, int x, int y, int z, Random rand) {
+        AxisAlignedBB axisalignedbb = AxisAlignedBB.getBoundingBox(x, y, z, x + 1, y + 3, z + 1);
+        ArrayList<EntityLivingBase> entities = (ArrayList<EntityLivingBase>) world.getEntitiesWithinAABB(EntityLivingBase.class, axisalignedbb);
+
+        for(EntityLivingBase ent : entities) {
+            ent.motionX = 0;
+            ent.motionY = 0;
+            ent.motionZ = 0;
+        }
+        world.scheduleBlockUpdate(x, y, z, world.getBlock(x, y, z), 1);
+    }
 }

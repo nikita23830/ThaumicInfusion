@@ -9,6 +9,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import thaumcraft.api.crafting.IInfusionStabiliser;
 import thaumcraft.common.blocks.BlockStoneDevice;
 import thaumcraft.common.items.wands.ItemWandCasting;
 
@@ -24,7 +25,7 @@ import static drunkmafia.thaumicinfusion.common.lib.BlockInfo.*;
  * <p/>
  * See http://www.wtfpl.net/txt/copying for licence
  */
-public class InfusionCoreBlock extends BlockStoneDevice {
+public class InfusionCoreBlock extends BlockStoneDevice implements IInfusionStabiliser {
 
     protected InfusionCoreBlock() {
         setBlockName(infusionCoreBlock_UnlocalizedName);
@@ -114,5 +115,10 @@ public class InfusionCoreBlock extends BlockStoneDevice {
     @Override
     public TileEntity createTileEntity(World world, int metadata){
         return new InfusionCoreTile();
+    }
+
+    @Override
+    public boolean canStabaliseInfusion(World world, int x, int y, int z) {
+        return true;
     }
 }

@@ -142,9 +142,10 @@ public class EssentiaBlock extends Block implements IWorldData {
 
     @Override
     public BlockSavable getData(World world, ItemStack stack, WorldCoord coord) {
+        world.setBlockMetadataWithNotify(coord.x, coord.y, coord.z, stack.getItemDamage(), 3);
         NBTTagCompound tagCompound = stack.getTagCompound();
         if(tagCompound != null)
-            return new EssentiaData(new WorldCoord(coord.x, coord.y, coord.z), Aspect.getAspect(tagCompound.getString("aspectTag")));
+            return new EssentiaData(coord, Aspect.getAspect(tagCompound.getString("aspectTag")));
         else
             return null;
     }

@@ -30,20 +30,20 @@ public class Slider {
 
     private ArrayList<SliderSection> sections = new ArrayList<SliderSection>();
 
-    public Slider(InfusedBlockGUI gui, int posX, int posY, ArrayList<Aspect> aspects){
+    public Slider(InfusedBlockGUI gui, int posX, int posY, Aspect[] aspects){
         this.gui = gui;
         this.posX = posX;
         this.posY = posY;
 
-        this.shouldDraw = aspects.size() > 0 ;
+        this.shouldDraw = aspects.length > 0 ;
 
         sliderX = posX + (118 / 2);
 
-        for(int i = 0; i < aspects.size(); i++){
-            Aspect aspect = aspects.get(i);
+        for(int i = 0; i < aspects.length; i++){
+            Aspect aspect = aspects[i];
 
             int sectionSizeX = xSize;
-            if(aspects.size() > 1) sectionSizeX = xSize / aspects.size();
+            if(aspects.length > 1) sectionSizeX = xSize / aspects.length;
             int sectionPosX = posX + 4;
             if(i > 0) sectionPosX += sectionSizeX * i;
 

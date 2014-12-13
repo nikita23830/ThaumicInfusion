@@ -22,6 +22,9 @@ public class InfusionHelper {
 
         AspectList list = new AspectList();
         Class[] effects = getEffectsFromStack(stack);
+        if(effects == null)
+            return list;
+
         for(Class c : effects){
             Effect effect = (Effect) c.getAnnotation(Effect.class);
             list.add(Aspect.getAspect(effect.aspect()), effect.cost());
@@ -55,7 +58,7 @@ public class InfusionHelper {
     public static int getBlockID(Class[] aspects){
         int defBlock = Block.getIdFromBlock(BlockHandler.getBlock("default"));
         for(Class aspect : aspects){
-            if(aspect.isAnnotationPresent(Effect.class)) {
+            if(aspect != null && aspect.isAnnotationPresent(Effect.class)) {
                 Effect annotation = (Effect) aspect.getAnnotation(Effect.class);
                 if(annotation.hasCustomBlock())
                     return Block.getIdFromBlock(BlockHandler.getBlock(annotation.aspect()));
@@ -65,15 +68,17 @@ public class InfusionHelper {
     }
 
     public static int getInfusedID(ItemStack stack){
-        NBTTagCompound tag = stack.getTagCompound();
-        if(tag != null) {
+        NBTTagCompound tag = stack.stackTagCompound.getCompoundTag("InfuseTag");
+        if(tag != null)
             return tag.getInteger("infusedID");
-        }
         return -1;
     }
 
     public static Class[] getEffectsFromStack(ItemStack stack){
-        NBTTagCompound tag = stack.stackTagCompound;
+        if(stack.stackTagCompound == null)
+            return null;
+
+        NBTTagCompound tag = stack.stackTagCompound.getCompoundTag("InfuseTag");
         if(stack.stackTagCompound != null && tag.hasKey("infusedAspect_Size")) {
             Class[] effects = new Class[tag.getInteger("infusedAspect_Size")];
             for (int i = 0; i < effects.length; i++) {
@@ -88,15 +93,15 @@ public class InfusionHelper {
         }else return null;
     }
 
-    private static Class[] getEffectsFromList(ArrayList<Aspect> list) {
-        Class[] effects = new Class[list.size()];
+    private static Class[] getEffectsFromList(Aspect[] list) {
+        Class[] effects = new Class[list.length];
         for(int i = 0; i < effects.length; i++)
-            effects[i] = AspectHandler.getEffectFromAspect(list.get(i));
+            effects[i] = AspectHandler.getEffectFromAspect(list[i]);
 
         return effects;
     }
 
-    public static ArrayList<Aspect> phialsToAspects(ArrayList<ItemStack> stacks){
+    public static Aspect[] phialsToAspects(ArrayList<ItemStack> stacks){
         ArrayList<Aspect> aspects = new ArrayList<Aspect>();
         for(ItemStack stack : stacks) {
             if (stack.getItem() instanceof ItemEssence) {
@@ -105,29 +110,41 @@ public class InfusionHelper {
                 aspects.add(list.getAspects()[0]);
             }
         }
-        return aspects;
+        Aspect[] array = new Aspect[aspects.size()];
+        array = aspects.toArray(array);
+        return array;
     }
 
-    public static ItemStack getInfusedItemStack(ArrayList<Aspect> list, int infusedID, int size, int meta){
+    public static ItemStack getInfusedItemStack(Aspect[] list, ItemStack block, int size, int meta){
         if(list == null) return null;
         Class[] effects = getEffectsFromList(list);
         if(effects.length == 0)
             return null;
 
-        int blockID = getBlockID(effects);
+        int blockID = getBlockID(effects), containingId = Block.getIdFromBlock(Block.getBlockFromItem(block.getItem()));
         if(blockID == -1)
             return null;
 
         ItemStack stack = new ItemStack(Block.getBlockById(blockID), size, meta);
         NBTTagCompound tag = new NBTTagCompound();
-        for(int i = 0; i < effects.length; i++)
-            tag.setString("infusedAspect_" + i, effects[i].getName());
+        NBTTagCompound infuseTag = new NBTTagCompound();
 
-        tag.setInteger("infusedAspect_Size", effects.length);
-        tag.setInteger("infusedID", infusedID);
-        stack.setTagCompound(tag);
+        infuseTag.setInteger("infusedAspect_Size", effects.length);
+        infuseTag.setInteger("infusedID", containingId);
 
-        stack.setStackDisplayName(ThaumicInfusion.translate("key.infusedBlock.infused") + " " + new ItemStack(Block.getBlockById(infusedID), 1, meta).getDisplayName());
+        for(int i = 0; i < effects.length; i++) {
+            if(effects[i] == null)
+                return null;
+            infuseTag.setString("infusedAspect_" + i, effects[i].getName());
+        }
+
+        if(block.stackTagCompound != null)
+            tag = block.stackTagCompound;
+
+        tag.setTag("InfuseTag", infuseTag);
+        stack.stackTagCompound = tag;
+
+        stack.setStackDisplayName(ThaumicInfusion.translate("key.infusedBlock.infused") + " " + new ItemStack(Block.getBlockById(containingId), 1, meta).getDisplayName());
         return stack;
     }
 }
