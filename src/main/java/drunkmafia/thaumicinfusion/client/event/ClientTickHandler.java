@@ -5,23 +5,15 @@ import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.lib.ModInfo;
-import drunkmafia.thaumicinfusion.common.util.BlockHelper;
 import drunkmafia.thaumicinfusion.common.util.InfusionHelper;
-import drunkmafia.thaumicinfusion.common.util.RGB;
-import drunkmafia.thaumicinfusion.common.world.BlockData;
-import drunkmafia.thaumicinfusion.common.world.BlockSavable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
-import net.minecraft.world.World;
-import net.minecraftforge.client.event.RenderPlayerEvent;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import thaumcraft.api.aspects.Aspect;
@@ -33,12 +25,11 @@ import thaumcraft.common.config.Config;
 /**
  * Created by DrunkMafia on 07/11/2014.
  * See http://www.wtfpl.net/txt/copying for licence
- *
+ * <p/>
  * NOTICE: The following class contains code taken from TC
  * it has been ripped from TC with the premission of Azanor
  * and is used to make my infused block compatible with
  * seeing the aspect in the block
- *
  */
 public class ClientTickHandler {
 
@@ -46,7 +37,7 @@ public class ClientTickHandler {
 
     @SideOnly(Side.CLIENT)
     @SubscribeEvent
-    public void renderTick(TickEvent.RenderTickEvent event){
+    public void renderTick(TickEvent.RenderTickEvent event) {
         Minecraft mc = FMLClientHandler.instance().getClient();
         if (event.phase != TickEvent.Phase.START) {
             if ((Minecraft.getMinecraft().renderViewEntity instanceof EntityPlayer)) {
@@ -59,8 +50,7 @@ public class ClientTickHandler {
         }
     }
 
-    public void renderAspectsInGui(GuiContainer gui, EntityPlayer player)
-    {
+    public void renderAspectsInGui(GuiContainer gui, EntityPlayer player) {
         Minecraft mc = FMLClientHandler.instance().getClient();
         ScaledResolution var13 = new ScaledResolution(Minecraft.getMinecraft(), mc.displayWidth, mc.displayHeight);
         int var14 = var13.getScaledWidth();
@@ -72,22 +62,22 @@ public class ClientTickHandler {
         GL11.glPushMatrix();
         GL11.glPushAttrib(1048575);
         GL11.glDisable(2896);
-        for (int var20 = 0; var20 < gui.inventorySlots.inventorySlots.size(); var20++){
+        for (int var20 = 0; var20 < gui.inventorySlots.inventorySlots.size(); var20++) {
             int xs = UtilsFX.getGuiXSize(gui);
             int ys = UtilsFX.getGuiYSize(gui);
             int shift = 0;
             int shift2 = 0;
             int shiftx = -8;
             int shifty = -8;
-            if (Thaumcraft.instance.aspectShift){
+            if (Thaumcraft.instance.aspectShift) {
                 shiftx -= 8;
                 shifty -= 8;
             }
-            Slot var23 = (Slot)gui.inventorySlots.inventorySlots.get(var20);
+            Slot var23 = (Slot) gui.inventorySlots.inventorySlots.get(var20);
             int guiLeft = shift + (gui.width - xs - shift2) / 2;
             int guiTop = (gui.height - ys) / 2;
             if (isMouseOverSlot(var23, var16, var17, guiLeft, guiTop)) {
-                if (var23.getStack() != null){
+                if (var23.getStack() != null) {
                     ItemStack stack = var23.getStack();
                     AspectList infusedTag = InfusionHelper.getInfusedAspects(stack);
                     if (infusedTag != null) {

@@ -3,24 +3,19 @@ package drunkmafia.thaumicinfusion.common.aspect;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import drunkmafia.thaumicinfusion.common.block.InfusedBlock;
-import drunkmafia.thaumicinfusion.common.lib.BlockInfo;
 import drunkmafia.thaumicinfusion.common.util.BlockHelper;
-import drunkmafia.thaumicinfusion.common.util.Savable;
 import drunkmafia.thaumicinfusion.common.util.WorldCoord;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 import drunkmafia.thaumicinfusion.common.world.BlockData;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.RenderBlocks;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import thaumcraft.api.WorldCoordinates;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -86,10 +81,12 @@ public class AspectEffect extends Block {
 
     public void worldBlockInteracted(EntityPlayer player, World world, int x, int y, int z, int face) {}
 
+    public void updateBlock(World world){}
+
     public static AspectEffect loadDataFromNBT(NBTTagCompound tag) {
         if (!tag.hasKey("class")) return null;
         try {
-            Class c = Class.forName(tag.getString("class"));
+            Class<?> c = Class.forName(tag.getString("class"));
             if (AspectEffect.class.isAssignableFrom(c)) {
                 AspectEffect data = (AspectEffect) c.newInstance();
                 data.readNBT(tag);

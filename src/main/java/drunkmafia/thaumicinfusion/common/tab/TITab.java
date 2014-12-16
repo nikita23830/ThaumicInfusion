@@ -3,7 +3,6 @@ package drunkmafia.thaumicinfusion.common.tab;
 import drunkmafia.thaumicinfusion.common.block.TIBlocks;
 import drunkmafia.thaumicinfusion.common.lib.ModInfo;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 
 public class TITab {

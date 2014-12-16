@@ -36,7 +36,7 @@ public class CoreItemRenderer implements IItemRenderer {
         renderCore(new Vector3(0.5F, 0.5F, 0.5F), new Vector3(1F, 1.3F, 1F), new Vector3(0, 0, 0), 0);
     }
 
-    public void renderCore(Vector3 coords, Vector3 scale, Vector3 rotation, float angle){
+    public void renderCore(Vector3 coords, Vector3 scale, Vector3 rotation, float angle) {
         GL11.glPushMatrix();
 
         GL11.glTranslated(coords.x, coords.y, coords.z);

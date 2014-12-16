@@ -23,7 +23,7 @@ public class InfusedItemRenderer implements IItemRenderer {
 
     @Override
     public void renderItem(ItemRenderType type, ItemStack item, Object... data) {
-        if(item.stackTagCompound == null)
+        if (item.stackTagCompound == null)
             return;
         NBTTagCompound tag = item.stackTagCompound.getCompoundTag("InfuseTag");
 
@@ -35,9 +35,9 @@ public class InfusedItemRenderer implements IItemRenderer {
 
         GL11.glPushMatrix();
 
-        if(type == ItemRenderType.EQUIPPED)
+        if (type == ItemRenderType.EQUIPPED)
             GL11.glTranslatef(0.5F, 0.5F, 0.5F);
-        else if(type == ItemRenderType.EQUIPPED_FIRST_PERSON)
+        else if (type == ItemRenderType.EQUIPPED_FIRST_PERSON)
             GL11.glTranslatef(0.45F, 0.50F, 0.50F);
 
         RenderManager.instance.itemRenderer.renderItem(player, infused, 0);

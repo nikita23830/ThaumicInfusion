@@ -5,15 +5,11 @@ import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import drunkmafia.thaumicinfusion.common.util.BlockHelper;
 import drunkmafia.thaumicinfusion.common.util.WorldCoord;
-import drunkmafia.thaumicinfusion.common.world.BlockData;
 import drunkmafia.thaumicinfusion.common.world.BlockSavable;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
 import drunkmafia.thaumicinfusion.net.packet.CooldownPacket;
 import drunkmafia.thaumicinfusion.net.packet.server.BlockSyncPacketC;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.util.ChunkCoordinates;
-
-import java.util.HashMap;
 
 /**
  * Created by DrunkMafia on 28/06/2014.
@@ -64,7 +60,8 @@ public class RequestBlockPacketS extends CooldownPacket {
         @Override
         public IMessage onMessage(RequestBlockPacketS message, MessageContext ctx) {
             if (message.coordinates == null || ctx.side.isClient()) return null;
-            BlockSavable data = BlockHelper.getData(message.type, ChannelHandler.getPlayer(ctx).worldObj, message.coordinates);
+
+            BlockSavable data = BlockHelper.getData(message.type, ChannelHandler.getServerWorld(message.coordinates.dim), message.coordinates);
             if (data != null)
                 return new BlockSyncPacketC(data);
             return null;

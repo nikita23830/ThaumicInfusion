@@ -1,30 +1,18 @@
 package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
-import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.block.InfusedBlock;
-import drunkmafia.thaumicinfusion.common.util.BlockHelper;
 import drunkmafia.thaumicinfusion.common.util.WorldCoord;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
-import drunkmafia.thaumicinfusion.common.world.BlockData;
-import drunkmafia.thaumicinfusion.net.ChannelHandler;
-import drunkmafia.thaumicinfusion.net.packet.server.EffectSyncPacketC;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderBlocks;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.ChunkCoordinates;
-import net.minecraft.util.IIcon;
-import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import thaumcraft.common.items.armor.ItemGoggles;
-
-import java.util.Random;
 
 /**
  * Created by DrunkMafia on 06/11/2014.
@@ -38,24 +26,20 @@ public class Tenebrae extends AspectEffect {
         return new InfusedBlock(Material.rock).setPass(0);
     }
 
-    @Override
-    public void aspectInit(World world,WorldCoord pos) {
-        super.aspectInit(world, pos);
-        if(!world.isRemote)
-            updateTick(world, pos.x, pos.y, pos.z, new Random());
-    }
-
     public boolean isLit, oldIsLit;
 
-    public void updateTick(World world, int x, int y, int z, Random rand) {
-        isLit = world.getBlockLightValue(x, y, z) > 8;
+    @SideOnly(Side.CLIENT)
+    public void updateBlock(World world) {
+        if(!world.isRemote)
+            return;
+
+        WorldCoord pos = getPos();
+        isLit = world.getBlockLightValue(pos.x, pos.y, pos.z) > 8;
 
         if (isLit != oldIsLit) {
-            ChannelHandler.network.sendToAllAround(new EffectSyncPacketC(this), new NetworkRegistry.TargetPoint(world.getWorldInfo().getVanillaDimension(), x, y, z, 50));
             oldIsLit = isLit;
-        }else if(rand.nextInt(100) >= rand.nextInt(100))
-            ChannelHandler.network.sendToAllAround(new EffectSyncPacketC(this), new NetworkRegistry.TargetPoint(world.getWorldInfo().getVanillaDimension(), x, y, z, 50));
-        world.scheduleBlockUpdate(x, y, z, world.getBlock(x, y, z), 50);
+            Minecraft.getMinecraft().renderGlobal.markBlockForUpdate(pos.x, pos.y, pos.z);
+        }
     }
 
     @Override

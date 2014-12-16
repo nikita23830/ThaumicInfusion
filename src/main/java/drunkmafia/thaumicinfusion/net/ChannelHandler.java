@@ -1,14 +1,20 @@
 package drunkmafia.thaumicinfusion.net;
 
+import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.network.NetworkRegistry;
-import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import drunkmafia.thaumicinfusion.common.lib.ModInfo;
-import drunkmafia.thaumicinfusion.net.packet.client.*;
-import drunkmafia.thaumicinfusion.net.packet.server.*;
-import net.minecraft.client.Minecraft;
-import net.minecraft.entity.player.EntityPlayer;
+import drunkmafia.thaumicinfusion.net.packet.client.RequestBlockPacketS;
+import drunkmafia.thaumicinfusion.net.packet.client.RequestTilePacketS;
+import drunkmafia.thaumicinfusion.net.packet.server.BlockDestroyedPacketC;
+import drunkmafia.thaumicinfusion.net.packet.server.BlockSyncPacketC;
+import drunkmafia.thaumicinfusion.net.packet.server.EffectSyncPacketC;
+import drunkmafia.thaumicinfusion.net.packet.server.TileSyncPacketC;
+import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
+import net.minecraftforge.common.DimensionManager;
 
 /**
  * Created by DrunkMafia on 20/06/2014.
@@ -35,9 +41,12 @@ public class ChannelHandler{
         network.registerMessage(EffectSyncPacketC.Handler.class, EffectSyncPacketC.class, 5, C);
     }
 
-    public static EntityPlayer getPlayer(MessageContext ctx){
-        if(ctx.side.isClient()) return Minecraft.getMinecraft().thePlayer;
-        if(ctx.side.isServer()) return ctx.getServerHandler().playerEntity;
-        return null;
+    @SideOnly(Side.CLIENT)
+    public static World getClientWorld(){
+        return FMLClientHandler.instance().getClient().theWorld;
+    }
+
+    public static WorldServer getServerWorld(int dim){
+        return DimensionManager.getWorld(dim);
     }
 }

@@ -110,7 +110,7 @@ public abstract class ItemFocusBasic extends Item {
 	}
 	
 	public enum WandFocusAnimation {
-		WAVE, CHARGE;
+		WAVE, CHARGE
 	}
 
 	public WandFocusAnimation getAnimation(ItemStack focusstack) {

@@ -1,6 +1,7 @@
 package drunkmafia.thaumicinfusion.client.renderer.tile;
 
 import drunkmafia.thaumicinfusion.common.block.tile.InfusionCoreTile;
+import drunkmafia.thaumicinfusion.common.util.MathHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
@@ -11,11 +12,10 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.client.model.AdvancedModelLoader;
 import net.minecraftforge.client.model.IModelCustom;
 import org.lwjgl.opengl.GL11;
-import drunkmafia.thaumicinfusion.common.util.MathHelper;
 import thaumcraft.codechicken.lib.vec.Vector3;
-import thaumcraft.common.Thaumcraft;
 
-import static drunkmafia.thaumicinfusion.common.lib.BlockInfo.*;
+import static drunkmafia.thaumicinfusion.common.lib.BlockInfo.infusionCore_Model;
+import static drunkmafia.thaumicinfusion.common.lib.BlockInfo.infusionCore_Texture;
 
 /**
  * Created by DrunkMafia on 19/07/2014.
@@ -26,24 +26,9 @@ public class InfusionCoreRenderer extends TileEntitySpecialRenderer {
 
     static IModelCustom model = AdvancedModelLoader.loadModel(infusionCore_Model);
     float transSpeed = 0.025F, rotSpeed = 2F, hover, ticks;
+    float rotTarget = 0F;
 
-    @Override
-    public void renderTileEntityAt(TileEntity tile, double x, double y, double z, float deltaTime) {
-        InfusionCoreTile core = (InfusionCoreTile) tile;
-
-        if(core == null)
-            return;
-
-        updateCore(core, deltaTime);
-
-        Vector3 pos = new Vector3(x + 0.5D, y + 0.5D + core.yLevel, z + 0.5D);
-
-        renderCore(pos, new Vector3(1.4, 1.3, 1.4), core.coreAxies, core.angle, hover, deltaTime);
-        renderCore(pos, new Vector3(1, 1.3, 1), core.coreAxies, -core.angle, hover, deltaTime);
-        renderInventory(pos, tile);
-    }
-
-     public static void renderCore(Vector3 pos, Vector3 scale, Vector3 axies, float angle, float hover, float deltaTime){
+    public static void renderCore(Vector3 pos, Vector3 scale, Vector3 axies, float angle, float hover, float deltaTime) {
         GL11.glPushMatrix();
         GL11.glTranslated(pos.x, pos.y + hover, pos.z);
         GL11.glScaled(scale.x, scale.y, scale.z);
@@ -55,10 +40,29 @@ public class InfusionCoreRenderer extends TileEntitySpecialRenderer {
         GL11.glPopMatrix();
     }
 
-    void renderInventory(Vector3 pos, TileEntity tile){
+    @Override
+    public void renderTileEntityAt(TileEntity tile, double x, double y, double z, float deltaTime) {
+        InfusionCoreTile core = (InfusionCoreTile) tile;
+
+        if (core.coreAxies == null)
+            core.coreAxies = new Vector3();
+
+        if (core == null)
+            return;
+
+        updateCore(core, deltaTime);
+
+        Vector3 pos = new Vector3(x + 0.5D, y + 0.5D + core.yLevel, z + 0.5D);
+
+        renderCore(pos, new Vector3(1.4, 1.3, 1.4), core.coreAxies, core.angle, hover, deltaTime);
+        renderCore(pos, new Vector3(1, 1.3, 1), core.coreAxies, -core.angle, hover, deltaTime);
+        renderInventory(pos, tile);
+    }
+
+    void renderInventory(Vector3 pos, TileEntity tile) {
         InfusionCoreTile coreTile = (InfusionCoreTile) tile;
         ItemStack inv = coreTile.getStackInSlot(0);
-        if(inv == null) return;
+        if (inv == null) return;
 
         ItemStack item = inv.copy();
 
@@ -85,20 +89,18 @@ public class InfusionCoreRenderer extends TileEntitySpecialRenderer {
         GL11.glPopMatrix();
     }
 
-    float rotTarget = 0F;
-
-    void updateCore(InfusionCoreTile core, float deltaTime){
-        if(core.matrix != null && core.matrix.active){
-            if(core.matrix.crafting) {
+    void updateCore(InfusionCoreTile core, float deltaTime) {
+        if (core.matrix != null && core.matrix.active) {
+            if (core.matrix.crafting) {
                 rotTarget = 0.7F;
                 core.coreAxies = new Vector3(1, 1, 1);
-            }else {
+            } else {
                 rotTarget = 0;
                 core.coreAxies = new Vector3(0, 1, 0);
             }
             core.yLevel = MathHelper.lerp(core.yLevel, rotTarget, transSpeed * deltaTime, 0.05F);
             core.angle = MathHelper.lerp(core.angle, 360, rotSpeed * deltaTime);
-            if(core.angle == 360)
+            if (core.angle == 360)
                 core.angle = 0;
 
             ticks = Minecraft.getMinecraft().renderViewEntity.ticksExisted + deltaTime;

@@ -10,8 +10,6 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
-import static drunkmafia.thaumicinfusion.common.lib.BlockInfo.infusedBlock_UnlocalizedName;
-
 /**
  * Created by DrunkMafia on 01/11/2014.
  * See http://www.wtfpl.net/txt/copying for licence

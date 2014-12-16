@@ -21,6 +21,7 @@ public class SyncTilePacketC implements IMessage {
 
     private TileEntity tile;
     private NBTTagCompound tagCompound;
+    private int dim;
 
     public SyncTilePacketC(TileEntity tile) {
         this.tile = tile;
@@ -29,6 +30,7 @@ public class SyncTilePacketC implements IMessage {
     @Override
     public void fromBytes(ByteBuf buf) {
         try {
+            dim = buf.readInt();
             tagCompound = new PacketBuffer(buf).readNBTTagCompoundFromBuffer();
         } catch (Exception e) {
             e.printStackTrace();
@@ -39,6 +41,7 @@ public class SyncTilePacketC implements IMessage {
     public void toBytes(ByteBuf buf) {
         try {
             if (tile != null) {
+                buf.writeInt(tile.getWorldObj().provider.dimensionId);
                 NBTTagCompound tag = new NBTTagCompound();
                 tile.writeToNBT(tag);
                 new PacketBuffer(buf).writeNBTTagCompoundToBuffer(tag);
@@ -53,7 +56,13 @@ public class SyncTilePacketC implements IMessage {
         public IMessage onMessage(SyncTilePacketC message, MessageContext ctx) {
             NBTTagCompound tag = message.tagCompound;
             int x = tag.getInteger("x"), y = tag.getInteger("z"), z = tag.getInteger("z");
-            World world = ChannelHandler.getPlayer(ctx).worldObj;
+            World world;
+
+            if(ctx.side.isClient())
+                world = ChannelHandler.getClientWorld();
+            else
+                world = ChannelHandler.getServerWorld(message.dim);
+
             TileEntity tile = world.getTileEntity(x, y, z);
             if(tile == null)
                 tile = TileEntity.createAndLoadEntity(tag);

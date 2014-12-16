@@ -79,11 +79,11 @@ class AccessClassLoader extends ClassLoader {
 	Class<?> defineClass (String name, byte[] bytes) throws ClassFormatError {
 		try {
 			// Attempt to load the access class in the same loader, which makes protected and default access members accessible.
-			Method method = ClassLoader.class.getDeclaredMethod("defineClass", new Class[] {String.class, byte[].class, int.class,
-				int.class, ProtectionDomain.class});
+			Method method = ClassLoader.class.getDeclaredMethod("defineClass", String.class, byte[].class, int.class,
+					int.class, ProtectionDomain.class);
 			if (!method.isAccessible()) method.setAccessible(true);
-			return (Class)method.invoke(getParent(), new Object[] {name, bytes, Integer.valueOf(0), Integer.valueOf(bytes.length),
-				getClass().getProtectionDomain()});
+			return (Class)method.invoke(getParent(), name, bytes, Integer.valueOf(0), Integer.valueOf(bytes.length),
+					getClass().getProtectionDomain());
 		} catch (Exception ignored) {
 		}
 		return defineClass(name, bytes, 0, bytes.length, getClass().getProtectionDomain());

@@ -24,6 +24,7 @@ import thaumcraft.api.crafting.ShapedArcaneRecipe;
 import thaumcraft.api.crafting.ShapelessArcaneRecipe;
 import thaumcraft.api.internal.DummyInternalMethodHandler;
 import thaumcraft.api.internal.IInternalMethodHandler;
+import thaumcraft.api.internal.WeightedRandomLoot;
 import thaumcraft.api.research.IScanEventHandler;
 import thaumcraft.api.research.ResearchCategories;
 import thaumcraft.api.research.ResearchCategoryList;
@@ -461,10 +462,36 @@ public class ThaumcraftApi {
 			if (in instanceof ItemStack && warpMap.containsKey(Arrays.asList(((ItemStack)in).getItem(),((ItemStack)in).getItemDamage()))) {
 				return warpMap.get(Arrays.asList(((ItemStack)in).getItem(),((ItemStack)in).getItemDamage()));
 			} else
-			if (in instanceof String && warpMap.containsKey((String)in)) {
-				return warpMap.get((String)in);
+			if (in instanceof String && warpMap.containsKey(in)) {
+				return warpMap.get(in);
 			}
 			return 0;
+		}
+	
+	//LOOT BAGS //////////////////////////////////////////////////////////////////////////////////////////
+		
+		/**
+		 * Used to add possible loot to treasure bags. As a reference, the weight of gold coins are 2000 
+		 * and a diamond is 50.
+		 * The weights are the same for all loot bag types - the only difference is how many items the bag
+		 * contains.
+		 * @param item
+		 * @param weight
+		 * @param bagTypes array of which type of bag to add this loot to. Multiple types can be specified
+		 * 0 = common, 1 = uncommon, 2 = rare
+		 */
+		public static void addLootBagItem(ItemStack item, int weight, int... bagTypes) {
+			if (bagTypes==null || bagTypes.length==0)
+				WeightedRandomLoot.lootBagCommon.add(new WeightedRandomLoot(item,weight));
+			else {
+				for (int rarity:bagTypes) {
+					switch(rarity) {
+						case 0: WeightedRandomLoot.lootBagCommon.add(new WeightedRandomLoot(item,weight)); break;
+						case 1: WeightedRandomLoot.lootBagUncommon.add(new WeightedRandomLoot(item,weight)); break;
+						case 2: WeightedRandomLoot.lootBagRare.add(new WeightedRandomLoot(item,weight)); break;
+					}
+				}
+			}
 		}
 		
 	//CROPS //////////////////////////////////////////////////////////////////////////////////////////

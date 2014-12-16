@@ -5,12 +5,10 @@ import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import drunkmafia.thaumicinfusion.common.util.BlockHelper;
 import drunkmafia.thaumicinfusion.common.util.WorldCoord;
+import drunkmafia.thaumicinfusion.common.world.TIWorldData;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
 import drunkmafia.thaumicinfusion.net.packet.CooldownPacket;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.ChunkCoordinates;
-import thaumcraft.api.WorldCoordinates;
 
 /**
  * Created by DrunkMafia on 28/06/2014.
@@ -43,8 +41,10 @@ public class BlockDestroyedPacketC implements IMessage {
         public IMessage onMessage(BlockDestroyedPacketC message, MessageContext ctx) {
             if(message.coordinates == null || ctx.side.isServer()) return null;
             CooldownPacket.syncTimeouts.remove(message.coordinates);
-            EntityPlayer player = ChannelHandler.getPlayer(ctx);
-            BlockHelper.getWorldData(player.worldObj).removeBlock(message.coordinates);
+            TIWorldData data = BlockHelper.getWorldData(ChannelHandler.getClientWorld());
+            if(data == null)
+                return null;
+            data.removeBlock(message.coordinates);
             return null;
         }
     }

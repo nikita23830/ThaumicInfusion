@@ -3,9 +3,6 @@ package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 import cpw.mods.fml.common.Loader;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.World;
 
 /**
  * Created by DrunkMafia on 25/07/2014.
@@ -38,6 +35,6 @@ public class Machina extends AspectEffect {
     @Override
     public boolean shouldRegister() {
         Loader loader = Loader.instance();
-        return loader.isModLoaded("computercraft");
+        return Loader.isModLoaded("computercraft");
     }
 }

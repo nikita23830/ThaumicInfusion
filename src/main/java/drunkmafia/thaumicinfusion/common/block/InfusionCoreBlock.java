@@ -12,13 +12,12 @@ import net.minecraft.world.World;
 import thaumcraft.api.crafting.IInfusionStabiliser;
 import thaumcraft.common.blocks.BlockStoneDevice;
 import thaumcraft.common.items.wands.ItemWandCasting;
-
 import thaumcraft.common.lib.utils.InventoryUtils;
 import thaumcraft.common.tiles.TilePedestal;
 
 import java.util.List;
 
-import static drunkmafia.thaumicinfusion.common.lib.BlockInfo.*;
+import static drunkmafia.thaumicinfusion.common.lib.BlockInfo.infusionCoreBlock_UnlocalizedName;
 
 /**
  * Created by DrunkMafia on 19/07/2014.

@@ -17,7 +17,10 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
 import thaumcraft.api.aspects.Aspect;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 import static drunkmafia.thaumicinfusion.common.lib.ModInfo.LOGGER_ID;
 

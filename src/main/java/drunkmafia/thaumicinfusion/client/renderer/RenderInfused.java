@@ -9,10 +9,7 @@ import drunkmafia.thaumicinfusion.common.world.BlockData;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderBlocks;
-import net.minecraft.src.FMLRenderAccessLibrary;
-import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.world.IBlockAccess;
-import org.lwjgl.opengl.GL11;
 
 /**
  * Created by DrunkMafia on 25/07/2014.
@@ -24,25 +21,27 @@ public class RenderInfused implements ISimpleBlockRenderingHandler {
     public static int id = -1;
 
     public RenderInfused() {
-        if(id == -1)
+        if (id == -1)
             id = RenderingRegistry.getNextAvailableRenderId();
     }
 
     @Override
-    public void renderInventoryBlock(Block block, int i, int i1, RenderBlocks renderBlocks) { }
+    public void renderInventoryBlock(Block block, int i, int i1, RenderBlocks renderBlocks) {
+    }
 
     @Override
     public boolean renderWorldBlock(IBlockAccess access, int x, int y, int z, Block block, int meta, RenderBlocks renderBlocks) {
         BlockData data = BlockHelper.getData(BlockData.class, Minecraft.getMinecraft().theWorld, new WorldCoord(x, y, z));
-        if(data == null)
+        if (data == null)
             return false;
 
-        for(AspectEffect effects : data.getEffects())
-            if(!effects.shouldRender(Minecraft.getMinecraft().theWorld, x, y, z, renderBlocks))
+        for (AspectEffect effects : data.getEffects())
+            if (!effects.shouldRender(Minecraft.getMinecraft().theWorld, x, y, z, renderBlocks))
                 return false;
+        if (data.getContainingBlock().getRenderType() == 0)
+            return renderBlocks.renderStandardBlock(data.getBlock(), x, y, z);
 
-        renderBlocks.renderBlockByRenderType(data.getContainingBlock(), x, y, z);
-        return true;
+        return renderBlocks.renderBlockByRenderType(data.getContainingBlock(), x, y, z);
     }
 
     @Override

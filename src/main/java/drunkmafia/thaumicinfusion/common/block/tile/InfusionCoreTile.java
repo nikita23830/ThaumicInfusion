@@ -30,9 +30,9 @@ public class InfusionCoreTile extends TilePedestal implements IWandable {
     public TileInfusionMatrix matrix;
 
     @SideOnly(Side.CLIENT)
-    public float yLevel = 0, angle;
+    public float yLevel, angle;
     @SideOnly(Side.CLIENT)
-    public Vector3 coreAxies = new Vector3();
+    public Vector3 coreAxies;
 
     boolean shouldCheck;
 
@@ -45,9 +45,15 @@ public class InfusionCoreTile extends TilePedestal implements IWandable {
                 if (matrix.crafting && shouldCheck)
                     shouldCheck = checkInfusion();
                 else shouldCheck = true;
-            }else if(matrix.crafting)
-                Thaumcraft.proxy.burst(worldObj, xCoord + 0.5F, yCoord + 0.5F + yLevel, zCoord + 0.5F, 0.5F);
+            }else
+                particles();
         }
+    }
+
+    @SideOnly(Side.CLIENT)
+    void particles(){
+        if(matrix.crafting)
+            Thaumcraft.proxy.burst(worldObj, xCoord + 0.5F, yCoord + 0.5F + yLevel, zCoord + 0.5F, 0.5F);
     }
 
     boolean checkInfusion(){

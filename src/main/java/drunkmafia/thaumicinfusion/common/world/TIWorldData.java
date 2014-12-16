@@ -1,12 +1,9 @@
 package drunkmafia.thaumicinfusion.common.world;
 
 import drunkmafia.thaumicinfusion.common.util.WorldCoord;
-import drunkmafia.thaumicinfusion.net.ChannelHandler;
-import drunkmafia.thaumicinfusion.net.packet.server.BlockDestroyedPacketC;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldSavedData;
-import sun.org.mozilla.javascript.internal.ast.Block;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -65,12 +62,11 @@ public class TIWorldData extends WorldSavedData {
     }
 
     public void removeBlock(WorldCoord coords) {
-        if(!blocksData.containsKey(coords))
+        if(coords == null || !blocksData.containsKey(coords))
             return;
 
         blocksData.remove(coords);
         setDirty(true);
-        ChannelHandler.network.sendToAll(new BlockDestroyedPacketC(coords));
     }
 
     public BlockSavable[] getAllDatasAt(WorldCoord coords){

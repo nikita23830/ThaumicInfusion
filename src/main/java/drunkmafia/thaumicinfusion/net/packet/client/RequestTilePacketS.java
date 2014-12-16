@@ -9,9 +9,8 @@ import drunkmafia.thaumicinfusion.net.packet.CooldownPacket;
 import drunkmafia.thaumicinfusion.net.packet.server.TileSyncPacketC;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ChunkCoordinates;
+import net.minecraft.world.World;
 
 /**
  * Created by DrunkMafia on 01/11/2014.
@@ -21,7 +20,7 @@ public class RequestTilePacketS extends CooldownPacket {
 
     protected WorldCoord coordinates;
 
-    public RequestTilePacketS(WorldCoord coordinates){
+    public RequestTilePacketS(WorldCoord coordinates, String t){
         if(canSend(coordinates))
             this.coordinates = coordinates;
     }
@@ -47,9 +46,9 @@ public class RequestTilePacketS extends CooldownPacket {
         public IMessage onMessage(RequestTilePacketS message, MessageContext ctx) {
             WorldCoord pos = message.coordinates;
             if (pos == null || ctx.side.isClient()) return null;
-            EntityPlayer player = ChannelHandler.getPlayer(ctx);
-            Block block = player.worldObj.getBlock(pos.x, pos.y, pos.z);
-            TileEntity tileEntity = player.worldObj.getTileEntity(pos.x, pos.y, pos.z);
+            World world = ChannelHandler.getServerWorld(message.coordinates.dim);
+            Block block = world.getBlock(pos.x, pos.y, pos.z);
+            TileEntity tileEntity = world.getTileEntity(pos.x, pos.y, pos.z);
             if(block == null ||tileEntity  == null) return null;
             return new TileSyncPacketC(tileEntity);
         }

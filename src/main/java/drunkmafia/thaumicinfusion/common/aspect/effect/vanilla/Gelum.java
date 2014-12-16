@@ -5,8 +5,6 @@ import drunkmafia.thaumicinfusion.common.block.InfusedBlock;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 import net.minecraft.block.material.Material;
 
-import static drunkmafia.thaumicinfusion.common.lib.BlockInfo.infusedBlock_UnlocalizedName;
-
 /**
  * Created by DrunkMafia on 05/11/2014.
  * See http://www.wtfpl.net/txt/copying for licence

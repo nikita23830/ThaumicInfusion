@@ -3,8 +3,6 @@ package drunkmafia.thaumicinfusion.common.util;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.World;
 import thaumcraft.api.WorldCoordinates;
 
 /**
@@ -84,7 +82,6 @@ public class WorldCoord extends WorldCoordinates {
     public void removeFromNBT(NBTTagCompound nbt){
         if(!nbt.hasKey("id"))
             return;
-        System.out.println("Removing");
         nbt.removeTag("id");
         nbt.removeTag(id + "_x");
         nbt.removeTag(id + "_Y");

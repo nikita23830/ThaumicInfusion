@@ -4,7 +4,6 @@ import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.util.BlockHelper;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 import drunkmafia.thaumicinfusion.common.world.BlockData;
-import net.minecraft.init.Blocks;
 import net.minecraft.world.World;
 
 /**

@@ -49,7 +49,7 @@ public class ClassFinder {
     /**
      * The super class criteria
      */
-    protected Class superClass = null;
+    protected Class<drunkmafia.thaumicinfusion.common.aspect.AspectEffect> superClass = null;
     /**
      * The required substring path criteria for this searcher
      */
@@ -74,7 +74,7 @@ public class ClassFinder {
      * @param superClass the Class that should be searched for along with
      *   implementations and subclasses
      */
-    public ClassFinder(Class superClass) {
+    public ClassFinder(Class<drunkmafia.thaumicinfusion.common.aspect.AspectEffect> superClass) {
         this.superClass = superClass;
     }
 
@@ -91,7 +91,7 @@ public class ClassFinder {
      * @param requiredPathSubstring the String part that must be found in the
      *   classes FQN
      */
-    public ClassFinder(Class superClass, String requiredPathSubstring) {
+    public ClassFinder(Class<drunkmafia.thaumicinfusion.common.aspect.AspectEffect> superClass, String requiredPathSubstring) {
         this.superClass = superClass;
         this.requiredPathSubstring = requiredPathSubstring;
     }
@@ -141,7 +141,7 @@ public class ClassFinder {
             } catch (Exception e) {}
         } else {
 
-            Set directories = new HashSet();
+            Set<File> directories = new HashSet<File>();
 
             File[] children = currentDirectory.listFiles();
 
@@ -161,8 +161,8 @@ public class ClassFinder {
                 }
             }
 
-            for (Iterator i = directories.iterator(); i.hasNext(); )
-                processFile(base, current + ((current=="")?"":File.separator) + ((File)i.next()).getName());
+            for (Iterator<File> i = directories.iterator(); i.hasNext(); )
+                processFile(base, current + ((current=="")?"":File.separator) + (i.next()).getName());
 
         }
     }
@@ -197,11 +197,11 @@ public class ClassFinder {
      * @param file The ZipFile to be searched
      */
     protected void processZip(ZipFile file) {
-        Enumeration files = file.entries();
+        Enumeration<? extends ZipEntry> files = file.entries();
 
         while (files.hasMoreElements()) {
-            Object tfile = files.nextElement();
-            ZipEntry child = (ZipEntry) tfile;
+            ZipEntry tfile = files.nextElement();
+            ZipEntry child = tfile;
             if (child != null && child.getName().endsWith(".class")) {
                 addClassName(getClassName(child.getName()));
                 this.foundClasses++;

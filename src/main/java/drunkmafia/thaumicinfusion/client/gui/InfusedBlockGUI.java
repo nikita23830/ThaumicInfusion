@@ -4,14 +4,13 @@ import cpw.mods.fml.client.FMLClientHandler;
 import drunkmafia.thaumicinfusion.common.aspect.AspectHandler;
 import drunkmafia.thaumicinfusion.common.container.InfusedBlockContainer;
 import drunkmafia.thaumicinfusion.common.lib.ModInfo;
-import drunkmafia.thaumicinfusion.common.util.WorldCoord;
-import drunkmafia.thaumicinfusion.common.world.BlockData;
 import drunkmafia.thaumicinfusion.common.util.BlockHelper;
 import drunkmafia.thaumicinfusion.common.util.EffectGUI;
+import drunkmafia.thaumicinfusion.common.util.WorldCoord;
+import drunkmafia.thaumicinfusion.common.world.BlockData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import thaumcraft.api.aspects.Aspect;
@@ -40,12 +39,12 @@ public class InfusedBlockGUI extends GuiContainer {
         data = BlockHelper.getData(BlockData.class, world, coordinates);
     }
 
-    public void setupEffect(Aspect aspects){
-        if(aspects != null){
+    public void setupEffect(Aspect aspects) {
+        if (aspects != null) {
             Class effect = AspectHandler.getEffectFromAspect(slider.getSelectedEffect());
-            if(effect != null){
+            if (effect != null) {
                 currentEffect = AspectHandler.getEffectGUI(effect);
-                if(currentEffect != null) {
+                if (currentEffect != null) {
                     currentEffect.fontRendererObj = fontRendererObj;
 
                     currentEffect.guiTop = (this.height - this.ySize) / 2 + 20;
@@ -66,11 +65,11 @@ public class InfusedBlockGUI extends GuiContainer {
 
     @Override
     protected void drawGuiContainerBackgroundLayer(float tpf, int mouseX, int mouseY) {
-        if(data != null){
+        if (data != null) {
             Minecraft.getMinecraft().renderEngine.bindTexture(gui);
             drawTexturedModalRect(guiLeft, guiTop, 0, 0, xSize, ySize);
 
-            if(currentEffect != null) currentEffect.drawGuiContainerBackgroundLayer(tpf, mouseX, mouseY);
+            if (currentEffect != null) currentEffect.drawGuiContainerBackgroundLayer(tpf, mouseX, mouseY);
 
             slider.drawGuiContainerBackgroundLayer(tpf, mouseX, mouseY);
         }
@@ -78,8 +77,8 @@ public class InfusedBlockGUI extends GuiContainer {
 
     @Override
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
-        if(data != null){
-            if(currentEffect != null) currentEffect.drawGuiContainerForegroundLayer(mouseX, mouseY);
+        if (data != null) {
+            if (currentEffect != null) currentEffect.drawGuiContainerForegroundLayer(mouseX, mouseY);
 
             slider.drawGuiContainerForegroundLayer(mouseX, mouseY);
         }
@@ -99,15 +98,15 @@ public class InfusedBlockGUI extends GuiContainer {
         setupEffect(slider.getSelectedEffect());
     }
 
-    protected int getLeft(){
+    protected int getLeft() {
         return guiLeft;
     }
 
-    protected int getTop(){
+    protected int getTop() {
         return guiTop;
     }
 
-    protected FontRenderer getFontRenderer(){
+    protected FontRenderer getFontRenderer() {
         return fontRendererObj;
     }
 }

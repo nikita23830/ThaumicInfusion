@@ -1,12 +1,8 @@
 package drunkmafia.thaumicinfusion.common.block;
 
 import cpw.mods.fml.common.registry.GameRegistry;
-import drunkmafia.thaumicinfusion.common.aspect.effect.vanilla.Limus;
 import drunkmafia.thaumicinfusion.common.block.tile.InfusionCoreTile;
 import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
-import thaumcraft.common.blocks.BlockWarded;
-import thaumcraft.common.config.ConfigBlocks;
 
 import static drunkmafia.thaumicinfusion.common.lib.BlockInfo.*;
 

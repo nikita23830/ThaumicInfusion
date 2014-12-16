@@ -6,7 +6,6 @@ import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.util.BlockHelper;
 import drunkmafia.thaumicinfusion.common.world.BlockData;
 import drunkmafia.thaumicinfusion.common.world.BlockSavable;
-import net.minecraft.client.Minecraft;
 
 /**
  * Created by DrunkMafia on 25/07/2014.
@@ -14,5 +13,13 @@ import net.minecraft.client.Minecraft;
  * See http://www.wtfpl.net/txt/copying for licence
  */
 public class TickEventHandler {
+    @SubscribeEvent
+    public void playerTick(TickEvent.PlayerTickEvent event){
+        BlockSavable[] savables = BlockHelper.getWorldData(event.player.worldObj).getAllBocks();
 
+        for(BlockSavable block : savables)
+            if(block instanceof BlockData)
+                for(AspectEffect effect : ((BlockData) block).getEffects())
+                    effect.updateBlock(event.player.worldObj);
+    }
 }

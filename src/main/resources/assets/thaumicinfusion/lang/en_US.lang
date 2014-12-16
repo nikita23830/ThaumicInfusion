@@ -47,6 +47,7 @@ ti.effect_info.TENEBRAE=Only solid in darkness
 ti.effect_info.BESTIA=Mobs cannot spawn on top of this block
 ti.effect_info.VITIUM=Will destroy all forms of solid taint next to it
 ti.effect_info.MESSIS=Allows the placement of plants on the block
+ti.effect_info.MOTUS=Pushes entities in the direction specified by shift clicking a sdie
 ti.effect_info.IGNIS=Supports fire on the block
 ti.effect_info.SENSUS=Block is only viewable when goggles are on
 ti.effect_info.ORDO=Adds stability to infusion alters

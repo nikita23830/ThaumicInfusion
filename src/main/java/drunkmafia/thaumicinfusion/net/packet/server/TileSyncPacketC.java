@@ -5,7 +5,6 @@ import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
@@ -50,9 +49,8 @@ public class TileSyncPacketC implements IMessage {
         @Override
         public IMessage onMessage(TileSyncPacketC message, MessageContext ctx) {
             if (message.tileEntity == null || ctx.side.isServer()) return null;
-            EntityPlayer player = ChannelHandler.getPlayer(ctx);
             TileEntity tile = message.tileEntity;
-            player.worldObj.setTileEntity(tile.xCoord, tile.yCoord, tile.zCoord, tile);
+            ChannelHandler.getClientWorld().setTileEntity(tile.xCoord, tile.yCoord, tile.zCoord, tile);
             return null;
         }
     }

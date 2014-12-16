@@ -7,13 +7,11 @@ import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.util.BlockHelper;
 import drunkmafia.thaumicinfusion.common.util.WorldCoord;
 import drunkmafia.thaumicinfusion.common.world.BlockData;
-import drunkmafia.thaumicinfusion.common.world.BlockSavable;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.world.World;
 
 /**
@@ -58,7 +56,7 @@ public class EffectSyncPacketC  implements IMessage {
         public IMessage onMessage(EffectSyncPacketC message, MessageContext ctx) {
             AspectEffect effect = message.effect;
             if (effect == null || ctx.side.isServer()) return null;
-            World world = ChannelHandler.getPlayer(ctx).worldObj;
+            World world = ChannelHandler.getClientWorld();
             WorldCoord pos = effect.getPos();
             BlockData data = BlockHelper.getWorldData(world).getBlock(BlockData.class, effect.getPos());
             if(data != null &&  data.getEffect(effect.getClass()) != null)

@@ -11,7 +11,6 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.world.World;
 
 /**
@@ -55,7 +54,7 @@ public class BlockSyncPacketC implements IMessage {
         public IMessage onMessage(BlockSyncPacketC message, MessageContext ctx) {
             BlockSavable data = message.data;
             if (data == null || ctx.side.isServer()) return null;
-            World world = ChannelHandler.getPlayer(ctx).worldObj;
+            World world = ChannelHandler.getClientWorld();
             WorldCoord pos = data.getCoords();
             BlockHelper.getWorldData(world).addBlock(world, message.data);
             Minecraft.getMinecraft().renderGlobal.markBlockForUpdate(pos.x, pos.y, pos.z);

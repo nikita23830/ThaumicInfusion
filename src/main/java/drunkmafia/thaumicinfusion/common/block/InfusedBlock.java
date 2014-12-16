@@ -4,20 +4,16 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import drunkmafia.thaumicinfusion.client.renderer.RenderInfused;
 import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
-import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.lib.BlockInfo;
+import drunkmafia.thaumicinfusion.common.util.BlockHelper;
+import drunkmafia.thaumicinfusion.common.util.InfusionHelper;
 import drunkmafia.thaumicinfusion.common.util.WorldCoord;
 import drunkmafia.thaumicinfusion.common.world.BlockData;
-import drunkmafia.thaumicinfusion.common.util.BlockHelper;
 import drunkmafia.thaumicinfusion.common.world.BlockSavable;
-import drunkmafia.thaumicinfusion.common.util.InfusionHelper;
-import drunkmafia.thaumicinfusion.net.ChannelHandler;
 import drunkmafia.thaumicinfusion.net.packet.client.RequestBlockPacketS;
-import drunkmafia.thaumicinfusion.net.packet.server.BlockDestroyedPacketC;
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.EffectRenderer;
 import net.minecraft.client.particle.EntityDiggingFX;
 import net.minecraft.client.renderer.texture.IIconRegister;
@@ -25,8 +21,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
@@ -96,6 +90,14 @@ public class InfusedBlock extends Block implements IWorldData, ITileEntityProvid
         ItemStack stack = InfusionHelper.getInfusedItemStack(block.getAspects(), new ItemStack(block.getContainingBlock()), 1, world.getBlockMetadata(pos.x, pos.y, pos.z));
         if(stack != null)
             super.dropBlockAsItem(world, pos.x, pos.y, pos.z, stack);
+    }
+
+    @Override
+    public IIcon getIcon(IBlockAccess access, int x, int y, int z, int side) {
+        BlockData blockData = BlockHelper.getData(BlockData.class, access, new WorldCoord(x, y, z));
+        if (isBlockData(blockData))
+            return blockData.getContainingBlock().getIcon(access, x, y, z, side);
+        return blockIcon;
     }
 
     @Override
@@ -398,12 +400,7 @@ public class InfusedBlock extends Block implements IWorldData, ITileEntityProvid
     @Override
     @SideOnly(Side.CLIENT)
     public boolean shouldSideBeRendered(IBlockAccess access, int x, int y, int z, int side) {
-        if(access.getBlock(x, y, z) instanceof InfusedBlock){
-            BlockData data = BlockHelper.getData(BlockData.class, Minecraft.getMinecraft().theWorld, new WorldCoord(x, y, z));
-            if(data != null && data.getContainingBlock().getRenderType() == 0)
-                return data.runBlockMethod().shouldSideBeRendered(access, x, y, z, side);
-        }
-        return true;
+        return !(access.getBlock(x, y, z) instanceof InfusedBlock);
     }
 
     @Override

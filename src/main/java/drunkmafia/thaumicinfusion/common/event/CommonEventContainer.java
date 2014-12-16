@@ -1,7 +1,6 @@
 package drunkmafia.thaumicinfusion.common.event;
 
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.gameevent.TickEvent;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.block.IWorldData;
 import drunkmafia.thaumicinfusion.common.util.BlockHelper;
@@ -9,7 +8,6 @@ import drunkmafia.thaumicinfusion.common.util.WorldCoord;
 import drunkmafia.thaumicinfusion.common.world.BlockData;
 import drunkmafia.thaumicinfusion.common.world.BlockSavable;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
-import drunkmafia.thaumicinfusion.net.packet.CooldownPacket;
 import net.minecraft.block.Block;
 import net.minecraft.world.WorldSavedData;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
@@ -29,6 +27,7 @@ public class CommonEventContainer {
             return;
 
         WorldCoord pos = WorldCoord.get(event.x, event.y, event.z);
+        pos.dim = event.world.provider.dimensionId;
         if(!event.getPlayer().capabilities.isCreativeMode)
             for (BlockSavable savable : BlockHelper.getWorldData(event.world).getAllDatasAt(pos))
                 ((IWorldData) block).breakBlock(event.world, savable);
@@ -60,6 +59,8 @@ public class CommonEventContainer {
                 for(AspectEffect effect : ((BlockData)savable).getEffects())
                     effect.worldBlockInteracted(event.entityPlayer, event.world, event.x, event.y, event.z, event.face);
     }
+
+
 
     @SubscribeEvent
     public void load(WorldEvent.Load loadEvent){

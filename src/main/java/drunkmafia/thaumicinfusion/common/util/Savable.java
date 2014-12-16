@@ -15,7 +15,7 @@ public class Savable {
     public static Savable loadDataFromNBT(NBTTagCompound tag) {
         if (!tag.hasKey("class")) return null;
         try {
-            Class c = Class.forName(tag.getString("class"));
+            Class<?> c = Class.forName(tag.getString("class"));
             if (Savable.class.isAssignableFrom(c)) {
                 Savable data = (Savable) c.newInstance();
                 data.readNBT(tag);

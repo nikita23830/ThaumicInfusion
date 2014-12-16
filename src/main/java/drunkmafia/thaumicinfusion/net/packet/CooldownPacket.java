@@ -3,7 +3,6 @@ package drunkmafia.thaumicinfusion.net.packet;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import drunkmafia.thaumicinfusion.common.util.WorldCoord;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.util.ChunkCoordinates;
 
 import java.util.HashMap;
 

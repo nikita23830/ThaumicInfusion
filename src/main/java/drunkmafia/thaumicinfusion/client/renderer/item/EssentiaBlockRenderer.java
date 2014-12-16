@@ -1,14 +1,12 @@
 package drunkmafia.thaumicinfusion.client.renderer.item;
 
 import drunkmafia.thaumicinfusion.common.block.TIBlocks;
-
 import drunkmafia.thaumicinfusion.common.util.RGB;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-
 import net.minecraft.util.IIcon;
 import net.minecraftforge.client.IItemRenderer;
 import org.lwjgl.opengl.GL11;
@@ -33,7 +31,7 @@ public class EssentiaBlockRenderer implements IItemRenderer {
     @Override
     public void renderItem(ItemRenderType type, ItemStack stack, Object... data) {
         NBTTagCompound tag = stack.getTagCompound();
-        if(tag == null) return;
+        if (tag == null) return;
 
         Block essentiaBlock = TIBlocks.essentiaBlock;
         RenderBlocks renderBlocks = new RenderBlocks();
@@ -46,9 +44,9 @@ public class EssentiaBlockRenderer implements IItemRenderer {
 
         GL11.glRotatef(90.0F, 0.0F, 1.0F, 0.0F);
 
-        if(type == ItemRenderType.EQUIPPED)
+        if (type == ItemRenderType.EQUIPPED)
             GL11.glTranslatef(-1.1225F, 0.05F, 0F);
-        else if(type == ItemRenderType.EQUIPPED_FIRST_PERSON)
+        else if (type == ItemRenderType.EQUIPPED_FIRST_PERSON)
             GL11.glTranslatef(-1.F, 0F, 0.05F);
         else
             GL11.glTranslatef(-0.5F, -0.5F, -0.5F);

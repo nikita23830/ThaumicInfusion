@@ -3,9 +3,6 @@ package drunkmafia.thaumicinfusion.common.world;
 import drunkmafia.thaumicinfusion.common.util.Savable;
 import drunkmafia.thaumicinfusion.common.util.WorldCoord;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ChunkCoordinates;
-import net.minecraft.world.World;
-import thaumcraft.api.WorldCoordinates;
 
 /**
  * Created by DrunkMafia on 29/06/2014.

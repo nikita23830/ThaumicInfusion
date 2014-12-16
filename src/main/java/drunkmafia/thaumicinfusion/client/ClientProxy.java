@@ -5,18 +5,20 @@ import cpw.mods.fml.client.registry.RenderingRegistry;
 import cpw.mods.fml.common.FMLCommonHandler;
 import drunkmafia.thaumicinfusion.client.event.ClientEventContainer;
 import drunkmafia.thaumicinfusion.client.event.ClientTickHandler;
-import drunkmafia.thaumicinfusion.client.gui.CreativeInfusionGUI;
 import drunkmafia.thaumicinfusion.client.gui.InfusedBlockGUI;
 import drunkmafia.thaumicinfusion.client.renderer.RenderInfused;
-import drunkmafia.thaumicinfusion.client.renderer.item.*;
-import drunkmafia.thaumicinfusion.client.renderer.tile.*;
+import drunkmafia.thaumicinfusion.client.renderer.item.CoreItemRenderer;
+import drunkmafia.thaumicinfusion.client.renderer.item.EssentiaBlockRenderer;
+import drunkmafia.thaumicinfusion.client.renderer.item.InfusedItemRenderer;
+import drunkmafia.thaumicinfusion.client.renderer.tile.InfusionCoreRenderer;
 import drunkmafia.thaumicinfusion.common.CommonProxy;
-import drunkmafia.thaumicinfusion.common.block.*;
-import drunkmafia.thaumicinfusion.common.block.tile.*;
+import drunkmafia.thaumicinfusion.common.block.BlockHandler;
+import drunkmafia.thaumicinfusion.common.block.InfusedBlock;
+import drunkmafia.thaumicinfusion.common.block.TIBlocks;
+import drunkmafia.thaumicinfusion.common.block.tile.InfusionCoreTile;
 import drunkmafia.thaumicinfusion.common.util.WorldCoord;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
-import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.world.World;
 import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.common.MinecraftForge;
@@ -28,25 +30,24 @@ public class ClientProxy extends CommonProxy {
         MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(TIBlocks.infusionCoreBlock), new CoreItemRenderer());
 
         InfusedBlock[] blocks = BlockHandler.getBlocks();
-        for(InfusedBlock block : blocks) {
+        for (InfusedBlock block : blocks)
             MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(block), new InfusedItemRenderer());
-
-        }
 
         RenderingRegistry.registerBlockHandler(new RenderInfused());
 
         ClientRegistry.bindTileEntitySpecialRenderer(InfusionCoreTile.class, new InfusionCoreRenderer());
-        
+
         FMLCommonHandler.instance().bus().register(new ClientTickHandler());
         MinecraftForge.EVENT_BUS.register(new ClientEventContainer());
     }
 
     @Override
     public Object getClientGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) {
-        switch (ID){
-            case 0: return new InfusedBlockGUI(new WorldCoord(x, y, z));
-            case 1: return new CreativeInfusionGUI(player);
-            default: return null;
+        switch (ID) {
+            case 0:
+                return new InfusedBlockGUI(new WorldCoord(x, y, z));
+            default:
+                return null;
         }
     }
 }

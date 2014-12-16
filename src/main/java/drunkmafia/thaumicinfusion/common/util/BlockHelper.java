@@ -7,19 +7,19 @@ import drunkmafia.thaumicinfusion.common.world.BlockSavable;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
 import drunkmafia.thaumicinfusion.net.packet.client.RequestBlockPacketS;
+import drunkmafia.thaumicinfusion.net.packet.server.BlockDestroyedPacketC;
 import net.minecraft.client.Minecraft;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ChunkCoordinates;
-import net.minecraft.world.*;
+import net.minecraft.world.ChunkCache;
+import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.World;
+import net.minecraft.world.WorldSavedData;
 import net.minecraftforge.common.util.ForgeDirection;
-import thaumcraft.api.WorldCoordinates;
-
-import java.lang.reflect.Field;
 
 import static drunkmafia.thaumicinfusion.common.util.InfusionHelper.*;
 
-public class BlockHelper {
+public final class BlockHelper {
 
     public static BlockData getDataFromStack(ItemStack stack, int x, int y, int z) {
         Class[] classes = getEffectsFromStack(stack);
@@ -31,8 +31,10 @@ public class BlockHelper {
 
     public static <T>T getData(Class<T> type, World world, WorldCoord coords) {
         T data = getWorldData(world).getBlock(type, coords);
-        if (data == null && world.isRemote)
+        if (data == null && world.isRemote) {
+            coords.dim = Minecraft.getMinecraft().theWorld.provider.dimensionId;
             ChannelHandler.network.sendToServer(new RequestBlockPacketS((Class<? extends BlockSavable>) type, coords));
+        }
         return data;
     }
 
@@ -51,7 +53,7 @@ public class BlockHelper {
             worldData = new TIWorldData(worldName);
             ((TIWorldData)worldData).world = world;
             world.perWorldStorage.setData(worldName, worldData);
-            return (TIWorldData) worldData;
+            return (TIWorldData) world.perWorldStorage.loadData(TIWorldData.class, worldName);
         }
     }
 
@@ -61,6 +63,9 @@ public class BlockHelper {
 
         world.setBlock(coords.x, coords.y, coords.z, Blocks.air);
         world.removeTileEntity(coords.x, coords.y, coords.z);
+
+        if(!world.isRemote)
+            ChannelHandler.network.sendToDimension(new BlockDestroyedPacketC(coords), world.provider.dimensionId);
     }
 
     static FieldAccess worldObj;
@@ -79,6 +84,18 @@ public class BlockHelper {
             } else if (blockAccess instanceof World)
                 return (World) blockAccess;
         }
-        return Minecraft.getMinecraft().theWorld;
+        return ChannelHandler.getClientWorld();
+    }
+
+    public static ForgeDirection dirFromSide(int side){
+        switch (side){
+            case 0: return ForgeDirection.DOWN;
+            case 1: return ForgeDirection.UP;
+            case 2: return ForgeDirection.NORTH;
+            case 3: return ForgeDirection.SOUTH;
+            case 4: return ForgeDirection.WEST;
+            case 5: return ForgeDirection.EAST;
+            default: return ForgeDirection.UNKNOWN;
+        }
     }
 }

@@ -4,7 +4,6 @@ import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.util.WorldCoord;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 import net.minecraft.entity.effect.EntityLightningBolt;
-import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.world.World;
 
 import java.util.Random;
