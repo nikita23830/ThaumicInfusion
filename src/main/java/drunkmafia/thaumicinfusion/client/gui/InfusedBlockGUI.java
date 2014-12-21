@@ -40,10 +40,11 @@ public class InfusedBlockGUI extends GuiContainer {
     }
 
     public void setupEffect(Aspect aspects) {
+        AspectHandler handler = AspectHandler.getInstance();
         if (aspects != null) {
-            Class effect = AspectHandler.getEffectFromAspect(slider.getSelectedEffect());
+            Class effect = handler.getEffectFromAspect(slider.getSelectedEffect());
             if (effect != null) {
-                currentEffect = AspectHandler.getEffectGUI(effect);
+                currentEffect = handler.getEffectGUI(effect);
                 if (currentEffect != null) {
                     currentEffect.fontRendererObj = fontRendererObj;
 

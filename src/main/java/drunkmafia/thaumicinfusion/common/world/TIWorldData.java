@@ -5,6 +5,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldSavedData;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -110,6 +111,17 @@ public class TIWorldData extends WorldSavedData {
         BlockSavable[] array = new BlockSavable[blocks.size()];
         array = blocks.toArray(array);
         return array;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T extends BlockSavable>T[] getAllBlocks(Class<T> type){
+        BlockSavable[] blocks = getAllBocks();
+        ArrayList<T> blocksOfType = new ArrayList<T>();
+        for(BlockSavable block : blocks){
+            if(type.isInstance(block))
+                blocksOfType.add(type.cast(block));
+        }
+        return blocksOfType.toArray((T[]) Array.newInstance(type, blocksOfType.size()));
     }
 
     @Override

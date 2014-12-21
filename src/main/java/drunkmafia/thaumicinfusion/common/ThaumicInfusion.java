@@ -5,6 +5,7 @@ import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
 import cpw.mods.fml.common.SidedProxy;
+import cpw.mods.fml.common.event.FMLConstructionEvent;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
@@ -19,13 +20,12 @@ import drunkmafia.thaumicinfusion.common.tab.TITab;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
 import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.config.Configuration;
 import org.apache.logging.log4j.Logger;
-
-import java.io.File;
 
 import static drunkmafia.thaumicinfusion.common.lib.ModInfo.*;
 
-@Mod(modid = MODID, name = NAME, version = VERSION, dependencies="required-after:Thaumcraft@[4.1.1.4,);")
+@Mod(modid = MODID, name = NAME, version = VERSION, dependencies="required-after:Thaumcraft@[4.2.2.B6,);", canBeDeactivated = true)
 public class ThaumicInfusion {
 
     @Instance(MODID)
@@ -36,17 +36,23 @@ public class ThaumicInfusion {
 
     public boolean isServer;
     public Logger logger;
-    public File configFile;
+    public Configuration config;
+
+    @EventHandler
+    public void constructing(FMLConstructionEvent event){
+        AspectHandler.getInstance().addMod();
+    }
 
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {
         logger = event.getModLog();
         isServer = event.getSide().isServer();
-        configFile = event.getSuggestedConfigurationFile();
+        config = new Configuration(event.getSuggestedConfigurationFile());
 
         TITab.init();
         TIBlocks.initBlocks();
-        AspectHandler.preInit();
+
+        AspectHandler.getInstance().preInit();
     }
 
     @EventHandler
@@ -61,12 +67,16 @@ public class ThaumicInfusion {
 
     @EventHandler
     public void postInit(FMLPostInitializationEvent event){
-        AspectHandler.postInit();
+        AspectHandler.getInstance().postInit();
 
         ThaumcraftIntergration.init();
     }
 
     public static String translate(String key, Object... params) {
         return StatCollector.translateToLocalFormatted(key, params);
+    }
+
+    public static Logger getLogger(){
+        return ThaumicInfusion.instance.logger;
     }
 }

@@ -38,9 +38,8 @@ public class InfusionCoreTile extends TilePedestal implements IWandable {
 
     @Override
     public void updateEntity() {
-        if(matrix == null)
-            getMatrixTile();
-        else {
+        getMatrixTile();
+        if(matrix != null) {
             if(!worldObj.isRemote) {
                 if (matrix.crafting && shouldCheck)
                     shouldCheck = checkInfusion();
@@ -97,11 +96,11 @@ public class InfusionCoreTile extends TilePedestal implements IWandable {
     }
 
     void getMatrixTile(){
-        if(matrix != null)
-            return;
         TileEntity matrixTile = worldObj.getTileEntity(xCoord, yCoord + 2, zCoord);
         if(matrixTile != null && matrixTile instanceof TileInfusionMatrix)
             matrix = (TileInfusionMatrix)matrixTile;
+        else
+            matrix = null;
     }
 
     @Override

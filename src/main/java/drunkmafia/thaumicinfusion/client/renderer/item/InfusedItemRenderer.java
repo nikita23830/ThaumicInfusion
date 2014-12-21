@@ -33,6 +33,9 @@ public class InfusedItemRenderer implements IItemRenderer {
         ItemStack infused = new ItemStack(Block.getBlockById(tag.getInteger("infusedID")), 1, item.getItemDamage());
         EntityPlayer player = FMLClientHandler.instance().getClient().thePlayer;
 
+        if(Block.getBlockFromItem(infused.getItem()) == null)
+            return;
+
         GL11.glPushMatrix();
 
         if (type == ItemRenderType.EQUIPPED)

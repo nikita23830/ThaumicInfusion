@@ -2,7 +2,6 @@ package drunkmafia.thaumicinfusion.common.block;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import drunkmafia.thaumicinfusion.client.renderer.RenderInfused;
 import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import drunkmafia.thaumicinfusion.common.lib.BlockInfo;
 import drunkmafia.thaumicinfusion.common.util.BlockHelper;
@@ -85,8 +84,12 @@ public class InfusedBlock extends Block implements IWorldData, ITileEntityProvid
 
         BlockData block = (BlockData)data;
         WorldCoord pos = data.getCoords();
+        try {
+            block.runBlockMethod().breakBlock(world, pos.x, pos.y, pos.z, block.getContainingBlock(), world.getBlockMetadata(pos.x, pos.y, pos.z));
+        }catch (Exception e){
+            e.printStackTrace();
+        }
 
-        block.runBlockMethod().breakBlock (world, pos.x, pos.y, pos.z, block.getContainingBlock(), world.getBlockMetadata(pos.x, pos.y, pos.z));
         ItemStack stack = InfusionHelper.getInfusedItemStack(block.getAspects(), new ItemStack(block.getContainingBlock()), 1, world.getBlockMetadata(pos.x, pos.y, pos.z));
         if(stack != null)
             super.dropBlockAsItem(world, pos.x, pos.y, pos.z, stack);
@@ -96,7 +99,7 @@ public class InfusedBlock extends Block implements IWorldData, ITileEntityProvid
     public IIcon getIcon(IBlockAccess access, int x, int y, int z, int side) {
         BlockData blockData = BlockHelper.getData(BlockData.class, access, new WorldCoord(x, y, z));
         if (isBlockData(blockData))
-            return blockData.getContainingBlock().getIcon(access, x, y, z, side);
+                return blockData.getContainingBlock().getIcon(access, x, y, z, side);
         return blockIcon;
     }
 
@@ -164,15 +167,24 @@ public class InfusedBlock extends Block implements IWorldData, ITileEntityProvid
             ItemStack stack = player.getHeldItem();
             if(stack != null && stack.getItem() instanceof ItemWandCasting && blockData.canOpenGUI())
                 player.openGui(ThaumicInfusion.instance, 0, world, x, y, z);
-            else
-                return blockData.runBlockMethod().onBlockActivated(world, x, y, z, player, side, hitX, hitY, hitZ);
+            else {
+                try {
+                    return blockData.runBlockMethod().onBlockActivated(world, x, y, z, player, side, hitX, hitY, hitZ);
+                }catch (Exception e){
+                    if(!world.isRemote)
+                        BlockHelper.destroyBlock(world, blockData.getCoords());
+                    e.printStackTrace();
+                }
+            }
         }
         return false;
     }
 
+    public static int renderType = -1;
+
     @Override
     public int getRenderType() {
-        return RenderInfused.id;
+        return renderType;
     }
 
     @Override
@@ -240,36 +252,71 @@ public class InfusedBlock extends Block implements IWorldData, ITileEntityProvid
     @Override
     public void onNeighborBlockChange(World world, int x, int y, int z, Block block) {
         BlockData blockData = BlockHelper.getData(BlockData.class, world, new WorldCoord(x, y, z));
-        if (isBlockData(blockData))
-            blockData.getContainingBlock().onNeighborBlockChange(world, x, y, z, block);
+        if (isBlockData(blockData)) {
+            try{
+                blockData.getContainingBlock().onNeighborBlockChange(world, x, y, z, block);
+            }catch (Exception e){
+                if(!world.isRemote)
+                    BlockHelper.destroyBlock(world, blockData.getCoords());
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
     public void onFallenUpon(World world, int x, int y, int z, Entity ent, float fall) {
         BlockData blockData = BlockHelper.getData(BlockData.class, world, new WorldCoord(x, y, z));
-        if (isBlockData(blockData))
-            blockData.runBlockMethod().onFallenUpon (world, x, y, z, ent, fall);
+        if (isBlockData(blockData)) {
+            try{
+                blockData.runBlockMethod().onFallenUpon(world, x, y, z, ent, fall);
+            }catch (Exception e){
+                if(!world.isRemote)
+                    BlockHelper.destroyBlock(world, blockData.getCoords());
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
     public void onEntityWalking(World world, int x, int y, int z, Entity ent) {
         BlockData blockData = BlockHelper.getData(BlockData.class, world, new WorldCoord(x, y, z));
-        if (isBlockData(blockData))
-            blockData.runBlockMethod().onEntityWalking (world, x, y, z, ent);
+        if (isBlockData(blockData)) {
+            try{
+                blockData.runBlockMethod().onEntityWalking(world, x, y, z, ent);
+            }catch (Exception e){
+                if(!world.isRemote)
+                    BlockHelper.destroyBlock(world, blockData.getCoords());
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
     public void onEntityCollidedWithBlock(World world, int x, int y, int z, Entity ent) {
         BlockData blockData = BlockHelper.getData(BlockData.class, world, new WorldCoord(x, y, z));
-        if (isBlockData(blockData))
-            blockData.runBlockMethod().onEntityCollidedWithBlock (world, x, y, z, ent);
+        if (isBlockData(blockData)) {
+            try {
+                blockData.runBlockMethod().onEntityCollidedWithBlock(world, x, y, z, ent);
+            }catch (Exception e){
+                if(!world.isRemote)
+                    BlockHelper.destroyBlock(world, blockData.getCoords());
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
     public void onBlockClicked(World world, int x, int y, int z, EntityPlayer ent) {
         BlockData blockData = BlockHelper.getData(BlockData.class, world, new WorldCoord(x, y, z));
-        if (isBlockData(blockData))
-            blockData.runBlockMethod().onBlockClicked (world, x, y, z, ent);
+        if (isBlockData(blockData)) {
+            try {
+                blockData.runBlockMethod().onBlockClicked(world, x, y, z, ent);
+            }catch (Exception e){
+                if(!world.isRemote)
+                    BlockHelper.destroyBlock(world, blockData.getCoords());
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override

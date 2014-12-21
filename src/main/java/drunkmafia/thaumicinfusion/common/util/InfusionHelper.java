@@ -96,7 +96,7 @@ public class InfusionHelper {
     private static Class[] getEffectsFromList(Aspect[] list) {
         Class[] effects = new Class[list.length];
         for(int i = 0; i < effects.length; i++)
-            effects[i] = AspectHandler.getEffectFromAspect(list[i]);
+            effects[i] = AspectHandler.getInstance().getEffectFromAspect(list[i]);
 
         return effects;
     }

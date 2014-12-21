@@ -1,7 +1,9 @@
 #en_US
 
+# Creative Tab
 itemGroup.thaumicinfusion=Thaumic Infusion
 
+# Blocks
 tile.local_infusionCore.name=Infusion Core
 tile.local_infused.default=Infused Block
 tile.local_infused.aqua=Infused Block
@@ -14,11 +16,12 @@ key.infusedBlock.infused=Infused
 key.essentiaBlock.brick=Brick
 key.essentiaBlock.chiseled=Chiseled
 
+# Research
 tc.research_category.THAUMICINFUSION=Thaumic Infusion
 tc.research_name.BLOCKINFUSION=Block Infusion
 tc.research_text.BLOCKINFUSION=The Procces of fusing aspects to blocks to get an desired effect
 tc.research_page.BLOCKINFUSION.1=Block infusion is one of the lost knowledges of thaumaturgy, it is the process of taking an aspect and infusing it into a catalyst block. The effects are unique to each aspect and must be handled with care, the matrix alone is not powerful enough to withstand the instability of this process. Thus the Infusion Core was created, this core harnesses magic to stabilize every recipe and is able to withstand the infusion process.
-tc.research_page.BLOCKINFUSION.2=To carry out this process, one must replace the center pedestal with the infusion core, the core will stabilize allrecipes at the cost of magic, then place the catalyst block within the core and put phials of the aspects you want to infuse in the surrounding pedestals. It will use these phials as markers and drain the amount of essentia needed from the surrounding jars.
+tc.research_page.BLOCKINFUSION.2=To carry out this process, one must replace the center pedestal with the infusion core, the core will stabilize all recipes at the cost of magic, then place the catalyst block within the core and put phials of the aspects you want to infuse in the surrounding pedestals. It will use these phials as markers and drain the amount of essentia needed from the surrounding jars.
 
 tc.research_name.ESSENTIABLOCKS=Essentia Block
 tc.research_text.ESSENTIABLOCKS=These blocks are aspects captured in block form
@@ -27,6 +30,8 @@ tc.research_page.ESSENTIABLOCKS.1=Simply aspects solidified as blocks
 tc.research_name.ASPECTEFFECTS=The Effects of Aspects
 tc.research_text.ASPECTEFFECTS=Effects of aspects upon being infused
 
+
+# Effects Description
 ti.effect_info.VACUOS=Block becomes a chest
 ti.effect_info.FABRICO=A Builders dream, shift clicking = Insta-Break
 ti.effect_info.POTENTIA=A Redstone block
@@ -56,3 +61,9 @@ ti.effect_info.TUTAMEN=Block is is harder
 ti.effect_info.VINCULUM=Stops mobs in their tracks
 ti.effect_info.PERMUTATIO=Whack a wand on a tile and then this block, will link the two together
 ti.effect_info.LUCRUM=Pulls all items within 10 blocks to itself
+ti.effect_info.MORTUUS=Increases the chance for a mob to spawn during night
+ti.effect_info.VICTUS=Increases the chance for a animal to spawn during day
+ti.effect_info.PRAECANTATIO=Sparkles
+ti.effect_info.VITREUS=Lets light though
+ti.effect_info.VENENUM=Posions those that stand on it
+ti.effect_info.VITREUS=

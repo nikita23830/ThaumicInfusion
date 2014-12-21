@@ -41,28 +41,18 @@ public class BlockHandler {
         return null;
     }
 
-    static String CATEGORY = "BLOCKLIST";
     public static void whitelistBlocks(){
-        Configuration config = new Configuration(ThaumicInfusion.instance.configFile);
+        Configuration config = ThaumicInfusion.instance.config;
         config.load();
-        String[] configBlocks = config.get(CATEGORY, "BLOCKS", new String[]{}).getStringList();
-        configBlocks = new String[0];
-        if(configBlocks.length == 0) {
-            ArrayList<String> blocks = new ArrayList<String>();
-            Iterator blocksIter = Block.blockRegistry.iterator();
-            while (blocksIter.hasNext()) {
-                Block block = (Block) blocksIter.next();
-                if (!(block instanceof ITileEntityProvider)) {
-                    whitelistedBlocks.add(block.getUnlocalizedName());
-                    blocks.add(block.getUnlocalizedName());
-                }
-            }
-            String[] blockA = new String[blocks.size()];
-            blocks.toArray(blockA);
-            config.get(CATEGORY, "BLOCKS", new String[]{}).set(blockA);
-        }else
-            for(String block : configBlocks)
-                whitelistedBlocks.add(block);
+        config.addCustomCategoryComment("Blocks", "Blocks that are allowed to be infused - NOTE: Will use server side config to decide, no conflicts will arise if configs are different");
+
+        Iterator blocksIter = Block.blockRegistry.iterator();
+        while (blocksIter.hasNext()) {
+            Block block = (Block) blocksIter.next();
+            if (!(block instanceof ITileEntityProvider) && config.get("Blocks", block.getLocalizedName(), true).getBoolean())
+                whitelistedBlocks.add(block.getUnlocalizedName());
+        }
+
         config.save();
         ThaumicInfusion.instance.logger.info("Whitelisted: " + whitelistedBlocks.size() + " out of " + Block.blockRegistry.getKeys().size());
     }

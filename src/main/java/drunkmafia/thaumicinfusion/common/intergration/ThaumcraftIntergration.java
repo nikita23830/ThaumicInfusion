@@ -62,7 +62,7 @@ public class ThaumcraftIntergration {
             }
         }
 
-        ResearchCategories.registerCategory("THAUMICINFUSION", new ResourceLocation(ModInfo.MODID, "textures/research/r_ti.png"), new ResourceLocation("thaumcraft", "textures/gui/gui_researchback.png"));
+        ResearchCategories.registerCategory("THAUMICINFUSION", new ResourceLocation(ModInfo.MODID, "textures/research/r_ti.png"), new ResourceLocation(ModInfo.MODID, "textures/gui/r_tibg.png"));
 
         ItemStack empty = new ItemStack(ConfigBlocks.blockHole, 1, 15);
         List core = Arrays.asList(new AspectList().add(Aspect.FIRE, 25).add(Aspect.EARTH, 25).add(Aspect.ORDER, 25).add(Aspect.AIR, 25).add(Aspect.ENTROPY, 25).add(Aspect.WATER, 25), Integer.valueOf(3), Integer.valueOf(3), Integer.valueOf(3), Arrays.asList(empty, null, empty, null, new ItemStack(ConfigBlocks.blockStoneDevice, 1, 2), null, empty, null, empty, new ItemStack(ConfigBlocks.blockCosmeticSolid, 1, 6), null, new ItemStack(ConfigBlocks.blockCosmeticSolid, 1, 6), null, null, null, new ItemStack(ConfigBlocks.blockCosmeticSolid, 1, 6), null, new ItemStack(ConfigBlocks.blockCosmeticSolid, 1, 6), new ItemStack(ConfigBlocks.blockCosmeticSolid, 1, 7), null, new ItemStack(ConfigBlocks.blockCosmeticSolid, 1, 7), null, new ItemStack(TIBlocks.infusionCoreBlock), null, new ItemStack(ConfigBlocks.blockCosmeticSolid, 1, 7), null, new ItemStack(ConfigBlocks.blockCosmeticSolid, 1, 7)));
@@ -76,7 +76,7 @@ public class ThaumcraftIntergration {
     }
 
     private static AspectEffectPage[] getPages() {
-        Aspect[] aspects = AspectHandler.getAspects();
+        Aspect[] aspects = AspectHandler.getInstance().getAspects();
         Aspect[] current = new Aspect[3];
         ArrayList<AspectEffectPage> pages = new ArrayList<AspectEffectPage>();
         int index = 0;
@@ -114,7 +114,7 @@ class AspectEffectPage extends ResearchPage {
         for(Aspect aspect : aspects){
             if(aspect != null) {
                 ResourceLocation location = aspect.getImage();
-                str += "<IMG>" + location.getResourceDomain() + ":" + location.getResourcePath() + ":0:0:255:255:0.125</IMG>" + aspect.getName() + " Cost: " + AspectHandler.getCostOfEffect(aspect) + " " + ThaumicInfusion.translate("ti.effect_info." + aspect.getName().toUpperCase()) + "\n";
+                str += "<IMG>" + location.getResourceDomain() + ":" + location.getResourcePath() + ":0:0:255:255:0.125</IMG>" + aspect.getName() + " Cost: " + AspectHandler.getInstance().getCostOfEffect(aspect) + " " + ThaumicInfusion.translate("ti.effect_info." + aspect.getName().toUpperCase()) + "\n";
             }
         }
         return str;
@@ -159,11 +159,14 @@ class BlockInfusionRecipe extends InfusionRecipe {
             if(infuseAspects.getAmount(aspect) > 0)
                 return false;
 
-            int cost = AspectHandler.getCostOfEffect(aspect);
+            int cost = AspectHandler.getInstance().getCostOfEffect(aspect);
             if(cost != -1)
                 infuseAspects.add(aspect,  cost * central.stackSize);
             else return false;
         }
+
+        if(!AspectHandler.getInstance().canInfuse(infuseAspects.getAspects()))
+            return false;
 
         aspects = infuseAspects;
 

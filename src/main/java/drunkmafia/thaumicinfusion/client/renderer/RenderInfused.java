@@ -2,7 +2,11 @@ package drunkmafia.thaumicinfusion.client.renderer;
 
 import cpw.mods.fml.client.registry.ISimpleBlockRenderingHandler;
 import cpw.mods.fml.client.registry.RenderingRegistry;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
+import drunkmafia.thaumicinfusion.common.block.FakeBlockRender;
+import drunkmafia.thaumicinfusion.common.block.InfusedBlock;
 import drunkmafia.thaumicinfusion.common.util.BlockHelper;
 import drunkmafia.thaumicinfusion.common.util.WorldCoord;
 import drunkmafia.thaumicinfusion.common.world.BlockData;
@@ -16,18 +20,11 @@ import net.minecraft.world.IBlockAccess;
  * <p/>
  * See http://www.wtfpl.net/txt/copying for licence
  */
+@SideOnly(Side.CLIENT)
 public class RenderInfused implements ISimpleBlockRenderingHandler {
 
-    public static int id = -1;
-
-    public RenderInfused() {
-        if (id == -1)
-            id = RenderingRegistry.getNextAvailableRenderId();
-    }
-
     @Override
-    public void renderInventoryBlock(Block block, int i, int i1, RenderBlocks renderBlocks) {
-    }
+    public void renderInventoryBlock(Block block, int i, int i1, RenderBlocks renderBlocks) {}
 
     @Override
     public boolean renderWorldBlock(IBlockAccess access, int x, int y, int z, Block block, int meta, RenderBlocks renderBlocks) {
@@ -39,7 +36,7 @@ public class RenderInfused implements ISimpleBlockRenderingHandler {
             if (!effects.shouldRender(Minecraft.getMinecraft().theWorld, x, y, z, renderBlocks))
                 return false;
         if (data.getContainingBlock().getRenderType() == 0)
-            return renderBlocks.renderStandardBlock(data.getBlock(), x, y, z);
+            return renderBlocks.renderStandardBlock(new FakeBlockRender(data.getContainingBlock()), x, y, z);
 
         return renderBlocks.renderBlockByRenderType(data.getContainingBlock(), x, y, z);
     }
@@ -51,6 +48,8 @@ public class RenderInfused implements ISimpleBlockRenderingHandler {
 
     @Override
     public int getRenderId() {
-        return id;
+        if(InfusedBlock.renderType == -1)
+            InfusedBlock.renderType = RenderingRegistry.getNextAvailableRenderId();
+        return InfusedBlock.renderType;
     }
 }

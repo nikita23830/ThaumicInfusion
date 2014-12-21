@@ -101,7 +101,7 @@ public class BlockData extends BlockSavable {
     }
 
     public boolean canOpenGUI(){
-        for(AspectEffect effect : dataEffects) return AspectHandler.getEffectGUI(effect.getClass()) != null;
+        for(AspectEffect effect : dataEffects) return AspectHandler.getInstance().getEffectGUI(effect.getClass()) != null;
         return false;
     }
 
@@ -122,7 +122,7 @@ public class BlockData extends BlockSavable {
         AspectEffect[] effects = getEffects();
         Aspect[] aspects = new Aspect[effects.length];
         for(int i = 0; i < effects.length; i++)
-            aspects[i] = AspectHandler.getAspectsFromEffect(effects[i].getClass());
+            aspects[i] = AspectHandler.getInstance().getAspectsFromEffect(effects[i].getClass());
 
         return aspects;
     }

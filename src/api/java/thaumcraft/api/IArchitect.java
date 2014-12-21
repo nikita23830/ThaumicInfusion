@@ -22,6 +22,6 @@ public interface IArchitect {
 	public enum EnumAxis {
 		X, // east / west
 		Y, // up / down
-		Z // north / south
+		Z; // north / south
 	}
 }

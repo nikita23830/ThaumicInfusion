@@ -31,7 +31,7 @@ public class CrucibleRecipe {
 			hc += tag.getTag()+tags.getAmount(tag);
 		}
 		if (cat instanceof ItemStack) {
-			hc += cat.toString();
+			hc += ((ItemStack)cat).toString();
 		} else
 		if (cat instanceof ArrayList && ((ArrayList<ItemStack>)catalyst).size()>0) {
 			for (ItemStack is :(ArrayList<ItemStack>)catalyst) {

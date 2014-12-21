@@ -20,10 +20,6 @@ public class Potentia  extends AspectEffect {
         return 15;
     }
 
-    public boolean shouldCheckWeakPower(IBlockAccess access, int x, int y, int z, int side) {
-        return true;
-    }
-
     public boolean canConnectRedstone(IBlockAccess access, int x, int y, int z, int side) {
         return true;
     }

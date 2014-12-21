@@ -1,5 +1,7 @@
 package drunkmafia.thaumicinfusion.client.renderer.item;
 
+import drunkmafia.thaumicinfusion.client.ClientProxy;
+import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import net.minecraft.client.Minecraft;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.client.IItemRenderer;
@@ -18,7 +20,7 @@ import static drunkmafia.thaumicinfusion.common.lib.BlockInfo.infusionCore_Textu
  */
 public class CoreItemRenderer implements IItemRenderer {
 
-    private IModelCustom model = AdvancedModelLoader.loadModel(infusionCore_Model);
+    IModelCustom infusionCore = AdvancedModelLoader.loadModel(infusionCore_Model);
 
     @Override
     public boolean handleRenderType(ItemStack item, ItemRenderType type) {
@@ -44,7 +46,7 @@ public class CoreItemRenderer implements IItemRenderer {
         GL11.glRotated(angle, rotation.x, rotation.y, rotation.z);
 
         Minecraft.getMinecraft().renderEngine.bindTexture(infusionCore_Texture);
-        model.renderAll();
+        infusionCore.renderAll();
 
         GL11.glPopMatrix();
     }

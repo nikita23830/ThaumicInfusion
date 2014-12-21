@@ -6,7 +6,7 @@ public class ModInfo {
 
     public static final String MODID = "thaumicinfusion";
     public static final String NAME = "Thaumic Infusion";
-    public static final String VERSION = "0.01 Pre-Alpha";
+    public static final String VERSION = "3.8.1";
     public static final String CHANNEL = MODID.toUpperCase();
 
     /* Classpaths */
@@ -28,8 +28,4 @@ public class ModInfo {
 
     public static final String CREATIVETAB_UNLOCAL = "thaumicinfusion";
     public static final String EXTRA_INFO_XML = "https://dl.dropboxusercontent.com/u/101919880/Thaumic%20Infusion/ThaumicInfusion.xml";
-
-    /* Logger ID */
-
-    public static final String LOGGER_ID = "[" + MODID + "] ";
 }

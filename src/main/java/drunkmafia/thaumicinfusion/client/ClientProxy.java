@@ -12,6 +12,7 @@ import drunkmafia.thaumicinfusion.client.renderer.item.EssentiaBlockRenderer;
 import drunkmafia.thaumicinfusion.client.renderer.item.InfusedItemRenderer;
 import drunkmafia.thaumicinfusion.client.renderer.tile.InfusionCoreRenderer;
 import drunkmafia.thaumicinfusion.common.CommonProxy;
+import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import drunkmafia.thaumicinfusion.common.block.BlockHandler;
 import drunkmafia.thaumicinfusion.common.block.InfusedBlock;
 import drunkmafia.thaumicinfusion.common.block.TIBlocks;
@@ -21,9 +22,14 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.world.World;
 import net.minecraftforge.client.MinecraftForgeClient;
+import net.minecraftforge.client.model.AdvancedModelLoader;
+import net.minecraftforge.client.model.IModelCustom;
 import net.minecraftforge.common.MinecraftForge;
 
+import static drunkmafia.thaumicinfusion.common.lib.BlockInfo.infusionCore_Model;
+
 public class ClientProxy extends CommonProxy {
+
     @Override
     public void initRenderers() {
         MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(TIBlocks.essentiaBlock), new EssentiaBlockRenderer());
@@ -49,5 +55,9 @@ public class ClientProxy extends CommonProxy {
             default:
                 return null;
         }
+    }
+
+    public static ClientProxy getInstance(){
+        return (ClientProxy) ThaumicInfusion.proxy;
     }
 }

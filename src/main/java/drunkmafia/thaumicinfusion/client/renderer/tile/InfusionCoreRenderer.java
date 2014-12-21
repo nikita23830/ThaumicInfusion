@@ -1,5 +1,6 @@
 package drunkmafia.thaumicinfusion.client.renderer.tile;
 
+import drunkmafia.thaumicinfusion.client.ClientProxy;
 import drunkmafia.thaumicinfusion.common.block.tile.InfusionCoreTile;
 import drunkmafia.thaumicinfusion.common.util.MathHelper;
 import net.minecraft.client.Minecraft;
@@ -24,7 +25,8 @@ import static drunkmafia.thaumicinfusion.common.lib.BlockInfo.infusionCore_Textu
  */
 public class InfusionCoreRenderer extends TileEntitySpecialRenderer {
 
-    static IModelCustom model = AdvancedModelLoader.loadModel(infusionCore_Model);
+    static IModelCustom infusionCore = AdvancedModelLoader.loadModel(infusionCore_Model);
+
     float transSpeed = 0.025F, rotSpeed = 2F, hover, ticks;
     float rotTarget = 0F;
 
@@ -35,7 +37,7 @@ public class InfusionCoreRenderer extends TileEntitySpecialRenderer {
         GL11.glRotated(angle, axies.x, axies.y, axies.z);
 
         Minecraft.getMinecraft().renderEngine.bindTexture(infusionCore_Texture);
-        model.renderAll();
+        infusionCore.renderAll();
 
         GL11.glPopMatrix();
     }
@@ -98,13 +100,18 @@ public class InfusionCoreRenderer extends TileEntitySpecialRenderer {
                 rotTarget = 0;
                 core.coreAxies = new Vector3(0, 1, 0);
             }
+
             core.yLevel = MathHelper.lerp(core.yLevel, rotTarget, transSpeed * deltaTime, 0.05F);
             core.angle = MathHelper.lerp(core.angle, 360, rotSpeed * deltaTime);
+
             if (core.angle == 360)
                 core.angle = 0;
 
             ticks = Minecraft.getMinecraft().renderViewEntity.ticksExisted + deltaTime;
             hover = net.minecraft.util.MathHelper.sin(ticks % 32767.0F / 16.0F) * 0.05F;
+        }else if(core.yLevel != 0 || core.angle != 0) {
+            core.yLevel = MathHelper.lerp(core.yLevel, 0, transSpeed * deltaTime, 0.05F);
+            core.angle = MathHelper.lerp(core.angle, 0, rotSpeed * deltaTime);
         }
     }
 }

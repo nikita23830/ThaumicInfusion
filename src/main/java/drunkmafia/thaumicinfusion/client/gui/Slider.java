@@ -99,7 +99,7 @@ public class Slider {
             this.xSize = xSize;
             this.ySize = ySize;
 
-            this.effect = (Effect) AspectHandler.getEffectFromAspect(aspect).getAnnotation(Effect.class);
+            this.effect = (Effect) AspectHandler.getInstance().getEffectFromAspect(aspect).getAnnotation(Effect.class);
 
             tooltip = new Tooltip(StatCollector.translateToLocal("effect." + aspect.getName() + ".name"));
 
