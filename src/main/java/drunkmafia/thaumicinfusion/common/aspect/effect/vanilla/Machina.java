@@ -1,40 +1,35 @@
 package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
-import cpw.mods.fml.common.Loader;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
+import drunkmafia.thaumicinfusion.common.util.WorldCoord;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.World;
 
 /**
  * Created by DrunkMafia on 25/07/2014.
  * <p/>
  * See http://www.wtfpl.net/txt/copying for licence
  */
-@Effect(aspect = "machina", cost = 8, hasTileEntity = true)
+@Effect(aspect = "machina", cost = 4)
 public class Machina extends AspectEffect {
-    /**
-    @Override
-    public TileEntity getTile() {
-        return new TileComputer();
-    }
+
+    boolean oldIsPowered, isPowered;
 
     @Override
-    public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float hitX, float hitY, float hitZ) {
-        if(world.isRemote)
-            return true;
+    public void updateBlock(World world) {
 
-        TileEntity tile = world.getTileEntity(x, y, z);
+        WorldCoord pos = getPos();
+        isPowered = !world.isBlockIndirectlyGettingPowered(pos.x, pos.y, pos.z);
+        if(isPowered != oldIsPowered){
+            for(AspectEffect effect : getData(world).getEffects())
+                if(effect != this)
+                    effect.isEnabled = isPowered;
 
-        if(tile != null && tile instanceof TileComputer) {
-            ((TileComputer) tile).openGUI(player);
-            return true;
+            if(world.isRemote)
+                Minecraft.getMinecraft().renderGlobal.markBlockForUpdate(pos.x, pos.y, pos.z);
+
+            oldIsPowered = isPowered;
         }
-        return false;
-    }
-    **/
-
-    @Override
-    public boolean shouldRegister() {
-        Loader loader = Loader.instance();
-        return Loader.isModLoaded("computercraft");
     }
 }

@@ -30,6 +30,6 @@ public class Praecantatio extends AspectEffect {
         int y = pos.y + (rand.nextInt(10) - 5);
         int z = pos.z + (rand.nextInt(10) - 5);
 
-        Thaumcraft.proxy.sparkle(x, y, z, rand.nextFloat(), rand.nextInt(8), 0.1F);
+        Thaumcraft.proxy.sparkle(x, y, z, rand.nextFloat(), 0, 0.1F);
     }
 }
