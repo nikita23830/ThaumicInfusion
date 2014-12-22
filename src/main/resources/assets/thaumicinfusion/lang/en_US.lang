@@ -12,6 +12,7 @@ tile.local_infused.limus=Infused Block
 tile.local_infused.sensus=Infused Block
 tile.local_infused.spiritus=Infused Block
 
+tile.local_essentia.name=Essentia Block
 key.infusedBlock.infused=Infused
 key.essentiaBlock.brick=Brick
 key.essentiaBlock.chiseled=Chiseled
@@ -66,4 +67,6 @@ ti.effect_info.VICTUS=Increases the chance for a animal to spawn during day
 ti.effect_info.PRAECANTATIO=Sparkles
 ti.effect_info.VITREUS=Lets light though
 ti.effect_info.VENENUM=Posions those that stand on it
-ti.effect_info.VITREUS=
+ti.effect_info.PERFODIO=Block breaks faster
+ti.effect_info.MACHINA=Applying a redstone signal to the block, toggles the infused effects
+ti.effect_info.AER=Jump higher when ontop of this block

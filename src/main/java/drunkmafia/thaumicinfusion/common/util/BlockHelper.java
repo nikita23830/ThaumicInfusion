@@ -1,6 +1,5 @@
 package drunkmafia.thaumicinfusion.common.util;
 
-import com.esotericsoftware.reflectasm.FieldAccess;
 import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import drunkmafia.thaumicinfusion.common.world.BlockData;
 import drunkmafia.thaumicinfusion.common.world.BlockSavable;
@@ -16,6 +15,9 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldSavedData;
 import net.minecraftforge.common.util.ForgeDirection;
+
+import java.lang.reflect.Field;
+import java.util.HashMap;
 
 import static drunkmafia.thaumicinfusion.common.util.InfusionHelper.*;
 
@@ -68,19 +70,33 @@ public final class BlockHelper {
             ChannelHandler.network.sendToDimension(new BlockDestroyedPacketC(coords), world.provider.dimensionId);
     }
 
-    static FieldAccess worldObj;
-    static int worldObjIndex;
+    static Field worldObj;
+
+    static HashMap<IBlockAccess, World> worlds = new HashMap<IBlockAccess, World>();
 
     public static World getWorld(IBlockAccess blockAccess) {
         if(ThaumicInfusion.instance.isServer) {
             if (blockAccess instanceof ChunkCache) {
                 if(worldObj == null) {
-                    worldObj = FieldAccess.get(ChunkCache.class);
-                    worldObjIndex = worldObj.getIndex("worldObj");
+                    try {
+                        worldObj = ChunkCache.class.getDeclaredField("worldObj");
+                        worldObj.setAccessible(true);
+                    } catch (NoSuchFieldException e) {
+                        e.printStackTrace();
+                    }
                 }
 
-                if(worldObj != null)
-                    return (World) worldObj.get(blockAccess, worldObjIndex);
+                if(worlds.containsKey(blockAccess))
+                    return worlds.get(blockAccess);
+                else{
+                    try{
+                        World world = (World) worldObj.get(blockAccess);
+                        worlds.put(blockAccess, world);
+                        return world;
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+                }
             } else if (blockAccess instanceof World)
                 return (World) blockAccess;
         }

@@ -34,7 +34,8 @@ public class AspectEffect extends Block {
     private List<String> methods;
 
     protected WorldCoord pos;
-    protected World worldObj;
+
+    public boolean isEnabled = true;
 
     public AspectEffect() {
         super(Material.air);
@@ -44,7 +45,6 @@ public class AspectEffect extends Block {
     }
 
     public void aspectInit(World world, WorldCoord pos){
-        worldObj = world;
         this.pos = pos;
     }
 
@@ -62,10 +62,8 @@ public class AspectEffect extends Block {
 
     public TileEntity getTile(){return null;}
 
-    public BlockData getData(){
-        if(worldObj == null)
-            return null;
-        return BlockHelper.getData(BlockData.class, worldObj, getPos());
+    public BlockData getData(World world){
+        return BlockHelper.getData(BlockData.class, world, getPos());
     }
 
     public boolean hasMethod(String meth){

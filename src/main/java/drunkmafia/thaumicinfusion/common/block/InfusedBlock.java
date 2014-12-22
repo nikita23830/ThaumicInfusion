@@ -72,6 +72,13 @@ public class InfusedBlock extends Block implements IWorldData, ITileEntityProvid
     protected void dropBlockAsItem(World world, int x, int y, int z, ItemStack stack) {}
 
     @Override
+    public ItemStack getPickBlock(MovingObjectPosition target, World world, int x, int y, int z, EntityPlayer player) {
+        WorldCoord pos = new WorldCoord(x, y, z);
+        BlockData block = BlockHelper.getData(BlockData.class, world,  pos);
+        return InfusionHelper.getInfusedItemStack(block.getAspects(), new ItemStack(block.getContainingBlock()), 1, world.getBlockMetadata(pos.x, pos.y, pos.z));
+    }
+
+    @Override
     public BlockSavable getData(World world, ItemStack stack, WorldCoord coord) {
         world.setBlockMetadataWithNotify(coord.x, coord.y, coord.z, stack.getItemDamage(), 3);
         return BlockHelper.getDataFromStack(stack, coord.x, coord.y, coord.z);

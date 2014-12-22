@@ -73,7 +73,7 @@ public class BlockData extends BlockSavable {
         String methName = Thread.currentThread().getStackTrace()[2].getMethodName();
         Block block = null;
         for (AspectEffect dataEffect : dataEffects)
-            if (dataEffect.hasMethod(methName))
+            if (dataEffect.hasMethod(methName) && dataEffect.isEnabled)
                 block = dataEffect;
 
         return block == null ? getContainingBlock() : block;

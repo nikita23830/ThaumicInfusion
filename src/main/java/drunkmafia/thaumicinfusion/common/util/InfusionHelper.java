@@ -36,17 +36,7 @@ public class InfusionHelper {
     public static AspectList addBlockAspects(ItemStack stack){
         if(!isInfusedStack(stack))
             return null;
-
-        AspectList list = new AspectList();
-        NBTTagCompound tagCompound = stack.getTagCompound();
-
-        AspectList blockList = new AspectList(new ItemStack(Block.getBlockById(tagCompound.getInteger("infusedID")), 1, stack.getItemDamage()));
-        for(int i = 0; i < blockList.size(); i++){
-            Aspect aspect = blockList.getAspects()[i];
-            list.add(aspect, blockList.getAmount(aspect));
-        }
-
-        return list;
+        return new AspectList(new ItemStack(Block.getBlockById(getInfusedID(stack)), 1, stack.getItemDamage()));
     }
 
     public static boolean isInfusedStack(ItemStack stack){

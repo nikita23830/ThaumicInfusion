@@ -43,18 +43,21 @@ public class ThaumcraftIntergration {
         ItemStack essentiaBlock = null;
 
         for (Aspect aspect : Aspect.aspects.values()) {
+
             for (int i = 0; i <= 2; i++) {
-                NBTTagCompound tag = new NBTTagCompound();
-                tag.setString("aspectTag", aspect.getTag());
-                ItemStack stack = new ItemStack(TIBlocks.essentiaBlock);
-                stack.setItemDamage(i);
-                stack.setTagCompound(tag);
-                stack.setStackDisplayName(aspect.getName() + (i != 0 ? (i == 1 ? ThaumicInfusion.translate("key.essentiaBlock.brick") : ThaumicInfusion.translate("key.essentiaBlock.chiseled")) : ""));
+                ItemStack stack = getEssentiaBlock(aspect, i);
 
-                ItemStack phial = new ItemStack(ConfigItems.itemEssence, 1, 1);
-                ((ItemEssence) phial.getItem()).setAspects(phial, new AspectList().add(aspect, 8));
+                ItemStack item;
+                if(i == 0) {
+                    item = new ItemStack(ConfigItems.itemEssence, 1, 1);
+                    ((ItemEssence) item.getItem()).setAspects(item, new AspectList().add(aspect, 8));
+                }else if(i == 1) {
+                    item = getEssentiaBlock(aspect, 0);
+                }else if(i == 2) {
+                    item = getEssentiaBlock(aspect, 1);
+                }else continue;
 
-                ShapedArcaneRecipe recipe = ThaumcraftApi.addArcaneCraftingRecipe("ESSENTIABLOCKS", stack, new AspectList().add(Aspect.ENTROPY, 10), "PP", "PP", Character.valueOf('P'), phial);
+                ShapedArcaneRecipe recipe = ThaumcraftApi.addArcaneCraftingRecipe("ESSENTIABLOCKS", stack, new AspectList().add(Aspect.ENTROPY, 4), "PP", "PP", Character.valueOf('P'), item);
                 if (essentiaRecipe == null)
                     essentiaRecipe = recipe;
                 if (essentiaBlock == null)
@@ -73,6 +76,16 @@ public class ThaumcraftIntergration {
         new ResearchItem("ASPECTEFFECTS", "THAUMICINFUSION", new AspectList(), 0, 2, 2, new ResourceLocation("thaumcraft", "textures/misc/r_aspects.png")).setPages(getPages()).setAutoUnlock().registerResearchItem();
 
         ThaumcraftApi.getCraftingRecipes().add(new BlockInfusionRecipe("", 10));
+    }
+
+    static ItemStack getEssentiaBlock(Aspect aspect, int meta){
+        NBTTagCompound tag = new NBTTagCompound();
+        tag.setString("aspectTag", aspect.getTag());
+        ItemStack stack = new ItemStack(TIBlocks.essentiaBlock);
+        stack.setItemDamage(meta);
+        stack.setTagCompound(tag);
+        stack.setStackDisplayName(aspect.getName() + (meta != 0 ? (meta == 1 ? ThaumicInfusion.translate("key.essentiaBlock.brick") : ThaumicInfusion.translate("key.essentiaBlock.chiseled")) : ""));
+        return stack;
     }
 
     private static AspectEffectPage[] getPages() {
