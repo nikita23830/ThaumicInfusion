@@ -2,6 +2,7 @@ package drunkmafia.thaumicinfusion.common.aspect;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import drunkmafia.thaumicinfusion.client.gui.EffectGUI;
 import drunkmafia.thaumicinfusion.common.block.InfusedBlock;
 import drunkmafia.thaumicinfusion.common.util.BlockHelper;
 import drunkmafia.thaumicinfusion.common.util.WorldCoord;
@@ -9,6 +10,7 @@ import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 import drunkmafia.thaumicinfusion.common.world.BlockData;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
@@ -59,6 +61,9 @@ public class AspectEffect extends Block {
     public InfusedBlock getBlock(){
         return new InfusedBlock(Material.rock);
     }
+
+    @SideOnly(Side.CLIENT)
+    public EffectGUI getGUI(){return null;}
 
     public TileEntity getTile(){return null;}
 
@@ -112,7 +117,8 @@ public class AspectEffect extends Block {
 
     public void writeNBT(NBTTagCompound tagCompound) {
         tagCompound.setString("class", this.getClass().getCanonicalName());
-        pos.writeNBT(tagCompound);
+        if(pos != null)
+            pos.writeNBT(tagCompound);
     }
 
     public void readNBT(NBTTagCompound tagCompound) {

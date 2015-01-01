@@ -48,14 +48,14 @@ public class ThaumcraftIntergration {
                 ItemStack stack = getEssentiaBlock(aspect, i);
 
                 ItemStack item;
-                if(i == 0) {
+                if (i == 0) {
                     item = new ItemStack(ConfigItems.itemEssence, 1, 1);
                     ((ItemEssence) item.getItem()).setAspects(item, new AspectList().add(aspect, 8));
-                }else if(i == 1) {
+                } else if (i == 1) {
                     item = getEssentiaBlock(aspect, 0);
-                }else if(i == 2) {
+                } else if (i == 2) {
                     item = getEssentiaBlock(aspect, 1);
-                }else continue;
+                } else continue;
 
                 ShapedArcaneRecipe recipe = ThaumcraftApi.addArcaneCraftingRecipe("ESSENTIABLOCKS", stack, new AspectList().add(Aspect.ENTROPY, 4), "PP", "PP", Character.valueOf('P'), item);
                 if (essentiaRecipe == null)
@@ -78,7 +78,7 @@ public class ThaumcraftIntergration {
         ThaumcraftApi.getCraftingRecipes().add(new BlockInfusionRecipe("", 10));
     }
 
-    static ItemStack getEssentiaBlock(Aspect aspect, int meta){
+    static ItemStack getEssentiaBlock(Aspect aspect, int meta) {
         NBTTagCompound tag = new NBTTagCompound();
         tag.setString("aspectTag", aspect.getTag());
         ItemStack stack = new ItemStack(TIBlocks.essentiaBlock);
@@ -88,123 +88,126 @@ public class ThaumcraftIntergration {
         return stack;
     }
 
-    private static AspectEffectPage[] getPages() {
+    private static ResearchPage[] getPages() {
         Aspect[] aspects = AspectHandler.getInstance().getAspects();
-        Aspect[] current = new Aspect[3];
-        ArrayList<AspectEffectPage> pages = new ArrayList<AspectEffectPage>();
+        AspectList current = new AspectList();
+        ArrayList<ResearchPage> pages = new ArrayList<ResearchPage>();
+
+        AspectHandler handler = AspectHandler.getInstance();
         int index = 0;
         for (Aspect aspect : aspects) {
             if (aspect != null) {
-                current[index] = aspect;
+                current.add(aspect, handler.getCostOfEffect(aspect));
                 if (index == 1) {
                     pages.add(new AspectEffectPage(current));
-                    current = new Aspect[2];
+                    current = new AspectList();
                     index = 0;
                 } else
                     index++;
             }
         }
-        AspectEffectPage[] researchPages = new AspectEffectPage[pages.size()];
+        ResearchPage[] researchPages = new ResearchPage[pages.size()];
         for (int p = 0; p < researchPages.length; p++)
             researchPages[p] = pages.get(p);
 
         return researchPages;
     }
-}
 
-class AspectEffectPage extends ResearchPage {
 
-    Aspect[] aspects;
+    public static class AspectEffectPage extends ResearchPage {
 
-    public AspectEffectPage(Aspect[] aspects) {
-        super("");
-        this.aspects = aspects;
-    }
+        public AspectList aspects;
 
-    @Override
-    public String getTranslatedText() {
-        String str = "";
-        for(Aspect aspect : aspects){
-            if(aspect != null) {
-                ResourceLocation location = aspect.getImage();
-                str += "<IMG>" + location.getResourceDomain() + ":" + location.getResourcePath() + ":0:0:255:255:0.125</IMG>" + aspect.getName() + " Cost: " + AspectHandler.getInstance().getCostOfEffect(aspect) + " " + ThaumicInfusion.translate("ti.effect_info." + aspect.getName().toUpperCase()) + "\n";
+        public AspectEffectPage(AspectList aspects) {
+            super("");
+            this.aspects = aspects;
+        }
+
+        @Override
+        public String getTranslatedText() {
+            String str = "";
+            for (Aspect aspect : aspects.getAspects()) {
+                if (aspect != null) {
+                    ResourceLocation location = aspect.getImage();
+                    str += "<IMG>" + location.getResourceDomain() + ":" + location.getResourcePath() + ":0:0:255:255:0.125</IMG>" + aspect.getName() + " Cost: " + AspectHandler.getInstance().getCostOfEffect(aspect) + " " + ThaumicInfusion.translate("ti.effect_info." + aspect.getName().toUpperCase()) + "\n";
+                }
             }
+            return str;
         }
-        return str;
-    }
-}
-
-class BlockInfusionRecipe extends InfusionRecipe {
-
-    public BlockInfusionRecipe(String research, int inst) {
-        super(research, null, inst, null, null, null);
     }
 
-    @Override
-    public boolean matches(ArrayList<ItemStack> input, ItemStack central, World world, EntityPlayer player) {
-        recipeOutput = null;
+    static class BlockInfusionRecipe extends InfusionRecipe {
 
-        boolean isStackSetToInfuse = false;
-        for(ItemStack check : InfusionCoreTile.infuseStacksTemp) {
-            isStackSetToInfuse = check.getItem() == central.getItem() && check.getItemDamage() == central.getItemDamage() && check.stackSize == central.stackSize;
-            if (isStackSetToInfuse)
-                break;
+        public BlockInfusionRecipe(String research, int inst) {
+            super(research, null, inst, null, null, null);
         }
 
-        if (!(central.getItem() instanceof ItemBlock) || !isStackSetToInfuse || !BlockHandler.isBlockWhitelisted(Block.getBlockFromItem(central.getItem())))
-            return false;
+        @Override
+        public boolean matches(ArrayList<ItemStack> input, ItemStack central, World world, EntityPlayer player) {
+            recipeOutput = null;
 
-        ArrayList<ItemStack> ii = new ArrayList<ItemStack>();
-        for (ItemStack is:input)
-            if(is.getItem() instanceof ItemEssence) {
-                ii.add(is.copy());
-            }else return false;
-
-        AspectList infuseAspects = new AspectList();
-
-        for(ItemStack phial : ii){
-            AspectList phialList = ((ItemEssence)phial.getItem()).getAspects(phial);
-            if(phialList == null)
-                return false;
-            Aspect aspect = phialList.getAspects()[0];
-            if(aspect == null)
-                return false;
-            if(infuseAspects.getAmount(aspect) > 0)
-                return false;
-
-            int cost = AspectHandler.getInstance().getCostOfEffect(aspect);
-            if(cost != -1)
-                infuseAspects.add(aspect,  cost * central.stackSize);
-            else return false;
-        }
-
-        if(!AspectHandler.getInstance().canInfuse(infuseAspects.getAspects()))
-            return false;
-
-        aspects = infuseAspects;
-
-        if(ii.size() > 0) {
-            try {
-                Field recipeInput = InfusionRecipe.class.getDeclaredField("recipeInput");
-                Field components = InfusionRecipe.class.getDeclaredField("components");
-
-                recipeInput.setAccessible(true);
-                components.setAccessible(true);
-
-                recipeInput.set(this, central);
-
-                ItemStack[] comps = new ItemStack[ii.size()];
-                for(int i = 0; i < comps.length; i++)
-                    comps[i] = ii.get(i);
-
-                components.set(this, comps);
-            }catch (Exception e){
-                e.printStackTrace();
+            boolean isStackSetToInfuse = false;
+            for (ItemStack check : InfusionCoreTile.infuseStacksTemp) {
+                isStackSetToInfuse = check.getItem() == central.getItem() && check.getItemDamage() == central.getItemDamage() && check.stackSize == central.stackSize;
+                if (isStackSetToInfuse)
+                    break;
             }
 
-            recipeOutput = InfusionHelper.getInfusedItemStack(InfusionHelper.phialsToAspects(input), central, central.stackSize, central.getItemDamage());
-        }
+            if (!(central.getItem() instanceof ItemBlock) || !isStackSetToInfuse || BlockHandler.isBlockBlacklisted(Block.getBlockFromItem(central.getItem())))
+                return false;
 
-        return recipeOutput != null && ii.size() > 0;
+            ArrayList<ItemStack> ii = new ArrayList<ItemStack>();
+            for (ItemStack is : input)
+                if (is.getItem() instanceof ItemEssence) {
+                    ii.add(is.copy());
+                } else return false;
+
+            AspectList infuseAspects = new AspectList();
+
+            for (ItemStack phial : ii) {
+                AspectList phialList = ((ItemEssence) phial.getItem()).getAspects(phial);
+                if (phialList == null)
+                    return false;
+                Aspect aspect = phialList.getAspects()[0];
+                if (aspect == null)
+                    return false;
+                if (infuseAspects.getAmount(aspect) > 0)
+                    return false;
+
+                int cost = AspectHandler.getInstance().getCostOfEffect(aspect);
+                if (cost != -1)
+                    infuseAspects.add(aspect, cost * central.stackSize);
+                else return false;
+            }
+            AspectHandler handler = AspectHandler.getInstance();
+            if (!handler.canInfuse(infuseAspects.getAspects()) || !handler.canInfuse(Block.getBlockFromItem(central.getItem()), infuseAspects.getAspects()))
+                return false;
+
+            aspects = infuseAspects;
+
+            if (ii.size() > 0) {
+                try {
+                    Field recipeInput = InfusionRecipe.class.getDeclaredField("recipeInput");
+                    Field components = InfusionRecipe.class.getDeclaredField("components");
+
+                    recipeInput.setAccessible(true);
+                    components.setAccessible(true);
+
+                    recipeInput.set(this, central);
+
+                    ItemStack[] comps = new ItemStack[ii.size()];
+                    for (int i = 0; i < comps.length; i++)
+                        comps[i] = ii.get(i);
+
+                    components.set(this, comps);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                recipeOutput = InfusionHelper.getInfusedItemStack(InfusionHelper.phialsToAspects(input), central, central.stackSize, central.getItemDamage());
+            }
+
+            return recipeOutput != null && ii.size() > 0;
+        }
     }
 }

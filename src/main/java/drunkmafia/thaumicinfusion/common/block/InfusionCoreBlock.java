@@ -49,9 +49,6 @@ public class InfusionCoreBlock extends BlockStoneDevice implements IInfusionStab
         if (world.isRemote)
             return true;
 
-        if(player.inventory.getCurrentItem() != null && player.inventory.getCurrentItem().getItem() instanceof ItemWandCasting)
-            return false;
-
         TilePedestal ped = (TilePedestal)world.getTileEntity(x, y, z);
         ItemStack inv = ped.getStackInSlot(0);
         ItemStack equipped = player.getCurrentEquippedItem();
@@ -72,6 +69,9 @@ public class InfusionCoreBlock extends BlockStoneDevice implements IInfusionStab
                 world.playSoundEffect(x, y, z, "random.pop", 0.2F, ((world.rand.nextFloat() - world.rand.nextFloat()) * 0.7F + 1.0F) * 1.5F);
                 return true;
             }
+
+            if(equipped != null && equipped.getItem() instanceof ItemWandCasting)
+                return true;
 
             InventoryUtils.dropItemsAtEntity(world, x, y, z, player);
             world.playSoundEffect(x, y, z, "random.pop", 0.2F, ((world.rand.nextFloat() - world.rand.nextFloat()) * 0.7F + 1.0F) * 1.5F);

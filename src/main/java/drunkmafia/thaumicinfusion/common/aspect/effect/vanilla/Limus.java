@@ -6,9 +6,12 @@ import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 import net.minecraft.block.material.MapColor;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.material.MaterialLiquid;
+import net.minecraft.entity.Entity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+
+import java.util.List;
 
 /**
  * Created by DrunkMafia on 01/11/2014.
@@ -28,9 +31,7 @@ public class Limus extends AspectEffect {
         return false;
     }
 
-    public AxisAlignedBB getCollisionBoundingBoxFromPool(World world, int x, int y, int z) {
-        return AxisAlignedBB.getBoundingBox(0, 0, 0, 0, 0, 0);
-    }
+    public void addCollisionBoxesToList(World world, int x, int y, int z, AxisAlignedBB axisAlignedBB, List list, Entity entity) {}
 
     public static class LimusMat extends MaterialLiquid {
         public LimusMat() {

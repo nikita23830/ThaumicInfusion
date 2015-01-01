@@ -1,5 +1,7 @@
 package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.block.InfusedBlock;
 import drunkmafia.thaumicinfusion.common.util.BlockHelper;
@@ -24,6 +26,7 @@ public class Volatus extends AspectEffect {
     boolean isFlying;
 
     @Override
+    @SideOnly(Side.CLIENT)
     public void updateBlock(World world) {
         WorldCoord pos = getPos();
         if(!world.isRemote && !world.isAirBlock(pos.x, pos.y + 1, pos.z))

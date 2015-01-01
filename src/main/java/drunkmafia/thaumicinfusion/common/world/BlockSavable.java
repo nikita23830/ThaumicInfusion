@@ -3,13 +3,14 @@ package drunkmafia.thaumicinfusion.common.world;
 import drunkmafia.thaumicinfusion.common.util.Savable;
 import drunkmafia.thaumicinfusion.common.util.WorldCoord;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.World;
 
 /**
  * Created by DrunkMafia on 29/06/2014.
  * <p/>
  * See http://www.wtfpl.net/txt/copying for licence
  */
-public class BlockSavable extends Savable {
+public abstract class BlockSavable extends Savable {
 
     private WorldCoord coordinates;
 

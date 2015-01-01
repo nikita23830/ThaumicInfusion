@@ -35,6 +35,7 @@ public class RenderInfused implements ISimpleBlockRenderingHandler {
         for (AspectEffect effects : data.getEffects())
             if (!effects.shouldRender(Minecraft.getMinecraft().theWorld, x, y, z, renderBlocks))
                 return false;
+
         if (data.getContainingBlock().getRenderType() == 0)
             return renderBlocks.renderStandardBlock(new FakeBlockRender(data.getContainingBlock()), x, y, z);
 

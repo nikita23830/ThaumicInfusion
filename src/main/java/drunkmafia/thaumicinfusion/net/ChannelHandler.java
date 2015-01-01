@@ -2,16 +2,16 @@ package drunkmafia.thaumicinfusion.net;
 
 import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.network.NetworkRegistry;
+import cpw.mods.fml.common.network.simpleimpl.IMessage;
+import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import drunkmafia.thaumicinfusion.common.lib.ModInfo;
+import drunkmafia.thaumicinfusion.net.packet.client.DestroyBlockPacketS;
 import drunkmafia.thaumicinfusion.net.packet.client.RequestBlockPacketS;
 import drunkmafia.thaumicinfusion.net.packet.client.RequestTilePacketS;
-import drunkmafia.thaumicinfusion.net.packet.server.BlockDestroyedPacketC;
-import drunkmafia.thaumicinfusion.net.packet.server.BlockSyncPacketC;
-import drunkmafia.thaumicinfusion.net.packet.server.EffectSyncPacketC;
-import drunkmafia.thaumicinfusion.net.packet.server.TileSyncPacketC;
+import drunkmafia.thaumicinfusion.net.packet.server.*;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
@@ -25,20 +25,28 @@ public class ChannelHandler{
 
     public static SimpleNetworkWrapper network;
 
+    static int ordinal = 0;
+
     public static void init() {
         network = NetworkRegistry.INSTANCE.newSimpleChannel(ModInfo.CHANNEL);
 
         Side S = Side.SERVER, C = Side.CLIENT;
 
         //Server Handled Packets
-        network.registerMessage(RequestBlockPacketS.Handler.class, RequestBlockPacketS.class, 0, S);
-        network.registerMessage(RequestTilePacketS.Handler.class, RequestTilePacketS.class, 1, S);
+        network.registerMessage(RequestBlockPacketS.Handler.class, RequestBlockPacketS.class, getOrdinal(), S);
+        network.registerMessage(RequestTilePacketS.Handler.class, RequestTilePacketS.class, getOrdinal(), S);
+        network.registerMessage(DestroyBlockPacketS.Handler.class, DestroyBlockPacketS.class, getOrdinal(), S);
 
         //Client Handled Packets
-        network.registerMessage(BlockDestroyedPacketC.Handler.class, BlockDestroyedPacketC.class, 2, C);
-        network.registerMessage(BlockSyncPacketC.Handler.class, BlockSyncPacketC.class, 3, C);
-        network.registerMessage(TileSyncPacketC.Handler.class, TileSyncPacketC.class, 4, C);
-        network.registerMessage(EffectSyncPacketC.Handler.class, EffectSyncPacketC.class, 5, C);
+        network.registerMessage(BlockDestroyedPacketC.Handler.class, BlockDestroyedPacketC.class, getOrdinal(), C);
+        network.registerMessage(BlockSyncPacketC.Handler.class, BlockSyncPacketC.class, getOrdinal(), C);
+        network.registerMessage(TileSyncPacketC.Handler.class, TileSyncPacketC.class, getOrdinal(), C);
+        network.registerMessage(EffectSyncPacketC.Handler.class, EffectSyncPacketC.class, getOrdinal(), C);
+        network.registerMessage(PlaySoundPacketC.Handler.class, PlaySoundPacketC.class, getOrdinal(), C);
+    }
+
+    static int getOrdinal(){
+        return ordinal++;
     }
 
     @SideOnly(Side.CLIENT)

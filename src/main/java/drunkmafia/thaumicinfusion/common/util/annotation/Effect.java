@@ -28,9 +28,5 @@ public @interface Effect {
 
     boolean hasTileEntity() default false;
 
-    /**
-     * Gui Must extend GuiContainer
-     */
-    @SideOnly(Side.CLIENT)
-    Class<?> gui() default Object.class;
+    boolean hasGUI() default false;
 }

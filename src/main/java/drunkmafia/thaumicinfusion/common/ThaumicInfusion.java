@@ -25,7 +25,7 @@ import org.apache.logging.log4j.Logger;
 
 import static drunkmafia.thaumicinfusion.common.lib.ModInfo.*;
 
-@Mod(modid = MODID, name = NAME, version = VERSION, dependencies="required-after:Thaumcraft@[4.2.2.B6,);", canBeDeactivated = true)
+@Mod(modid = MODID, name = NAME, version = VERSION, dependencies="required-after:Thaumcraft;", canBeDeactivated = true)
 public class ThaumicInfusion {
 
     @Instance(MODID)
@@ -58,7 +58,7 @@ public class ThaumicInfusion {
     @EventHandler
     public void init(FMLInitializationEvent event) {
         ChannelHandler.init();
-        BlockHandler.whitelistBlocks();
+        BlockHandler.blacklistBlocks();
         NetworkRegistry.INSTANCE.registerGuiHandler(instance, proxy);
         MinecraftForge.EVENT_BUS.register(new CommonEventContainer());
         FMLCommonHandler.instance().bus().register(new TickEventHandler());

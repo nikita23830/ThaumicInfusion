@@ -1,6 +1,7 @@
 package drunkmafia.thaumicinfusion.common.util;
 
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.World;
 
 /**
  * Created by DrunkMafia on 08/07/2014.

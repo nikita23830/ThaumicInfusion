@@ -1,6 +1,7 @@
 package drunkmafia.thaumicinfusion.common.world;
 
 import drunkmafia.thaumicinfusion.common.util.WorldCoord;
+import net.minecraft.block.Block;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldSavedData;
@@ -26,6 +27,17 @@ public class TIWorldData extends WorldSavedData {
         setDirty(true);
     }
 
+    public void addBlock(BlockSavable block){
+        if(blocksData.containsKey(block.getCoords())) {
+            blocksData.get(block.getCoords()).add(block);
+        }else {
+            ArrayList<BlockSavable> datas = new ArrayList<BlockSavable>();
+            datas.add(block);
+            blocksData.put(block.getCoords(), datas);
+        }
+        setDirty(true);
+    }
+
     public boolean addBlock(World world, BlockSavable block) {
         this.world = world;
 
@@ -37,15 +49,7 @@ public class TIWorldData extends WorldSavedData {
                     data.initAspects(world, pos.x, pos.y, pos.z);
                 }
             }
-
-            if(blocksData.containsKey(block.getCoords())) {
-                blocksData.get(block.getCoords()).add(block);
-            }else {
-                ArrayList<BlockSavable> datas = new ArrayList<BlockSavable>();
-                datas.add(block);
-                blocksData.put(block.getCoords(), datas);
-            }
-            setDirty(true);
+            addBlock(block);
             return true;
         }
         return false;
@@ -71,9 +75,10 @@ public class TIWorldData extends WorldSavedData {
     }
 
     public BlockSavable[] getAllDatasAt(WorldCoord coords){
-        BlockSavable[] savables = new BlockSavable[blocksData.get(coords).size()];
-        blocksData.get(coords).toArray(savables);
-        return savables;
+        ArrayList<BlockSavable> savables = blocksData.get(coords);
+        if(savables != null)
+            return blocksData.get(coords).toArray(new BlockSavable[savables.size()]);
+        return new BlockSavable[0];
     }
 
     public <T>T getBlock(Class<T> type, WorldCoord coords) {
@@ -81,8 +86,9 @@ public class TIWorldData extends WorldSavedData {
         if(datas == null)
             return null;
         for(BlockSavable block : datas)
-            if(type.isAssignableFrom(block.getClass()))
+            if (type.isAssignableFrom(block.getClass()))
                 return (T) block;
+
         return null;
     }
 

@@ -2,8 +2,12 @@ package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
+import net.minecraft.entity.Entity;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+
+import java.util.List;
 
 /**
  * Created by DrunkMafia on 25/07/2014.
@@ -13,7 +17,14 @@ import net.minecraft.world.World;
 @Effect(aspect = "arbor", cost = 2)
 public class Arbor extends AspectEffect {
 
-    public AxisAlignedBB getCollisionBoundingBoxFromPool(World world, int x, int y, int z) {
-        return AxisAlignedBB.getBoundingBox(x, y, z, x + 1, y + 0.5, z + 1);
+    @Override
+    public void setBlockBoundsBasedOnState(IBlockAccess access, int x, int y, int z) {
+        setBlockBounds(0, 0, 0, 1, 0.5F, 1);
+    }
+
+
+    public void addCollisionBoxesToList(World world, int x, int y, int z, AxisAlignedBB axisAlignedBB, List list, Entity entity) {
+        this.setBlockBoundsBasedOnState(world, x, y, z);
+        super.addCollisionBoxesToList(world, x, y, z, axisAlignedBB, list, entity);
     }
 }

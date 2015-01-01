@@ -58,6 +58,9 @@ public class InfusionHelper {
     }
 
     public static int getInfusedID(ItemStack stack){
+        if(stack.stackTagCompound == null || !stack.stackTagCompound.hasKey("InfuseTag"))
+            return -1;
+
         NBTTagCompound tag = stack.stackTagCompound.getCompoundTag("InfuseTag");
         if(tag != null)
             return tag.getInteger("infusedID");
@@ -134,7 +137,7 @@ public class InfusionHelper {
         tag.setTag("InfuseTag", infuseTag);
         stack.stackTagCompound = tag;
 
-        stack.setStackDisplayName(ThaumicInfusion.translate("key.infusedBlock.infused") + " " + new ItemStack(Block.getBlockById(containingId), 1, meta).getDisplayName());
+        //stack.setStackDisplayName(ThaumicInfusion.translate("key.infusedBlock.infused") + " " + new ItemStack(Block.getBlockById(containingId), 1, meta).getDisplayName());
         return stack;
     }
 }

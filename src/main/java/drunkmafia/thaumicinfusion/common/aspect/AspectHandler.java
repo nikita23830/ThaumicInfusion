@@ -7,11 +7,13 @@ import cpw.mods.fml.common.registry.GameRegistry;
 import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import drunkmafia.thaumicinfusion.common.block.BlockHandler;
 import drunkmafia.thaumicinfusion.common.block.InfusedBlock;
+import drunkmafia.thaumicinfusion.common.item.ItemInfused;
 import drunkmafia.thaumicinfusion.common.lib.BlockInfo;
 import drunkmafia.thaumicinfusion.common.lib.ModInfo;
 import drunkmafia.thaumicinfusion.common.util.ClassFinder;
-import drunkmafia.thaumicinfusion.common.util.EffectGUI;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
+import net.minecraft.block.Block;
+import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.config.Configuration;
 import org.apache.logging.log4j.Level;
@@ -69,7 +71,8 @@ public class AspectHandler {
         }
 
         for(Class<?> c : classes) {
-            if (isClassAEffect(c)) {
+            if (c != null && c.isAnnotationPresent(Effect.class) && AspectEffect.class.isAssignableFrom(c)) {
+                logger.info("Attempting to register: " + c.getName());
                 try {
                     Class<? extends AspectEffect> effect = (Class<? extends AspectEffect>) c;
                     Effect annotation = effect.getAnnotation(Effect.class);
@@ -80,8 +83,10 @@ public class AspectHandler {
                             InfusedBlock block = effectInstace.getBlock();
                             block.setBlockName(BlockInfo.infusedBlock_UnlocalizedName + "." + annotation.aspect());
 
-                            if (!BlockHandler.hasBlock(block.getUnlocalizedName()))
-                                GameRegistry.registerBlock(block.addBlockToHandler(), "reg_InfusedBlock" + annotation.aspect());
+                            if (!BlockHandler.hasBlock(block.getUnlocalizedName())) {
+                                BlockHandler.addBlock(block.getUnlocalizedName(), block);
+                                GameRegistry.registerBlock(block, ItemInfused.class, "reg_InfusedBlock" + annotation.aspect());
+                            }
                         }
 
                         if (annotation.hasTileEntity()) {
@@ -94,7 +99,7 @@ public class AspectHandler {
                             effectsToRegister.add(effect);
                     }
                 }catch (Exception e){
-                    e.printStackTrace();
+                    logger.error("Failed to register effect: " + c.getName(), e);
                 }
             }
         }
@@ -156,10 +161,6 @@ public class AspectHandler {
         return !loader.isInState(state) && loader.activeModContainer().getModId().matches(ModInfo.MODID);
     }
 
-    private boolean isClassAEffect(Class<?> c){
-        return c != null && c.isAnnotationPresent(Effect.class) && AspectEffect.class.isAssignableFrom(c);
-    }
-
     public Class getEffectFromAspect(Aspect aspects) {
         return registeredEffects.get(aspects);
     }
@@ -177,6 +178,21 @@ public class AspectHandler {
                     }
                 }
             }
+        }
+        return true;
+    }
+
+    public boolean canInfuse(Block block, Aspect[] aspects){
+        if(!(block instanceof ITileEntityProvider))
+            return true;
+
+        for(Aspect aspect : aspects){
+            Class<? extends AspectEffect> effect = getEffectFromAspect(aspect);
+            if(effect == null)
+                return false;
+            Effect annot = effect.getAnnotation(Effect.class);
+            if(annot.hasTileEntity())
+                return false;
         }
         return true;
     }
@@ -201,20 +217,6 @@ public class AspectHandler {
         if(effect.isAnnotationPresent(Effect.class)){
             Effect annotation = (Effect) effect.getAnnotation(Effect.class);
             return Aspect.getAspect(annotation.aspect());
-        }
-        return null;
-    }
-
-    public EffectGUI getEffectGUI(Class effect){
-        if(effect.isAnnotationPresent(Effect.class)){
-            Effect annotation = (Effect) effect.getAnnotation(Effect.class);
-            if(annotation.gui() != Object.class && EffectGUI.class.isAssignableFrom(annotation.gui())){
-                try {
-                    return (EffectGUI) annotation.gui().newInstance();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
         }
         return null;
     }

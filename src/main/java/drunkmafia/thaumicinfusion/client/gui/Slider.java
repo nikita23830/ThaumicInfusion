@@ -8,6 +8,7 @@ import org.lwjgl.opengl.GL11;
 import thaumcraft.api.aspects.Aspect;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by DrunkMafia on 22/07/2014.
@@ -30,7 +31,7 @@ public class Slider {
         this.posX = posX;
         this.posY = posY;
 
-        this.shouldDraw = aspects.length > 0;
+        this.shouldDraw = aspects.length > 1;
 
         sliderX = posX + (118 / 2);
 
@@ -75,7 +76,7 @@ public class Slider {
             sliderX = mouseX;
     }
 
-    public Aspect getSelectedEffect() {
+    public Aspect getSelectedAspect() {
         for (SliderSection s : sections)
             if (s.inRect(sliderX)) return s.aspect;
         return null;
@@ -85,10 +86,8 @@ public class Slider {
 
         private Slider slider;
         private Aspect aspect;
-        private Effect effect;
         private RGB rgb;
         private int posX, posY, u, xSize, ySize;
-        private Tooltip tooltip;
 
         public SliderSection(Slider slider, Aspect aspect, int posX, int posY, int u, int xSize, int ySize) {
             this.slider = slider;
@@ -98,10 +97,6 @@ public class Slider {
             this.u = u;
             this.xSize = xSize;
             this.ySize = ySize;
-
-            this.effect = (Effect) AspectHandler.getInstance().getEffectFromAspect(aspect).getAnnotation(Effect.class);
-
-            tooltip = new Tooltip(StatCollector.translateToLocal("effect." + aspect.getName() + ".name"));
 
             if (aspect != null) rgb = new RGB(aspect.getColor());
             else rgb = new RGB();
@@ -115,15 +110,14 @@ public class Slider {
             GL11.glColor3f(rgb.getR(), rgb.getG(), rgb.getB());
 
             slider.gui.drawTexturedModalRect(posX, posY, u, 122 + (6 * frame), xSize, ySize);
-
-            if (isMouseInRect(mouseX, mouseY))
-                tooltip.drawGuiContainerBackgroundLayer(tpf, mouseX, mouseY);
-
         }
 
         protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
-            if (isMouseInRect(mouseX, mouseY))
-                tooltip.drawGuiContainerForegroundLayer(mouseX, mouseY);
+            if (isMouseInRect(mouseX, mouseY)) {
+                ArrayList<String> list = new ArrayList<String>();
+                list.add(aspect.getName());
+                gui.drawTooltop(list, mouseX, mouseY, gui.getFontRenderer());
+            }
         }
 
         public boolean isMouseInRect(int mouseX, int mouseY) {
@@ -134,6 +128,8 @@ public class Slider {
             return posX > sliderX || sliderX < (posX + xSize);
         }
 
+        /**
+         * NOT USED AT THE MOMENT
         class Tooltip {
 
             private String str;
@@ -143,7 +139,8 @@ public class Slider {
             }
 
             public void drawGuiContainerBackgroundLayer(float tpf, int mouseX, int mouseY) {
-                int baseX = sliderX - (129 / 2);
+                GL11.glColor4f(1F, 1F, 1F, 1F);
+                int baseX = posX - (129 / 2) + 30;
 
                 slider.gui.drawTexturedModalRect(baseX, posY + 10, 0, 152, 16, 16);
                 for (int c = 0; c < str.length(); c++) {
@@ -156,8 +153,9 @@ public class Slider {
             }
 
             public void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
-                gui.getFontRenderer().drawString(str, sliderX - (129 / 2) - gui.getLeft() + 25, posY - gui.getTop() + 14, 0x404040);
+                gui.getFontRenderer().drawString(str, sliderX - (129 / 2) + 20, posY + 14, 0x404040);
             }
         }
+         **/
     }
 }

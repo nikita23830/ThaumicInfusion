@@ -9,7 +9,10 @@ import drunkmafia.thaumicinfusion.common.world.BlockData;
 import drunkmafia.thaumicinfusion.common.world.BlockSavable;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
 import net.minecraft.block.Block;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.World;
 import net.minecraft.world.WorldSavedData;
+import net.minecraft.world.biome.BiomeCache;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.event.world.WorldEvent;
@@ -30,7 +33,7 @@ public class CommonEventContainer {
         pos.dim = event.world.provider.dimensionId;
         if(!event.getPlayer().capabilities.isCreativeMode)
             for (BlockSavable savable : BlockHelper.getWorldData(event.world).getAllDatasAt(pos))
-                ((IWorldData) block).breakBlock(event.world, savable);
+                ((IWorldData) block).breakBlock(event.world, event.getPlayer(), savable);
 
         BlockHelper.destroyBlock(event.world, pos);
     }

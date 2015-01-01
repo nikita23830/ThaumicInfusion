@@ -108,7 +108,7 @@ public class EssentiaBlock extends Block implements IWorldData {
     }
 
     @Override
-    public void breakBlock(World world, BlockSavable data) {
+    public void breakBlock(World world, EntityPlayer player, BlockSavable data) {
         if(!(data instanceof EssentiaData))
             return;
         WorldCoord coord = data.getCoords();
@@ -123,15 +123,17 @@ public class EssentiaBlock extends Block implements IWorldData {
         super.dropBlockAsItem(world, coord.x, coord.y, coord.z, stack);
     }
 
-    @Override
-    protected void dropBlockAsItem(World world, int x, int y, int z, ItemStack nul) {}
-
     @SideOnly(Side.CLIENT)
     public int colorMultiplier(IBlockAccess access, int x, int y, int z){
         EssentiaData data = BlockHelper.getData(EssentiaData.class, access, new WorldCoord(x, y, z));
         if(data == null || data.getAspect() == null)
             return 0;
         return data.getAspect().getColor();
+    }
+
+    @Override
+    public boolean shouldUsePlaceEvent() {
+        return true;
     }
 
     @Override

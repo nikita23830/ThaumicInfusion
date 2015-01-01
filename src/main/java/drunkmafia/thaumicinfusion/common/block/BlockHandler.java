@@ -20,10 +20,9 @@ import static drunkmafia.thaumicinfusion.common.lib.BlockInfo.infusedBlock_Unloc
  */
 public class BlockHandler {
 
-    private static ArrayList<String> whitelistedBlocks = new ArrayList<String>();
-
+    private static ArrayList<String> blockMethods;
+    private static ArrayList<String> blacklistedBlocks = new ArrayList<String>();
     private static HashMap<String, InfusedBlock> infusedBlocks = new HashMap<String, InfusedBlock>();
-    private static HashMap<String, Integer> blockMethods = new HashMap<String, Integer>();
 
     public static void addBlock(String key, InfusedBlock block){
         if(!infusedBlocks.containsKey(key.toLowerCase()))
@@ -34,14 +33,17 @@ public class BlockHandler {
         return infusedBlocks.get(("tile." + infusedBlock_UnlocalizedName + "." + key).toLowerCase());
     }
 
-    public static Method getMethod(String methName, Class[] pars) {
-        Method[] methods = Block.class.getDeclaredMethods();
-        for (Method meth : methods)
-            if (meth.getName().matches(methName) && meth.getParameterTypes().length == pars.length) return meth;
-        return null;
+    public static boolean isBlockMethod(String methName) {
+        if(blockMethods == null){
+            blockMethods = new ArrayList<String>();
+            Method[] methods = InfusedBlock.class.getMethods();
+            for(Method method : methods)
+                blockMethods.add(method.getName());
+        }
+        return blockMethods.contains(methName);
     }
 
-    public static void whitelistBlocks(){
+    public static void blacklistBlocks(){
         Configuration config = ThaumicInfusion.instance.config;
         config.load();
         config.addCustomCategoryComment("Blocks", "Blocks that are allowed to be infused - NOTE: Will use server side config to decide, no conflicts will arise if configs are different");
@@ -49,16 +51,16 @@ public class BlockHandler {
         Iterator blocksIter = Block.blockRegistry.iterator();
         while (blocksIter.hasNext()) {
             Block block = (Block) blocksIter.next();
-            if (!(block instanceof ITileEntityProvider) && config.get("Blocks", block.getLocalizedName(), true).getBoolean())
-                whitelistedBlocks.add(block.getUnlocalizedName());
+            if (config.hasKey("Blocks", block.getLocalizedName()))
+                blacklistedBlocks.add(block.getUnlocalizedName());
         }
 
         config.save();
-        ThaumicInfusion.instance.logger.info("Whitelisted: " + whitelistedBlocks.size() + " out of " + Block.blockRegistry.getKeys().size());
+        ThaumicInfusion.instance.logger.info("Blacklisted: " + blacklistedBlocks.size() + " out of " + Block.blockRegistry.getKeys().size());
     }
 
-    public static boolean isBlockWhitelisted(Block block){
-        for(String unlocal : whitelistedBlocks)
+    public static boolean isBlockBlacklisted(Block block){
+        for(String unlocal : blacklistedBlocks)
             if(unlocal.toLowerCase().matches(block.getUnlocalizedName().toLowerCase()))
                 return true;
         return false;
@@ -78,9 +80,5 @@ public class BlockHandler {
             blocks[i] = (InfusedBlock) set[i].getValue();
 
         return blocks;
-    }
-
-    public static int getMethod(String methName){
-        return blockMethods.get(methName);
     }
 }

@@ -1,7 +1,10 @@
 package drunkmafia.thaumicinfusion.common.world;
 
+import drunkmafia.thaumicinfusion.common.block.TIBlocks;
 import drunkmafia.thaumicinfusion.common.util.WorldCoord;
+import net.minecraft.block.Block;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.World;
 import thaumcraft.api.aspects.Aspect;
 
 /**

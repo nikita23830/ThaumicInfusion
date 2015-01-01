@@ -62,6 +62,11 @@ public class WorldCoord extends WorldCoordinates {
     }
 
     @Override
+    public String toString() {
+        return "X: " + x + " Y: " + y + " Z: " + z;
+    }
+
+    @Override
     public void readNBT(NBTTagCompound nbt) {
         this.id = nbt.getString("id");
         this.x = nbt.getInteger(id + "_x");

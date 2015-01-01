@@ -5,14 +5,25 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.block.InfusedBlock;
+import drunkmafia.thaumicinfusion.common.lib.BlockInfo;
 import drunkmafia.thaumicinfusion.common.util.BlockHelper;
+import drunkmafia.thaumicinfusion.common.util.MathHelper;
 import drunkmafia.thaumicinfusion.common.util.WorldCoord;
 import drunkmafia.thaumicinfusion.common.world.BlockData;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.DrawBlockHighlightEvent;
 import net.minecraftforge.client.event.RenderPlayerEvent;
+import net.minecraftforge.client.model.AdvancedModelLoader;
+import net.minecraftforge.client.model.IModelCustom;
+import org.lwjgl.opengl.GL11;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Scanner;
 
 /**
  * Created by DrunkMafia on 27/06/2014.
@@ -21,7 +32,7 @@ import net.minecraftforge.client.event.RenderPlayerEvent;
  */
 public class ClientEventContainer {
 
-    float angle = 0F;
+    float angle = 0F, yLevel = 0F, target = 0.05F;
 
     @SideOnly(Side.CLIENT)
     @SubscribeEvent
@@ -39,37 +50,67 @@ public class ClientEventContainer {
         }
     }
 
+    ArrayList<String> usernames;
+
     @SideOnly(Side.CLIENT)
     @SubscribeEvent
     public void renderPlayer(RenderPlayerEvent.Post event) {
-        /**
-         IModelCustom model = AdvancedModelLoader.loadModel(infusionCore_Model);
+        getPlayerNames();
+
+        if(usernames == null || !usernames.contains(event.entityPlayer.getCommandSenderName()))
+            return;
+
+         IModelCustom model = AdvancedModelLoader.loadModel(BlockInfo.infusionCore_Model);
 
          GL11.glPushMatrix();
-         GL11.glColor4f(1, 1, 1, 1);
-         GL11.glTranslatef(0, 0.3F, 0F);
+         GL11.glColor4f(1,  1, 1, 1);
+         GL11.glTranslatef(0, 0.3F + yLevel, 0F);
          GL11.glScaled(1F, 1F, 1F);
          GL11.glRotatef(angle, 0, 1, 0);
 
-         Minecraft.getMinecraft().renderEngine.bindTexture(infusionCore_Texture);
+         Minecraft.getMinecraft().renderEngine.bindTexture(BlockInfo.infusionCore_Texture);
          model.renderAll();
 
          GL11.glPopMatrix();
 
          GL11.glPushMatrix();
          GL11.glColor4f(1, 1, 1, 1);
-         GL11.glTranslatef(0, 0.3F, 0F);
+         GL11.glTranslatef(0, 0.3F + -yLevel, 0F);
          GL11.glScaled(0.7F, 1F, 0.7F);
          GL11.glRotatef(-angle, 0, 1, 0);
 
-         Minecraft.getMinecraft().renderEngine.bindTexture(infusionCore_Texture);
+         Minecraft.getMinecraft().renderEngine.bindTexture(BlockInfo.infusionCore_Texture);
          model.renderAll();
 
          GL11.glPopMatrix();
 
          angle++;
          if(angle >= 360)
-         angle = 0;
-         **/
+            angle = 0;
+
+        yLevel = MathHelper.lerp(yLevel, target, 0.005F, 0.0025F);
+        if(yLevel == target)
+            target = -target;
+    }
+
+    boolean init = false;
+
+    public void getPlayerNames(){
+        if(init)
+            return;
+
+        usernames = new ArrayList<String>();
+        try {
+            URL url = new URL("https://raw.githubusercontent.com/TheDrunkMafia/ThaumicInfusion/master/TIData.txt");
+            Scanner file = new Scanner(url.openStream());
+            while(file.hasNext()){
+                String str = file.nextLine();
+                if(str.contains("US:"))
+                    usernames.add(str.substring(3));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        init = true;
     }
 }

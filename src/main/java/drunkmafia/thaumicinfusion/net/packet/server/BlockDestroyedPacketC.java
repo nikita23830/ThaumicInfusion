@@ -9,6 +9,7 @@ import drunkmafia.thaumicinfusion.common.world.TIWorldData;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
 import drunkmafia.thaumicinfusion.net.packet.CooldownPacket;
 import io.netty.buffer.ByteBuf;
+import net.minecraft.world.World;
 
 /**
  * Created by DrunkMafia on 28/06/2014.
@@ -39,12 +40,16 @@ public class BlockDestroyedPacketC implements IMessage {
 
         @Override
         public IMessage onMessage(BlockDestroyedPacketC message, MessageContext ctx) {
-            if(message.coordinates == null || ctx.side.isServer()) return null;
-            CooldownPacket.syncTimeouts.remove(message.coordinates);
-            TIWorldData data = BlockHelper.getWorldData(ChannelHandler.getClientWorld());
+            WorldCoord coord = message.coordinates;
+            if(coord == null || ctx.side.isServer()) return null;
+            CooldownPacket.syncTimeouts.remove(coord);
+            World world = ChannelHandler.getClientWorld();
+            TIWorldData data = BlockHelper.getWorldData(world);
             if(data == null)
                 return null;
-            data.removeBlock(message.coordinates);
+
+            data.removeBlock(coord);
+            world.removeTileEntity(coord.x, coord.y, coord.z);
             return null;
         }
     }

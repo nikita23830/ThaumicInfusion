@@ -7,6 +7,7 @@ import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
 import drunkmafia.thaumicinfusion.net.packet.server.EffectSyncPacketC;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -45,29 +46,29 @@ public class Motus extends AspectEffect {
     }
 
     @Override
-    public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float hitX, float hitY, float hitZ) {
-        ItemStack wand = player.getCurrentEquippedItem();
-        if(wand == null)
-            return false;
+    public void onBlockPlacedBy(World world, int x, int y, int z, EntityLivingBase entity, ItemStack stack) {
+        ForgeDirection dir = ForgeDirection.UNKNOWN;
+        int rot = MathHelper.floor_double((double)(entity.rotationYaw * 4.0F / 360.0F) + 0.5D) & 3;
 
-        if(world.isRemote)
-            return true;
-
-        int face = MathHelper.floor_double((player.rotationYaw * 4F) / 360F + 0.5D) & 3;
-
-        ForgeDirection dir = BlockHelper.dirFromSide(player.isSneaking() ? side : face);
+        switch (rot){
+            case 0:
+                dir = ForgeDirection.SOUTH;
+                break;
+            case 1:
+                dir = ForgeDirection.WEST;
+                break;
+            case 2:
+                dir = ForgeDirection.NORTH;
+                break;
+            case 3:
+                dir = ForgeDirection.EAST;
+                break;
+        }
 
         if(dir != ForgeDirection.UP && dir != ForgeDirection.DOWN) {
             direction = dir;
             ChannelHandler.network.sendToDimension(new EffectSyncPacketC(this), world.provider.dimensionId);
-            return true;
         }
-        return false;
-    }
-
-    @Override
-    public void worldBlockInteracted(EntityPlayer player, World world, int x, int y, int z, int face) {
-
     }
 
     @Override
