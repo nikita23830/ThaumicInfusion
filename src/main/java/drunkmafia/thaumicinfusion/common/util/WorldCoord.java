@@ -41,6 +41,10 @@ public class WorldCoord extends WorldCoordinates {
         super(x, y, z, 0);
     }
 
+    public WorldCoord(int x, int y, int z, int id){
+        super(x, y, z, id);
+    }
+
     public void fromBytes(ByteBuf buf) {
         try {
             NBTTagCompound tag = new PacketBuffer(buf).readNBTTagCompoundFromBuffer();

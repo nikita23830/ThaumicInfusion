@@ -6,6 +6,7 @@ import drunkmafia.thaumicinfusion.common.block.BlockHandler;
 import drunkmafia.thaumicinfusion.common.block.TIBlocks;
 import drunkmafia.thaumicinfusion.common.block.tile.InfusionCoreTile;
 import drunkmafia.thaumicinfusion.common.lib.ModInfo;
+import drunkmafia.thaumicinfusion.common.util.BlockHelper;
 import drunkmafia.thaumicinfusion.common.util.InfusionHelper;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
@@ -153,7 +154,14 @@ public class ThaumcraftIntergration {
                     break;
             }
 
-            if (!(central.getItem() instanceof ItemBlock) || !isStackSetToInfuse || BlockHandler.isBlockBlacklisted(Block.getBlockFromItem(central.getItem())))
+            Block block;
+
+            if(!(central.getItem() instanceof ItemBlock))
+                block = BlockHandler.getInfusionBlock(central.getItem());
+            else
+                block = Block.getBlockFromItem(central.getItem());
+
+            if (!isStackSetToInfuse || BlockHandler.isBlockBlacklisted(block))
                 return false;
 
             ArrayList<ItemStack> ii = new ArrayList<ItemStack>();
@@ -180,7 +188,7 @@ public class ThaumcraftIntergration {
                 else return false;
             }
             AspectHandler handler = AspectHandler.getInstance();
-            if (!handler.canInfuse(infuseAspects.getAspects()) || !handler.canInfuse(Block.getBlockFromItem(central.getItem()), infuseAspects.getAspects()))
+            if (!handler.canInfuse(infuseAspects.getAspects()) || !handler.canInfuse(block, infuseAspects.getAspects()))
                 return false;
 
             aspects = infuseAspects;
@@ -204,7 +212,7 @@ public class ThaumcraftIntergration {
                     e.printStackTrace();
                 }
 
-                recipeOutput = InfusionHelper.getInfusedItemStack(InfusionHelper.phialsToAspects(input), central, central.stackSize, central.getItemDamage());
+                recipeOutput = InfusionHelper.getInfusedItemStack(InfusionHelper.phialsToAspects(input), new ItemStack(block), central.stackSize, central.getItemDamage());
             }
 
             return recipeOutput != null && ii.size() > 0;

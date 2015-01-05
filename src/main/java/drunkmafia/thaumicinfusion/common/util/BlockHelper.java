@@ -7,15 +7,20 @@ import drunkmafia.thaumicinfusion.common.world.TIWorldData;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
 import drunkmafia.thaumicinfusion.net.packet.client.RequestBlockPacketS;
 import drunkmafia.thaumicinfusion.net.packet.server.BlockDestroyedPacketC;
+import javassist.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.ChunkCache;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldSavedData;
 import net.minecraftforge.common.util.ForgeDirection;
 
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 
@@ -53,7 +58,6 @@ public final class BlockHelper {
         if (worldData != null) return (TIWorldData) worldData;
         else {
             worldData = new TIWorldData(worldName);
-            ((TIWorldData)worldData).world = world;
             world.perWorldStorage.setData(worldName, worldData);
             return (TIWorldData) world.perWorldStorage.loadData(TIWorldData.class, worldName);
         }

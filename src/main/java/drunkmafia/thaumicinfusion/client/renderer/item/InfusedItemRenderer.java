@@ -33,7 +33,7 @@ public class InfusedItemRenderer implements IItemRenderer {
         ItemStack infused = new ItemStack(Block.getBlockById(tag.getInteger("infusedID")), 1, item.getItemDamage());
         EntityPlayer player = FMLClientHandler.instance().getClient().thePlayer;
 
-        if(Block.getBlockFromItem(infused.getItem()) == null)
+        if(player == null || infused == null || Block.getBlockFromItem(infused.getItem()) == null || RenderManager.instance == null || RenderManager.instance.itemRenderer == null)
             return;
 
         GL11.glPushMatrix();
@@ -42,9 +42,9 @@ public class InfusedItemRenderer implements IItemRenderer {
             GL11.glTranslatef(0.5F, 0.5F, 0.5F);
         else if (type == ItemRenderType.EQUIPPED_FIRST_PERSON)
             GL11.glTranslatef(0.45F, 0.50F, 0.50F);
-
-        RenderManager.instance.itemRenderer.renderItem(player, infused, 0);
-
+        try {
+            RenderManager.instance.itemRenderer.renderItem(player, infused, 0);
+        }catch (Exception e){}
         GL11.glPopMatrix();
     }
 }

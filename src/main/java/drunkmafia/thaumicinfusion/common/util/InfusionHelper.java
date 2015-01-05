@@ -118,12 +118,13 @@ public class InfusionHelper {
         if(blockID == -1)
             return null;
 
-        ItemStack stack = new ItemStack(Block.getBlockById(blockID), size, meta);
+        ItemStack stack = new ItemStack(Block.getBlockById(blockID), size);
         NBTTagCompound tag = new NBTTagCompound();
         NBTTagCompound infuseTag = new NBTTagCompound();
 
         infuseTag.setInteger("infusedAspect_Size", effects.length);
         infuseTag.setInteger("infusedID", containingId);
+        infuseTag.setInteger("infusedMETA", meta);
 
         for(int i = 0; i < effects.length; i++) {
             if(effects[i] == null)

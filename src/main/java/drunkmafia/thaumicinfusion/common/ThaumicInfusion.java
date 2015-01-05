@@ -5,19 +5,18 @@ import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
 import cpw.mods.fml.common.SidedProxy;
-import cpw.mods.fml.common.event.FMLConstructionEvent;
-import cpw.mods.fml.common.event.FMLInitializationEvent;
-import cpw.mods.fml.common.event.FMLPostInitializationEvent;
-import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import cpw.mods.fml.common.event.*;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import drunkmafia.thaumicinfusion.common.aspect.AspectHandler;
 import drunkmafia.thaumicinfusion.common.block.BlockHandler;
 import drunkmafia.thaumicinfusion.common.block.TIBlocks;
+import drunkmafia.thaumicinfusion.common.command.TICommand;
 import drunkmafia.thaumicinfusion.common.event.CommonEventContainer;
 import drunkmafia.thaumicinfusion.common.event.TickEventHandler;
 import drunkmafia.thaumicinfusion.common.intergration.ThaumcraftIntergration;
 import drunkmafia.thaumicinfusion.common.tab.TITab;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
+import net.minecraft.command.ServerCommandManager;
 import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
@@ -63,6 +62,7 @@ public class ThaumicInfusion {
         MinecraftForge.EVENT_BUS.register(new CommonEventContainer());
         FMLCommonHandler.instance().bus().register(new TickEventHandler());
         proxy.initRenderers();
+        BlockHandler.generateSafeTiles();
     }
 
     @EventHandler
@@ -70,6 +70,11 @@ public class ThaumicInfusion {
         AspectHandler.getInstance().postInit();
 
         ThaumcraftIntergration.init();
+    }
+
+    @EventHandler
+    public void serverStart(FMLServerStartingEvent event){
+        TICommand.init((ServerCommandManager)event.getServer().getCommandManager());
     }
 
     public static String translate(String key, Object... params) {

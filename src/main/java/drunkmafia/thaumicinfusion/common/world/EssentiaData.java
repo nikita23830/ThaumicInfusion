@@ -18,6 +18,11 @@ public class EssentiaData extends BlockSavable {
 
     public EssentiaData(){}
 
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof EssentiaData && ((EssentiaData)obj).aspect == this.aspect;
+    }
+
     public EssentiaData(WorldCoord coordinates, Aspect aspect){
         super(coordinates);
         this.aspect = aspect;

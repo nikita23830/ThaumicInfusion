@@ -24,34 +24,6 @@ import net.minecraftforge.event.world.WorldEvent;
 public class CommonEventContainer {
 
     @SubscribeEvent
-    public void blockBreakEvent(BlockEvent.BreakEvent event){
-        Block block = event.block;
-        if(!(block instanceof IWorldData) || event.world.isRemote)
-            return;
-
-        WorldCoord pos = WorldCoord.get(event.x, event.y, event.z);
-        pos.dim = event.world.provider.dimensionId;
-        if(!event.getPlayer().capabilities.isCreativeMode)
-            for (BlockSavable savable : BlockHelper.getWorldData(event.world).getAllDatasAt(pos))
-                ((IWorldData) block).breakBlock(event.world, event.getPlayer(), savable);
-
-        BlockHelper.destroyBlock(event.world, pos);
-    }
-
-    @SubscribeEvent
-    public void blockPlaceEvent(BlockEvent.PlaceEvent event){
-        Block block = event.block;
-        if(!(block instanceof IWorldData) || event.world.isRemote)
-            return;
-
-        BlockSavable savable = ((IWorldData)block).getData(event.world, event.itemInHand, WorldCoord.get(event.x, event.y, event.z));
-        if(savable == null)
-            return;
-
-        BlockHelper.getWorldData(event.world).addBlock(event.world, savable);
-    }
-
-    @SubscribeEvent
     public void onClick(PlayerInteractEvent event) {
         BlockSavable[] blocks = BlockHelper.getWorldData(event.world).getAllBocks();
         if(blocks == null || blocks.length == 0)
@@ -67,10 +39,7 @@ public class CommonEventContainer {
 
     @SubscribeEvent
     public void load(WorldEvent.Load loadEvent){
-        WorldSavedData data = loadEvent.world.perWorldStorage.loadData(TIWorldData.class, loadEvent.world.getWorldInfo().getWorldName() + "_TIDATA");
-        if(data != null) {
-            ((TIWorldData) data).world = loadEvent.world;
-            ((TIWorldData) data).postLoad();
-        }
+        TIWorldData data = BlockHelper.getWorldData(loadEvent.world);
+        data.postLoad();
     }
 }

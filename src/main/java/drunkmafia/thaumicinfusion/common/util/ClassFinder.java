@@ -1,6 +1,8 @@
 package drunkmafia.thaumicinfusion.common.util;
 
 
+import javassist.ClassPool;
+
 import java.io.File;
 import java.util.*;
 import java.util.zip.ZipEntry;

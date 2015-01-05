@@ -10,11 +10,13 @@ import drunkmafia.thaumicinfusion.common.util.BlockHelper;
 import drunkmafia.thaumicinfusion.common.util.MathHelper;
 import drunkmafia.thaumicinfusion.common.util.WorldCoord;
 import drunkmafia.thaumicinfusion.common.world.BlockData;
+import drunkmafia.thaumicinfusion.common.world.TIWorldData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.DrawBlockHighlightEvent;
+import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.client.model.AdvancedModelLoader;
 import net.minecraftforge.client.model.IModelCustom;
@@ -30,11 +32,13 @@ import java.util.Scanner;
  * <p/>
  * See http://www.wtfpl.net/txt/copying for licence
  */
+@SideOnly(Side.CLIENT)
 public class ClientEventContainer {
+
+    public static boolean debug;
 
     float angle = 0F, yLevel = 0F, target = 0.05F;
 
-    @SideOnly(Side.CLIENT)
     @SubscribeEvent
     public void blockHighlight(DrawBlockHighlightEvent event) {
         if (event.target != null) {
@@ -50,9 +54,17 @@ public class ClientEventContainer {
         }
     }
 
+    @SubscribeEvent
+    public void onDrawDebugText(RenderGameOverlayEvent.Text event) {
+        if(!(debug = Minecraft.getMinecraft().gameSettings.showDebugInfo))
+            return;
+
+        TIWorldData data = BlockHelper.getWorldData(Minecraft.getMinecraft().theWorld);
+        event.left.add("TI: Block Data's in world: " + data.getAllBocks().length);
+    }
+
     ArrayList<String> usernames;
 
-    @SideOnly(Side.CLIENT)
     @SubscribeEvent
     public void renderPlayer(RenderPlayerEvent.Post event) {
         getPlayerNames();

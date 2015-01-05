@@ -4,9 +4,11 @@ import cpw.mods.fml.client.registry.ISimpleBlockRenderingHandler;
 import cpw.mods.fml.client.registry.RenderingRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import drunkmafia.thaumicinfusion.client.event.ClientEventContainer;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.block.FakeBlockRender;
 import drunkmafia.thaumicinfusion.common.block.InfusedBlock;
+import drunkmafia.thaumicinfusion.common.block.TIBlocks;
 import drunkmafia.thaumicinfusion.common.util.BlockHelper;
 import drunkmafia.thaumicinfusion.common.util.WorldCoord;
 import drunkmafia.thaumicinfusion.common.world.BlockData;
@@ -14,6 +16,8 @@ import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.world.IBlockAccess;
+import thaumcraft.client.lib.UtilsFX;
+import thaumcraft.common.Thaumcraft;
 
 /**
  * Created by DrunkMafia on 25/07/2014.
@@ -35,11 +39,13 @@ public class RenderInfused implements ISimpleBlockRenderingHandler {
         for (AspectEffect effects : data.getEffects())
             if (!effects.shouldRender(Minecraft.getMinecraft().theWorld, x, y, z, renderBlocks))
                 return false;
+        try {
+            if (data.getContainingBlock().getRenderType() == 0)
+                return renderBlocks.renderStandardBlock(new FakeBlockRender(data.getContainingBlock()), x, y, z);
 
-        if (data.getContainingBlock().getRenderType() == 0)
-            return renderBlocks.renderStandardBlock(new FakeBlockRender(data.getContainingBlock()), x, y, z);
-
-        return renderBlocks.renderBlockByRenderType(data.getContainingBlock(), x, y, z);
+            return renderBlocks.renderBlockByRenderType(data.getContainingBlock(), x, y, z);
+        }catch (Exception e){}
+        return false;
     }
 
     @Override

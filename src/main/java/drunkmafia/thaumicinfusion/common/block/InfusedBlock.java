@@ -41,7 +41,13 @@ import thaumcraft.common.items.wands.ItemWandCasting;
 import java.util.List;
 import java.util.Random;
 
-public class InfusedBlock extends Block implements IWorldData, ITileEntityProvider, IInfusionStabiliser {
+public class InfusedBlock extends WorldBlockData implements ITileEntityProvider, IInfusionStabiliser {
+
+    /**
+     * =================================================
+     * ===== Start Of Generic Block Functionality ======
+     * =================================================
+     */
 
     public static int renderType = -1;
     public int pass = 0;
@@ -74,8 +80,7 @@ public class InfusedBlock extends Block implements IWorldData, ITileEntityProvid
     }
 
     @Override
-    protected void dropBlockAsItem(World world, int x, int y, int z, ItemStack stack) {
-    }
+    protected void dropBlockAsItem(World world, int x, int y, int z, ItemStack stack) {}
 
     @Override
     public ItemStack getPickBlock(MovingObjectPosition target, World world, int x, int y, int z, EntityPlayer player) {
@@ -84,7 +89,11 @@ public class InfusedBlock extends Block implements IWorldData, ITileEntityProvid
         return InfusionHelper.getInfusedItemStack(block.getAspects(), new ItemStack(block.getContainingBlock()), 1, world.getBlockMetadata(pos.x, pos.y, pos.z));
     }
 
-    public void handleError(Exception e, World world, BlockData data, boolean shouldDestroy) {
+    public static void handleError(Exception e, World world, int x, int y, int z){
+        System.out.println("Error");
+    }
+
+    public static void handleError(Exception e, World world, BlockData data, boolean shouldDestroy) {
         String methName = Thread.currentThread().getStackTrace()[2].getMethodName();
         Logger logger = ThaumicInfusion.getLogger();
         logger.error("Block at: " + data.getCoords().toString() + " threw error while running: " + methName + " in block: " + data.getContainingBlock() + " it is advised that this block is removed from the whitelist in the config.", e);
@@ -102,12 +111,16 @@ public class InfusedBlock extends Block implements IWorldData, ITileEntityProvid
 
     @Override
     public BlockSavable getData(World world, ItemStack stack, WorldCoord coord) {
-        return BlockHelper.getDataFromStack(stack, coord.x, coord.y, coord.z);
+        coord.dim = world.provider.dimensionId;
+        world.setBlockMetadataWithNotify(coord.x, coord.y, coord.z, 3, stack.getItemDamage());
+        BlockData data = BlockHelper.getDataFromStack(stack, coord.x, coord.y, coord.z);
+        data.dataLoad(world);
+        return data;
     }
 
     @Override
-    public void breakBlock(World world, EntityPlayer player, BlockSavable data) {
-        if (!(data instanceof BlockData))
+    public void breakBlock(World world, BlockSavable data) {
+        if (data == null || !(data instanceof BlockData))
             return;
 
         BlockData block = (BlockData) data;
@@ -120,9 +133,6 @@ public class InfusedBlock extends Block implements IWorldData, ITileEntityProvid
         SoundType type = block.getContainingBlock().stepSound;
         ChannelHandler.network.sendToAllAround(new PlaySoundPacketC(pos.x, pos.y, pos.z, type.getBreakSound(), (type.getVolume() + 1.0F) / 2.0F, type.getPitch() * 0.8F), new NetworkRegistry.TargetPoint(world.provider.dimensionId, pos.x, pos.y, pos.z, 10));
 
-        if (player.capabilities.isCreativeMode)
-            return;
-
         ItemStack stack = InfusionHelper.getInfusedItemStack(block.getAspects(), new ItemStack(block.getContainingBlock()), 1, world.getBlockMetadata(pos.x, pos.y, pos.z));
         if (stack != null)
             super.dropBlockAsItem(world, pos.x, pos.y, pos.z, stack);
@@ -132,6 +142,82 @@ public class InfusedBlock extends Block implements IWorldData, ITileEntityProvid
     public boolean canReplace(World world, int x, int y, int z, int side, ItemStack stack) {
         return Block.getBlockById(InfusionHelper.getInfusedID(stack)).canReplace(world, x, y, z, side, stack);
     }
+
+    @Override
+    public int getRenderType() {
+        return renderType;
+    }
+
+    @Override
+    public boolean canProvidePower() {
+        return true;
+    }
+
+    @SideOnly(Side.CLIENT)
+    public int getRenderBlockPass() {
+        return pass;
+    }
+
+    public boolean renderAsNormalBlock() {
+        return false;
+    }
+
+    public boolean isOpaqueCube() {
+        return false;
+    }
+
+    @Override
+    public int tickRate(World world) {
+        return 5;
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public boolean addHitEffects(World world, MovingObjectPosition target, EffectRenderer effectRenderer) {
+        BlockData blockData = BlockHelper.getData(BlockData.class, world, new WorldCoord(target.blockX, target.blockY, target.blockZ));
+        if (isBlockData(blockData)) {
+            try {
+                {
+                    Block block = blockData.getContainingBlock();
+                    if (block.getMaterial() != Material.air) {
+                        Random rand = new Random();
+
+                        float space = 0.1F;
+                        double x = (double) target.blockX + rand.nextDouble() * (block.getBlockBoundsMaxX() - block.getBlockBoundsMinX() - (double) (space * 2.0F)) + (double) space + block.getBlockBoundsMinX();
+                        double y = (double) target.blockY + rand.nextDouble() * (block.getBlockBoundsMaxY() - block.getBlockBoundsMinY() - (double) (space * 2.0F)) + (double) space + block.getBlockBoundsMinY();
+                        double z = (double) target.blockZ + rand.nextDouble() * (block.getBlockBoundsMaxZ() - block.getBlockBoundsMinZ() - (double) (space * 2.0F)) + (double) space + block.getBlockBoundsMinZ();
+
+                        if (target.sideHit == 0)
+                            y = (double) target.blockY + block.getBlockBoundsMinY() - (double) space;
+                        if (target.sideHit == 1)
+                            y = (double) target.blockY + block.getBlockBoundsMaxY() + (double) space;
+                        if (target.sideHit == 2)
+                            z = (double) target.blockZ + block.getBlockBoundsMinZ() - (double) space;
+                        if (target.sideHit == 3)
+                            z = (double) target.blockZ + block.getBlockBoundsMaxZ() + (double) space;
+                        if (target.sideHit == 4)
+                            x = (double) target.blockX + block.getBlockBoundsMinX() - (double) space;
+                        if (target.sideHit == 5)
+                            x = (double) target.blockX + block.getBlockBoundsMaxX() + (double) space;
+
+                        effectRenderer.addEffect((new EntityDiggingFX(world, x, y, z, 0.0D, 0.0D, 0.0D, block, world.getBlockMetadata(target.blockX, target.blockY, target.blockZ))).applyColourMultiplier(target.blockX, target.blockY, target.blockZ).multiplyVelocity(0.2F).multipleParticleScaleBy(0.6F));
+                    }
+                }
+            } catch (Exception e) {
+                handleError(e, world, blockData, true);
+            }
+        }
+        return true;
+    }
+
+    /**
+     * =================================================
+     * ===== End Of Generic Block Functionality ========
+     * =================================================
+     * =================================================
+     * ===== Start Of Infused Block Functionality ======
+     * =================================================
+     */
 
     @Override
     public AxisAlignedBB getSelectedBoundingBoxFromPool(World world, int x, int y, int z) {
@@ -233,46 +319,11 @@ public class InfusedBlock extends Block implements IWorldData, ITileEntityProvid
     }
 
     @Override
-    @SideOnly(Side.CLIENT)
-    public boolean addHitEffects(World world, MovingObjectPosition target, EffectRenderer effectRenderer) {
-        BlockData blockData = BlockHelper.getData(BlockData.class, world, new WorldCoord(target.blockX, target.blockY, target.blockZ));
-        if (isBlockData(blockData)) {
-            try {
-                {
-                    Block block = blockData.getContainingBlock();
-                    if (block.getMaterial() != Material.air) {
-                        Random rand = new Random();
-
-                        float space = 0.1F;
-                        double x = (double) target.blockX + rand.nextDouble() * (block.getBlockBoundsMaxX() - block.getBlockBoundsMinX() - (double) (space * 2.0F)) + (double) space + block.getBlockBoundsMinX();
-                        double y = (double) target.blockY + rand.nextDouble() * (block.getBlockBoundsMaxY() - block.getBlockBoundsMinY() - (double) (space * 2.0F)) + (double) space + block.getBlockBoundsMinY();
-                        double z = (double) target.blockZ + rand.nextDouble() * (block.getBlockBoundsMaxZ() - block.getBlockBoundsMinZ() - (double) (space * 2.0F)) + (double) space + block.getBlockBoundsMinZ();
-
-                        if (target.sideHit == 0)
-                            y = (double) target.blockY + block.getBlockBoundsMinY() - (double) space;
-                        if (target.sideHit == 1)
-                            y = (double) target.blockY + block.getBlockBoundsMaxY() + (double) space;
-                        if (target.sideHit == 2)
-                            z = (double) target.blockZ + block.getBlockBoundsMinZ() - (double) space;
-                        if (target.sideHit == 3)
-                            z = (double) target.blockZ + block.getBlockBoundsMaxZ() + (double) space;
-                        if (target.sideHit == 4)
-                            x = (double) target.blockX + block.getBlockBoundsMinX() - (double) space;
-                        if (target.sideHit == 5)
-                            x = (double) target.blockX + block.getBlockBoundsMaxX() + (double) space;
-
-                        effectRenderer.addEffect((new EntityDiggingFX(world, x, y, z, 0.0D, 0.0D, 0.0D, block, world.getBlockMetadata(target.blockX, target.blockY, target.blockZ))).applyColourMultiplier(target.blockX, target.blockY, target.blockZ).multiplyVelocity(0.2F).multipleParticleScaleBy(0.6F));
-                    }
-                }
-            } catch (Exception e) {
-                handleError(e, world, blockData, true);
-            }
-        }
-        return true;
-    }
-
-    @Override
     public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float hitX, float hitY, float hitZ) {
+        TileEntity tile = world.getTileEntity(x, y, z);
+        if(tile != null)
+            System.out.println(tile);
+
         BlockData blockData = BlockHelper.getData(BlockData.class, world, new WorldCoord(x, y, z));
         if (isBlockData(blockData)) {
             ItemStack stack = player.getHeldItem();
@@ -287,34 +338,6 @@ public class InfusedBlock extends Block implements IWorldData, ITileEntityProvid
             }
         }
         return false;
-    }
-
-    @Override
-    public int getRenderType() {
-        return renderType;
-    }
-
-    @Override
-    public boolean canProvidePower() {
-        return true;
-    }
-
-    @SideOnly(Side.CLIENT)
-    public int getRenderBlockPass() {
-        return pass;
-    }
-
-    public boolean renderAsNormalBlock() {
-        return false;
-    }
-
-    public boolean isOpaqueCube() {
-        return false;
-    }
-
-    @Override
-    public int tickRate(World world) {
-        return 5;
     }
 
     @Override
@@ -861,4 +884,10 @@ public class InfusedBlock extends Block implements IWorldData, ITileEntityProvid
         }
         return false;
     }
+
+    /**
+     * ===============================================
+     * ===== End Of Infused Block Functionality ======
+     * ===============================================
+     */
 }

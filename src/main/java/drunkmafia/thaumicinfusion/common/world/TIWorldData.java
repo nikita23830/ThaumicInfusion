@@ -1,10 +1,12 @@
 package drunkmafia.thaumicinfusion.common.world;
 
 import drunkmafia.thaumicinfusion.common.util.WorldCoord;
+import gnu.trove.map.hash.THashMap;
 import net.minecraft.block.Block;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldSavedData;
+import net.minecraftforge.common.DimensionManager;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -19,15 +21,24 @@ import java.util.Map;
 public class TIWorldData extends WorldSavedData {
 
     public World world;
-    private HashMap<WorldCoord, ArrayList<BlockSavable>> blocksData;
+    private THashMap<WorldCoord, ArrayList<BlockSavable>> blocksData;
 
     public TIWorldData(String mapname) {
         super(mapname);
-        blocksData = new HashMap<WorldCoord, ArrayList<BlockSavable>>();
+        blocksData = new THashMap<WorldCoord, ArrayList<BlockSavable>>();
         setDirty(true);
     }
 
-    public void addBlock(BlockSavable block){
+    public void addBlock(BlockSavable block, boolean init){
+        if(block == null)
+            return;
+
+        if(world == null)
+            world = DimensionManager.getWorld(block.getCoords().dim);
+
+        if(init && !block.isInit())
+            block.dataLoad(world);
+
         if(blocksData.containsKey(block.getCoords())) {
             blocksData.get(block.getCoords()).add(block);
         }else {
@@ -38,31 +49,16 @@ public class TIWorldData extends WorldSavedData {
         setDirty(true);
     }
 
-    public boolean addBlock(World world, BlockSavable block) {
-        this.world = world;
-
-        if (block != null && block.getCoords() != null) {
-            if(block instanceof BlockData){
-                BlockData data = (BlockData)block;
-                if(!data.isInit()) {
-                    WorldCoord pos = data.getCoords();
-                    data.initAspects(world, pos.x, pos.y, pos.z);
-                }
-            }
-            addBlock(block);
-            return true;
-        }
-        return false;
+    public void addBlock(BlockSavable block){
+        addBlock(block, false);
     }
 
     public void postLoad(){
-        if(world == null)
-            return;
-
-        for(BlockSavable savable : getAllBocks()){
-            WorldCoord coords = savable.getCoords();
-            if(savable instanceof BlockData && !((BlockData)savable).isInit())
-                ((BlockData)savable).initAspects(world, coords.x, coords.y, coords.z);
+        for(BlockSavable savable : getAllBocks()) {
+            if(world == null)
+                world = DimensionManager.getWorld(savable.getCoords().dim);
+            if (!savable.isInit())
+                savable.dataLoad(world);
         }
     }
 

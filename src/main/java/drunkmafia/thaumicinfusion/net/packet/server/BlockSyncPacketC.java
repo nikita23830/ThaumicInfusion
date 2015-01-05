@@ -56,7 +56,8 @@ public class BlockSyncPacketC implements IMessage {
             if (data == null || ctx.side.isServer()) return null;
             World world = ChannelHandler.getClientWorld();
             WorldCoord pos = data.getCoords();
-            BlockHelper.getWorldData(world).addBlock(world, message.data);
+            message.data.dataLoad(world);
+            BlockHelper.getWorldData(world).addBlock(message.data);
             Minecraft.getMinecraft().renderGlobal.markBlockForUpdate(pos.x, pos.y, pos.z);
             return null;
         }

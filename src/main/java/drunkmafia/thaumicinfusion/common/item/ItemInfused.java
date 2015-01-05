@@ -33,6 +33,10 @@ public class ItemInfused extends ItemBlock {
     @Override
     public String getItemStackDisplayName(ItemStack stack) {
         int id = InfusionHelper.getInfusedID(stack);
+
+        if(stack == null || Block.getBlockById(id) == null)
+            return "NULL STACK";
+
         return "Infused " + (id != -1 ? (new ItemStack(Block.getBlockById(id), 1, stack.getItemDamage())).getDisplayName() : "");
     }
 
@@ -68,8 +72,7 @@ public class ItemInfused extends ItemBlock {
          else if(y == 255 && this.field_150939_a.getMaterial().isSolid())
             return false;
          else if(world.canPlaceEntityOnSide(this.field_150939_a, x, y, z, false, side, player, stack)) {
-
-            BlockData data = (BlockData) blockData.getData(world, stack, new WorldCoord(x, y, z));
+            BlockData data = (BlockData) blockData.getData(world, stack, new WorldCoord(x, y, z, world.provider.dimensionId));
 
             if(data == null)
                 return false;
@@ -78,15 +81,30 @@ public class ItemInfused extends ItemBlock {
             worldData.addBlock(data);
             int meta = data.getContainingBlock().onBlockPlaced(world, x, y, z, side, hitX, hitY, hitZ, stack.getItemDamage());
             if(this.placeBlockAt(stack, player, world, x, y, z, side, hitX, hitY, hitZ, meta)) {
-                worldData.getBlock(BlockData.class, data.getCoords()).initAspects(world, x, y, z);
+                BlockHelper.getData(BlockData.class, world, data.getCoords()).dataLoad(world);
                 world.playSoundEffect((double) ((float) x + 0.5F), (double) ((float) y + 0.5F), (double) ((float) z + 0.5F), data.getContainingBlock().stepSound.func_150496_b(), (data.getContainingBlock().stepSound.getVolume() + 1.0F) / 2.0F, data.getContainingBlock().stepSound.getPitch() * 0.8F);
                 --stack.stackSize;
-            }else
-                worldData.removeBlock(data.getCoords());
+            }
 
             return true;
         } else {
             return false;
+        }
+    }
+
+    public boolean placeBlockAt(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ, int metadata) {
+        WorldCoord coord = WorldCoord.get(x, y, z);
+        if(!world.setBlock(x, y, z, this.field_150939_a, metadata, 3)) {
+            BlockHelper.getWorldData(world).removeBlock(coord);
+            return false;
+        } else {
+            if(world.getBlock(x, y, z) == this.field_150939_a) {
+                BlockHelper.getData(BlockData.class, world, coord).dataLoad(world);
+                this.field_150939_a.onBlockPlacedBy(world, x, y, z, player, stack);
+                this.field_150939_a.onPostBlockPlaced(world, x, y, z, metadata);
+            }
+
+            return true;
         }
     }
 }

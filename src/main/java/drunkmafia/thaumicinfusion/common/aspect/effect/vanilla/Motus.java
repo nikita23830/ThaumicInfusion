@@ -47,23 +47,8 @@ public class Motus extends AspectEffect {
 
     @Override
     public void onBlockPlacedBy(World world, int x, int y, int z, EntityLivingBase entity, ItemStack stack) {
-        ForgeDirection dir = ForgeDirection.UNKNOWN;
         int rot = MathHelper.floor_double((double)(entity.rotationYaw * 4.0F / 360.0F) + 0.5D) & 3;
-
-        switch (rot){
-            case 0:
-                dir = ForgeDirection.SOUTH;
-                break;
-            case 1:
-                dir = ForgeDirection.WEST;
-                break;
-            case 2:
-                dir = ForgeDirection.NORTH;
-                break;
-            case 3:
-                dir = ForgeDirection.EAST;
-                break;
-        }
+        ForgeDirection dir = rot == 0 ? ForgeDirection.SOUTH : rot == 1 ? ForgeDirection.WEST : rot == 2 ? dir = ForgeDirection.NORTH : rot == 3 ? ForgeDirection.EAST : ForgeDirection.UNKNOWN;
 
         if(dir != ForgeDirection.UP && dir != ForgeDirection.DOWN) {
             direction = dir;

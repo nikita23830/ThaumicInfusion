@@ -32,7 +32,7 @@ import static drunkmafia.thaumicinfusion.common.lib.BlockInfo.*;
  * <p/>
  * See http://www.wtfpl.net/txt/copying for licence
  */
-public class EssentiaBlock extends Block implements IWorldData {
+public class EssentiaBlock extends WorldBlockData {
 
     public EssentiaBlock() {
         super(Material.rock);
@@ -108,7 +108,7 @@ public class EssentiaBlock extends Block implements IWorldData {
     }
 
     @Override
-    public void breakBlock(World world, EntityPlayer player, BlockSavable data) {
+    public void breakBlock(World world, BlockSavable data) {
         if(!(data instanceof EssentiaData))
             return;
         WorldCoord coord = data.getCoords();
@@ -138,6 +138,7 @@ public class EssentiaBlock extends Block implements IWorldData {
 
     @Override
     public BlockSavable getData(World world, ItemStack stack, WorldCoord coord) {
+        coord.dim = world.provider.dimensionId;
         world.setBlockMetadataWithNotify(coord.x, coord.y, coord.z, stack.getItemDamage(), 3);
         NBTTagCompound tagCompound = stack.getTagCompound();
         if(tagCompound != null)

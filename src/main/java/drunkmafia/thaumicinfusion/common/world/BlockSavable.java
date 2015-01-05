@@ -21,6 +21,19 @@ public abstract class BlockSavable extends Savable {
         this.coordinates = coordinates;
     }
 
+    public boolean init = false;
+
+    public void dataLoad(World world){
+        init = true;
+    }
+
+    public boolean isInit(){
+        return init;
+    }
+
+    @Override
+    public abstract boolean equals(Object obj);
+
     public WorldCoord getCoords() {
         return coordinates;
     }

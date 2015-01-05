@@ -5,12 +5,22 @@ import com.sun.org.apache.xpath.internal.operations.Bool;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.aspect.AspectHandler;
 import drunkmafia.thaumicinfusion.common.block.BlockHandler;
+import drunkmafia.thaumicinfusion.common.block.InfusedBlock;
+import drunkmafia.thaumicinfusion.common.block.TIBlocks;
 import drunkmafia.thaumicinfusion.common.util.BlockHelper;
+import drunkmafia.thaumicinfusion.common.util.InfusionHelper;
+import drunkmafia.thaumicinfusion.common.util.SafeTile;
 import drunkmafia.thaumicinfusion.common.util.WorldCoord;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
+import drunkmafia.thaumicinfusion.net.ChannelHandler;
+import gnu.trove.map.hash.THashMap;
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.network.NetHandlerPlayClient;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.play.client.C12PacketUpdateSign;
+import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import thaumcraft.api.aspects.Aspect;
@@ -19,9 +29,11 @@ import java.util.ArrayList;
 
 public class BlockData extends BlockSavable {
 
+    public static long runTime = 0;
+
     private int containingID, blockID;
     private TileEntity tile;
-    private boolean init;
+    public World world;
 
     private ArrayList<AspectEffect> dataEffects = new ArrayList<AspectEffect>();
 
@@ -40,18 +52,39 @@ public class BlockData extends BlockSavable {
         }
     }
 
-    public void initAspects(World world, int x, int y, int z){
+    @Override
+    public void dataLoad(World world) {
+        this.world = world;
+
+        WorldCoord pos = getCoords();
         for(int a = 0; a < dataEffects.size(); a++) {
             AspectEffect effect = dataEffects.get(a);
             effect.aspectInit(world, getCoords());
         }
 
-        if(getContainingBlock() instanceof ITileEntityProvider)
-            tile = getContainingBlock().createTileEntity(world, world.getBlockMetadata(x, y, z));
+        if(tile == null && getContainingBlock() instanceof ITileEntityProvider)
+            tile = getContainingBlock().createTileEntity(world, world.getBlockMetadata(pos.x, pos.y, pos.z));
 
-        if(tile != null)
-            world.setTileEntity(x, y, z, tile);
+        if(tile != null) {
+            if(!(tile instanceof SafeTile)){
+                TileEntity safeTile = BlockHandler.getSafeTile(tile.getClass());
+                if(safeTile != null){
+                    System.out.println("Safe Tile is correct");
+                    NBTTagCompound tag = new NBTTagCompound();
+                    tile.writeToNBT(tag);
+                    safeTile.readFromNBT(tag);
+                    tile = safeTile;
+                }
+            }
+            world.setTileEntity(pos.x, pos.y, pos.z, tile);
+        }
+
         init = true;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof BlockData && ((BlockData)obj).blockID == this.blockID && ((BlockData)obj).containingID == containingID;
     }
 
     public <T extends AspectEffect>T getEffect(Class<T> effect){
@@ -78,6 +111,7 @@ public class BlockData extends BlockSavable {
     @NotNull
     /** Can only be run within a method from the block class **/
     public Block runBlockMethod(){
+        long time = System.currentTimeMillis();
         StackTraceElement lastMethod = Thread.currentThread().getStackTrace()[2];
         String methName = lastMethod.getMethodName();
         if(!BlockHandler.isBlockMethod(methName))
@@ -86,7 +120,7 @@ public class BlockData extends BlockSavable {
         for (AspectEffect dataEffect : dataEffects)
             if (dataEffect.hasMethod(methName) && dataEffect.isEnabled)
                 block = dataEffect;
-
+        runTime = time - System.currentTimeMillis();
         return block == null ? getContainingBlock() : block;
     }
 
@@ -105,10 +139,6 @@ public class BlockData extends BlockSavable {
             if (dataEffect.hasMethod(methName))
                 return dataEffect;
         return null;
-    }
-
-    public boolean isInit(){
-        return init;
     }
 
     Boolean openGUI = null;
