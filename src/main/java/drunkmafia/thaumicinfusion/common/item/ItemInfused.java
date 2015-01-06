@@ -77,11 +77,17 @@ public class ItemInfused extends ItemBlock {
             if(data == null)
                 return false;
 
+            WorldCoord pos = data.getCoords();
             TIWorldData worldData = BlockHelper.getWorldData(world);
             worldData.addBlock(data);
-            int meta = data.getContainingBlock().onBlockPlaced(world, x, y, z, side, hitX, hitY, hitZ, stack.getItemDamage());
+
+            int meta = data.getContainingBlock().onBlockPlaced(world, x, y, z, side, hitX, hitY, hitZ, stack.stackTagCompound.getCompoundTag("InfuseTag").getInteger("infusedMETA"));
             if(this.placeBlockAt(stack, player, world, x, y, z, side, hitX, hitY, hitZ, meta)) {
-                BlockHelper.getData(BlockData.class, world, data.getCoords()).dataLoad(world);
+                data = BlockHelper.getData(BlockData.class, world, pos);
+                if(data == null){
+                    BlockHelper.destroyBlock(world, pos);
+                    return false;
+                }
                 world.playSoundEffect((double) ((float) x + 0.5F), (double) ((float) y + 0.5F), (double) ((float) z + 0.5F), data.getContainingBlock().stepSound.func_150496_b(), (data.getContainingBlock().stepSound.getVolume() + 1.0F) / 2.0F, data.getContainingBlock().stepSound.getPitch() * 0.8F);
                 --stack.stackSize;
             }

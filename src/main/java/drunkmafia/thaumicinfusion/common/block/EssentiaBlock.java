@@ -108,12 +108,11 @@ public class EssentiaBlock extends WorldBlockData {
     }
 
     @Override
-    public void breakBlock(World world, BlockSavable data) {
+    public void breakBlock(World world, BlockSavable data, int meta) {
         if(!(data instanceof EssentiaData))
             return;
         WorldCoord coord = data.getCoords();
 
-        int meta = world.getBlockMetadata(coord.x, coord.y, coord.z);
         ItemStack stack = new ItemStack(this, 1, meta);
         NBTTagCompound tagCompound = new NBTTagCompound();
         Aspect aspect = ((EssentiaData) data).getAspect();

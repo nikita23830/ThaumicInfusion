@@ -36,7 +36,7 @@ public abstract class WorldBlockData extends Block implements IWorldData {
         BlockSavable[] blocks = BlockHelper.getWorldData(world).getAllDatasAt(pos);
         for(BlockSavable savable : blocks)
             if(savable != null)
-                breakBlock(world, savable);
+                breakBlock(world, savable, meta);
 
         BlockHelper.destroyBlock(world, pos);
     }
@@ -48,5 +48,5 @@ public abstract class WorldBlockData extends Block implements IWorldData {
     public abstract BlockSavable getData(World world, ItemStack stack, WorldCoord coord);
 
     @Override
-    public abstract void breakBlock(World world, BlockSavable data);
+    public abstract void breakBlock(World world, BlockSavable data, int meta);
 }

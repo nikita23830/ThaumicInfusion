@@ -1,26 +1,16 @@
 package drunkmafia.thaumicinfusion.common.world;
 
 import com.sun.istack.internal.NotNull;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.aspect.AspectHandler;
 import drunkmafia.thaumicinfusion.common.block.BlockHandler;
-import drunkmafia.thaumicinfusion.common.block.InfusedBlock;
-import drunkmafia.thaumicinfusion.common.block.TIBlocks;
 import drunkmafia.thaumicinfusion.common.util.BlockHelper;
-import drunkmafia.thaumicinfusion.common.util.InfusionHelper;
-import drunkmafia.thaumicinfusion.common.util.SafeTile;
+import drunkmafia.thaumicinfusion.common.util.SafeClassGenerator;
 import drunkmafia.thaumicinfusion.common.util.WorldCoord;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
-import drunkmafia.thaumicinfusion.net.ChannelHandler;
-import gnu.trove.map.hash.THashMap;
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.network.NetHandlerPlayClient;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.play.client.C12PacketUpdateSign;
-import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import thaumcraft.api.aspects.Aspect;
@@ -66,17 +56,19 @@ public class BlockData extends BlockSavable {
             tile = getContainingBlock().createTileEntity(world, world.getBlockMetadata(pos.x, pos.y, pos.z));
 
         if(tile != null) {
-            if(!(tile instanceof SafeTile)){
+            if(!(tile instanceof SafeClassGenerator.SafeClass)){
                 TileEntity safeTile = BlockHandler.getSafeTile(tile.getClass());
                 if(safeTile != null){
-                    System.out.println("Safe Tile is correct");
                     NBTTagCompound tag = new NBTTagCompound();
                     tile.writeToNBT(tag);
                     safeTile.readFromNBT(tag);
                     tile = safeTile;
                 }
             }
-            world.setTileEntity(pos.x, pos.y, pos.z, tile);
+            if(tile instanceof SafeClassGenerator.SafeClass)
+                world.setTileEntity(pos.x, pos.y, pos.z, tile);
+            else if(!world.isRemote)
+                BlockHelper.destroyBlock(world, pos);
         }
 
         init = true;

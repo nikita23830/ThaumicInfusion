@@ -1,26 +1,15 @@
 package drunkmafia.thaumicinfusion.common.block;
 
-import cpw.mods.fml.common.Loader;
-import cpw.mods.fml.common.ModContainer;
 import cpw.mods.fml.common.registry.GameRegistry;
 import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
-import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
-import drunkmafia.thaumicinfusion.common.util.ClassFinder;
-import drunkmafia.thaumicinfusion.common.util.SafeTile;
-import javassist.ClassPool;
-import javassist.CtClass;
-import javassist.CtMethod;
-import javassist.CtNewMethod;
-import javassist.bytecode.AttributeInfo;
+import drunkmafia.thaumicinfusion.common.util.SafeClassGenerator;
 import net.minecraft.block.Block;
-import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.item.Item;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.config.Configuration;
 import org.apache.logging.log4j.Logger;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
@@ -91,29 +80,28 @@ public class BlockHandler {
         config.save();
         ThaumicInfusion.instance.logger.info("Blacklisted: " + blacklistedBlocks.size() + " out of " + Block.blockRegistry.getKeys().size());
     }
-    //TODO:
+
+
     public static void generateSafeTiles(){
         Logger logger = ThaumicInfusion.getLogger();
+        logger.info("Generating Safe version of TE's");
         long start = System.currentTimeMillis();
+        int size = 0;
         ArrayList<Class<? extends TileEntity>> safeTiles = new ArrayList<Class<? extends TileEntity>>();
         try{
-            logger.info("Starting Generation of Safe Tileentities");
             Field tileentityMapping = TileEntity.class.getDeclaredField("nameToClassMap");
             tileentityMapping.setAccessible(true);
 
-            ClassPool cp = ClassPool.getDefault();
+            SafeClassGenerator generator = new SafeClassGenerator();
+            generator.lowestSuper(generator.getCtClass(TileEntity.class));
             Map<String, Class> tiles = (Map<String, Class>) tileentityMapping.get(null);
-
+            size = tiles.size();
             Iterator<String> iterator = tiles.keySet().iterator();
 
             while(iterator.hasNext()){
                 Class tileClass = tiles.get(iterator.next());
-                CtClass ctTileClass = cp.get(tileClass.getName());
-                CtClass ctTileSafe = makeTileSafe(ctTileClass);
-
-                Class safeTile = ctTileSafe.toClass();
+                Class safeTile = generator.generateSafeClass(generator.getCtClass(tileClass));
                 safeTiles.add(safeTile);
-
                 safeTileEntities.put(tileClass, safeTile);
             }
         }catch (Throwable e){
@@ -125,39 +113,7 @@ public class BlockHandler {
                 GameRegistry.registerTileEntity(tile, tile.getSimpleName() + "_Tile");
             }catch (Throwable e){}
         }
-
-        logger.info("Finished Generation: " + ((start - System.currentTimeMillis()) / 1000L));
-    }
-
-    static CtClass exception;
-
-    static CtClass makeTileSafe(CtClass orginal){
-        try {
-            ClassPool cp = ClassPool.getDefault();
-            CtClass safeTileClass = cp.makeClass(new ByteArrayInputStream(orginal.toBytecode()), false);
-
-            safeTileClass.stopPruning(true);
-            safeTileClass.setName(safeTileClass.getName() + "Safe");
-            safeTileClass.setSuperclass(orginal);
-            safeTileClass.addInterface(cp.get(SafeTile.class.getName()));
-
-
-            for (CtMethod method : safeTileClass.getDeclaredMethods())
-                addCatchToMethod(method);
-            safeTileClass.stopPruning(false);
-            return safeTileClass;
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-        return orginal;
-    }
-
-    static void addCatchToMethod(CtMethod method){
-        try {
-            if(exception == null)
-                exception = ClassPool.getDefault().get(Exception.class.getName());
-            method.addCatch("{drunkmafia.thaumicinfusion.common.block.InfusedBlock.handleError($e, worldObj, xCoord, yCoord, zCoord); throw $e;}", exception);
-        }catch (Exception e){}
+        logger.info("Finished the generation of safe TE's, " + safeTiles.size() + " out of " + size + " were generated and it took " + (System.currentTimeMillis() - start) + " ms");
     }
 
     public static TileEntity getSafeTile(Class<? extends TileEntity> clazz){

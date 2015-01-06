@@ -62,14 +62,13 @@ public class ThaumicInfusion {
         MinecraftForge.EVENT_BUS.register(new CommonEventContainer());
         FMLCommonHandler.instance().bus().register(new TickEventHandler());
         proxy.initRenderers();
-        BlockHandler.generateSafeTiles();
     }
 
     @EventHandler
     public void postInit(FMLPostInitializationEvent event){
         AspectHandler.getInstance().postInit();
-
         ThaumcraftIntergration.init();
+        BlockHandler.generateSafeTiles();
     }
 
     @EventHandler

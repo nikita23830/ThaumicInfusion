@@ -46,7 +46,7 @@ public final class BlockHelper {
     }
 
     public static <T>T getData(Class<T> type, IBlockAccess access, WorldCoord coords) {
-        World world = getWorld(access);
+        World world = getWorld(coords, access);
         if(world == null)
             return null;
         return getData(type, world, coords);
@@ -78,8 +78,12 @@ public final class BlockHelper {
 
     static HashMap<IBlockAccess, World> worlds = new HashMap<IBlockAccess, World>();
 
-    public static World getWorld(IBlockAccess blockAccess) {
+    public static World getWorld(WorldCoord pos, IBlockAccess blockAccess) {
         if(ThaumicInfusion.instance.isServer) {
+            TileEntity tile = blockAccess.getTileEntity(pos.x, pos.y, pos.z);
+            if(tile != null)
+                return tile.getWorldObj();
+
             if (blockAccess instanceof ChunkCache) {
                 if(worldObj == null) {
                     try {
@@ -103,8 +107,9 @@ public final class BlockHelper {
                 }
             } else if (blockAccess instanceof World)
                 return (World) blockAccess;
-        }
-        return ChannelHandler.getClientWorld();
+        }else
+            return ChannelHandler.getClientWorld();
+        return null;
     }
 
     public static ForgeDirection dirFromSide(int side){

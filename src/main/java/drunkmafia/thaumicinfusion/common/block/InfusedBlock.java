@@ -12,6 +12,7 @@ import drunkmafia.thaumicinfusion.common.util.WorldCoord;
 import drunkmafia.thaumicinfusion.common.world.BlockData;
 import drunkmafia.thaumicinfusion.common.world.BlockSavable;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
+import drunkmafia.thaumicinfusion.net.packet.client.DestroyBlockPacketS;
 import drunkmafia.thaumicinfusion.net.packet.client.RequestBlockPacketS;
 import drunkmafia.thaumicinfusion.net.packet.server.PlaySoundPacketC;
 import net.minecraft.block.Block;
@@ -89,21 +90,6 @@ public class InfusedBlock extends WorldBlockData implements ITileEntityProvider,
         return InfusionHelper.getInfusedItemStack(block.getAspects(), new ItemStack(block.getContainingBlock()), 1, world.getBlockMetadata(pos.x, pos.y, pos.z));
     }
 
-    public static void handleError(Exception e, World world, int x, int y, int z){
-        System.out.println("Error");
-    }
-
-    public static void handleError(Exception e, World world, BlockData data, boolean shouldDestroy) {
-        String methName = Thread.currentThread().getStackTrace()[2].getMethodName();
-        Logger logger = ThaumicInfusion.getLogger();
-        logger.error("Block at: " + data.getCoords().toString() + " threw error while running: " + methName + " in block: " + data.getContainingBlock() + " it is advised that this block is removed from the whitelist in the config.", e);
-
-        if (shouldDestroy) {
-            logger.info("This has been thrown server side and has been removed from the world to pervert further issues");
-            BlockHelper.destroyBlock(world, data.getCoords());
-        }
-    }
-
     @Override
     public boolean shouldUsePlaceEvent() {
         return false;
@@ -112,14 +98,13 @@ public class InfusedBlock extends WorldBlockData implements ITileEntityProvider,
     @Override
     public BlockSavable getData(World world, ItemStack stack, WorldCoord coord) {
         coord.dim = world.provider.dimensionId;
-        world.setBlockMetadataWithNotify(coord.x, coord.y, coord.z, 3, stack.getItemDamage());
         BlockData data = BlockHelper.getDataFromStack(stack, coord.x, coord.y, coord.z);
         data.dataLoad(world);
         return data;
     }
 
     @Override
-    public void breakBlock(World world, BlockSavable data) {
+    public void breakBlock(World world, BlockSavable data, int meta) {
         if (data == null || !(data instanceof BlockData))
             return;
 
@@ -133,7 +118,7 @@ public class InfusedBlock extends WorldBlockData implements ITileEntityProvider,
         SoundType type = block.getContainingBlock().stepSound;
         ChannelHandler.network.sendToAllAround(new PlaySoundPacketC(pos.x, pos.y, pos.z, type.getBreakSound(), (type.getVolume() + 1.0F) / 2.0F, type.getPitch() * 0.8F), new NetworkRegistry.TargetPoint(world.provider.dimensionId, pos.x, pos.y, pos.z, 10));
 
-        ItemStack stack = InfusionHelper.getInfusedItemStack(block.getAspects(), new ItemStack(block.getContainingBlock()), 1, world.getBlockMetadata(pos.x, pos.y, pos.z));
+        ItemStack stack = InfusionHelper.getInfusedItemStack(block.getAspects(), new ItemStack(block.getContainingBlock()), 1, meta);
         if (stack != null)
             super.dropBlockAsItem(world, pos.x, pos.y, pos.z, stack);
     }
@@ -320,10 +305,6 @@ public class InfusedBlock extends WorldBlockData implements ITileEntityProvider,
 
     @Override
     public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float hitX, float hitY, float hitZ) {
-        TileEntity tile = world.getTileEntity(x, y, z);
-        if(tile != null)
-            System.out.println(tile);
-
         BlockData blockData = BlockHelper.getData(BlockData.class, world, new WorldCoord(x, y, z));
         if (isBlockData(blockData)) {
             ItemStack stack = player.getHeldItem();
@@ -489,8 +470,12 @@ public class InfusedBlock extends WorldBlockData implements ITileEntityProvider,
     public int getLightValue(IBlockAccess access, int x, int y, int z) {
         BlockData blockData = BlockHelper.getData(BlockData.class, access, new WorldCoord(x, y, z));
         if (isBlockData(blockData)) {
-            Block effect = blockData.runAspectMethod();
-            return effect != null ? effect.getLightValue(access, x, y, z) : 0;
+            try {
+                Block effect = blockData.runAspectMethod();
+                return effect != null ? effect.getLightValue(access, x, y, z) : 0;
+            }catch (Exception e){
+                handleError(e, BlockHelper.getWorld(blockData.getCoords(), access), blockData, true);
+            }
         }
         return 0;
     }
@@ -498,24 +483,39 @@ public class InfusedBlock extends WorldBlockData implements ITileEntityProvider,
     @Override
     public int getLightOpacity(IBlockAccess access, int x, int y, int z) {
         BlockData blockData = BlockHelper.getData(BlockData.class, access, new WorldCoord(x, y, z));
-        if (isBlockData(blockData))
-            return blockData.runBlockMethod().getLightOpacity(access, x, y, z);
+        if (isBlockData(blockData)) {
+            try {
+                return blockData.runBlockMethod().getLightOpacity(access, x, y, z);
+            }catch (Exception e){
+                handleError(e, BlockHelper.getWorld(blockData.getCoords(), access), blockData, true);
+            }
+        }
         return getLightOpacity();
     }
 
     @Override
     public int getFlammability(IBlockAccess access, int x, int y, int z, ForgeDirection face) {
         BlockData blockData = BlockHelper.getData(BlockData.class, access, new WorldCoord(x, y, z));
-        if (isBlockData(blockData))
-            return blockData.runBlockMethod().getFlammability(access, x, y, z, face);
+        if (isBlockData(blockData)) {
+            try {
+                return blockData.runBlockMethod().getFlammability(access, x, y, z, face);
+            }catch (Exception e){
+                handleError(e, BlockHelper.getWorld(blockData.getCoords(), access), blockData, true);
+            }
+        }
         return 0;
     }
 
     @Override
     public int getFireSpreadSpeed(IBlockAccess access, int x, int y, int z, ForgeDirection face) {
         BlockData blockData = BlockHelper.getData(BlockData.class, access, new WorldCoord(x, y, z));
-        if (isBlockData(blockData))
-            return blockData.runBlockMethod().getFireSpreadSpeed(access, x, y, z, face);
+        if (isBlockData(blockData)) {
+            try {
+                return blockData.runBlockMethod().getFireSpreadSpeed(access, x, y, z, face);
+            }catch (Exception e){
+                handleError(e, BlockHelper.getWorld(blockData.getCoords(), access), blockData, true);
+            }
+        }
 
         return 0;
     }
@@ -889,5 +889,35 @@ public class InfusedBlock extends WorldBlockData implements ITileEntityProvider,
      * ===============================================
      * ===== End Of Infused Block Functionality ======
      * ===============================================
+     */
+
+    /**
+     * ==================================================
+     * ===== Start Of Infused Block Error Handling ======
+     * ==================================================
+     */
+
+    public static void handleError(Exception e, TileEntity entity){
+        handleError(e, entity.getWorldObj(), BlockHelper.getData(BlockData.class, entity.getWorldObj(), WorldCoord.get(entity.xCoord, entity.yCoord, entity.zCoord)), true);
+    }
+
+    public static void handleError(Exception e, World world, BlockData data, boolean shouldDestroy) {
+        String methName = Thread.currentThread().getStackTrace()[2].getMethodName();
+        Logger logger = ThaumicInfusion.getLogger();
+        logger.error("Block at: " + data.getCoords().toString() + " threw error while running: " + methName + " in block: " + data.getContainingBlock().getLocalizedName() + " it is advised that this block is added to the blacklist in the config.", e);
+
+        if (shouldDestroy) {
+            logger.info("Block has been destroyed, to prevent this error from happening again");
+            if(!world.isRemote)
+                BlockHelper.destroyBlock(world, data.getCoords());
+            else
+                ChannelHandler.network.sendToServer(new DestroyBlockPacketS(data.getCoords()));
+        }
+    }
+
+    /**
+     * ================================================
+     * ===== End Of Infused Block Error Handling ======
+     * ================================================
      */
 }

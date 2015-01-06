@@ -14,5 +14,5 @@ import net.minecraft.world.World;
 public interface IWorldData {
     public boolean shouldUsePlaceEvent();
     public BlockSavable getData(World world, ItemStack stack, WorldCoord coord);
-    public void breakBlock(World world, BlockSavable data);
+    public void breakBlock(World world, BlockSavable data, int meta);
 }

@@ -8,5 +8,4 @@ import net.minecraft.tileentity.TileEntity;
  */
 public class EffectTile extends TileEntity {
 
-
 }
