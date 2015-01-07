@@ -1,4 +1,4 @@
-package drunkmafia.thaumicinfusion.common.util;
+package drunkmafia.thaumicinfusion.common.util.helper;
 
 /**
  * Created by DrunkMafia on 31/10/2014.

@@ -1,4 +1,4 @@
-package drunkmafia.thaumicinfusion.common.util;
+package drunkmafia.thaumicinfusion.common.world;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.nbt.NBTTagCompound;

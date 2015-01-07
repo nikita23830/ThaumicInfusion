@@ -30,10 +30,10 @@ public class InfusedItemRenderer implements IItemRenderer {
         if (tag == null || !tag.hasKey("infusedID"))
             return;
 
-        ItemStack infused = new ItemStack(Block.getBlockById(tag.getInteger("infusedID")), 1, tag.getInteger("infusedMETA"));
+        ItemStack infused = new ItemStack(Block.getBlockById(tag.getInteger("infusedID")), 1, item.getItemDamage());
         EntityPlayer player = FMLClientHandler.instance().getClient().thePlayer;
 
-        if(player == null || infused == null || Block.getBlockFromItem(infused.getItem()) == null || RenderManager.instance == null || RenderManager.instance.itemRenderer == null)
+        if(player == null || Block.getBlockFromItem(infused.getItem()) == null || RenderManager.instance == null || RenderManager.instance.itemRenderer == null)
             return;
 
         GL11.glPushMatrix();

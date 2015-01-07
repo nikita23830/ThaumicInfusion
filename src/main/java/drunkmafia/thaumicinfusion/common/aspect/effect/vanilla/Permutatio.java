@@ -2,7 +2,7 @@ package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.aspect.tileentity.PermutatioTile;
-import drunkmafia.thaumicinfusion.common.util.WorldCoord;
+import drunkmafia.thaumicinfusion.common.world.WorldCoord;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;

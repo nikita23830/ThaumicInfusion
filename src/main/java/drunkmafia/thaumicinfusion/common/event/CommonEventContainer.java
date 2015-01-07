@@ -2,19 +2,11 @@ package drunkmafia.thaumicinfusion.common.event;
 
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
-import drunkmafia.thaumicinfusion.common.block.IWorldData;
-import drunkmafia.thaumicinfusion.common.util.BlockHelper;
-import drunkmafia.thaumicinfusion.common.util.WorldCoord;
+import drunkmafia.thaumicinfusion.common.util.helper.BlockHelper;
 import drunkmafia.thaumicinfusion.common.world.BlockData;
 import drunkmafia.thaumicinfusion.common.world.BlockSavable;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
-import net.minecraft.block.Block;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldSavedData;
-import net.minecraft.world.biome.BiomeCache;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.event.world.WorldEvent;
 
 /**

@@ -2,7 +2,7 @@ package drunkmafia.thaumicinfusion.net.packet;
 
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
-import drunkmafia.thaumicinfusion.common.util.WorldCoord;
+import drunkmafia.thaumicinfusion.common.world.WorldCoord;
 import io.netty.buffer.ByteBuf;
 import net.minecraftforge.common.config.Configuration;
 

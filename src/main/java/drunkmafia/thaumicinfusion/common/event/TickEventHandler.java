@@ -6,7 +6,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
-import drunkmafia.thaumicinfusion.common.util.BlockHelper;
+import drunkmafia.thaumicinfusion.common.util.helper.BlockHelper;
 import drunkmafia.thaumicinfusion.common.world.BlockData;
 import drunkmafia.thaumicinfusion.common.world.BlockSavable;
 import net.minecraft.client.Minecraft;

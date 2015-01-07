@@ -1,16 +1,12 @@
 package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
-import drunkmafia.thaumicinfusion.common.util.WorldCoord;
+import drunkmafia.thaumicinfusion.common.world.WorldCoord;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
-import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.world.World;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Map;
 import java.util.Random;
 
 /**

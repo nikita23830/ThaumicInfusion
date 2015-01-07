@@ -1,5 +1,6 @@
 package drunkmafia.thaumicinfusion.common.command;
 
+import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import drunkmafia.thaumicinfusion.common.block.BlockHandler;
 import net.minecraft.block.Block;
 import net.minecraft.command.CommandBase;
@@ -23,7 +24,7 @@ public class AddInfusionCommand extends CommandBase {
 
     @Override
     public String getCommandName() {
-        return "add.infusion";
+        return ThaumicInfusion.translate("add.infusion");
     }
 
     @Override

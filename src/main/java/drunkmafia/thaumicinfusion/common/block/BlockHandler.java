@@ -2,7 +2,7 @@ package drunkmafia.thaumicinfusion.common.block;
 
 import cpw.mods.fml.common.registry.GameRegistry;
 import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
-import drunkmafia.thaumicinfusion.common.util.SafeClassGenerator;
+import drunkmafia.thaumicinfusion.common.util.classes.SafeClassGenerator;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.tileentity.TileEntity;
@@ -10,7 +10,6 @@ import net.minecraftforge.common.config.Configuration;
 import org.apache.logging.log4j.Logger;
 
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
 
@@ -68,20 +67,20 @@ public class BlockHandler {
     public static void blacklistBlocks(){
         Configuration config = ThaumicInfusion.instance.config;
         config.load();
-        config.addCustomCategoryComment("Blocks", "Blocks that are allowed to be infused - NOTE: Will use server side config to decide, no conflicts will arise if configs are different");
+        config.addCustomCategoryComment("Blocks", "Blocks that are not allowed to be infused - NOTE: Will use server side config to decide, no conflicts will arise if configs are different");
 
         Iterator blocksIter = Block.blockRegistry.iterator();
         while (blocksIter.hasNext()) {
             Block block = (Block) blocksIter.next();
-            if (config.hasKey("Blocks", block.getLocalizedName()))
-                blacklistedBlocks.add(block.getUnlocalizedName());
+            if (config.get("Blocks", block.getLocalizedName(), false).getBoolean())
+                blacklistedBlocks.add(block.getUnlocalizedName().toLowerCase());
         }
 
         config.save();
         ThaumicInfusion.instance.logger.info("Blacklisted: " + blacklistedBlocks.size() + " out of " + Block.blockRegistry.getKeys().size());
     }
 
-
+    @SuppressWarnings("unchecked")
     public static void generateSafeTiles(){
         Logger logger = ThaumicInfusion.getLogger();
         logger.info("Generating Safe version of TE's");
@@ -89,12 +88,11 @@ public class BlockHandler {
         int size = 0;
         ArrayList<Class<? extends TileEntity>> safeTiles = new ArrayList<Class<? extends TileEntity>>();
         try{
-            Field tileentityMapping = TileEntity.class.getDeclaredField("nameToClassMap");
-            tileentityMapping.setAccessible(true);
-
             SafeClassGenerator generator = new SafeClassGenerator();
             generator.lowestSuper(generator.getCtClass(TileEntity.class));
-            Map<String, Class> tiles = (Map<String, Class>) tileentityMapping.get(null);
+            generator.setLog(logger);
+
+            Map<String, Class> tiles = (Map<String, Class>) TileEntity.nameToClassMap;
             size = tiles.size();
             Iterator<String> iterator = tiles.keySet().iterator();
 
@@ -113,7 +111,7 @@ public class BlockHandler {
                 GameRegistry.registerTileEntity(tile, tile.getSimpleName() + "_Tile");
             }catch (Throwable e){}
         }
-        logger.info("Finished the generation of safe TE's, " + safeTiles.size() + " out of " + size + " were generated and it took " + (System.currentTimeMillis() - start) + " ms");
+        logger.info("Finished the generation of safe TE, " + safeTiles.size() + " out of " + size + " were generated and it took " + (System.currentTimeMillis() - start) + " ms");
     }
 
     public static TileEntity getSafeTile(Class<? extends TileEntity> clazz){
@@ -131,6 +129,19 @@ public class BlockHandler {
             if(unlocal.toLowerCase().matches(block.getUnlocalizedName().toLowerCase()))
                 return true;
         return false;
+    }
+
+    public static void banBlock(Block block){
+        Configuration config = ThaumicInfusion.instance.config;
+        config.load();
+        boolean ban = !config.get("Blocks", block.getLocalizedName(), false).getBoolean();
+        config.get("Blocks", block.getLocalizedName(), false).set(ban);
+
+        if(!ban)
+            blacklistedBlocks.remove(block.getUnlocalizedName().toLowerCase());
+        else
+            blacklistedBlocks.add(block.getUnlocalizedName().toLowerCase());
+        config.save();
     }
 
     public static boolean hasBlock(String unlocal){

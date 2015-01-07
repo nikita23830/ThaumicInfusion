@@ -17,16 +17,12 @@ import drunkmafia.thaumicinfusion.common.block.BlockHandler;
 import drunkmafia.thaumicinfusion.common.block.InfusedBlock;
 import drunkmafia.thaumicinfusion.common.block.TIBlocks;
 import drunkmafia.thaumicinfusion.common.block.tile.InfusionCoreTile;
-import drunkmafia.thaumicinfusion.common.util.WorldCoord;
+import drunkmafia.thaumicinfusion.common.world.WorldCoord;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.world.World;
 import net.minecraftforge.client.MinecraftForgeClient;
-import net.minecraftforge.client.model.AdvancedModelLoader;
-import net.minecraftforge.client.model.IModelCustom;
 import net.minecraftforge.common.MinecraftForge;
-
-import static drunkmafia.thaumicinfusion.common.lib.BlockInfo.infusionCore_Model;
 
 public class ClientProxy extends CommonProxy {
 

@@ -1,12 +1,10 @@
 package drunkmafia.thaumicinfusion.common.world;
 
-import com.sun.istack.internal.NotNull;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.aspect.AspectHandler;
 import drunkmafia.thaumicinfusion.common.block.BlockHandler;
-import drunkmafia.thaumicinfusion.common.util.BlockHelper;
-import drunkmafia.thaumicinfusion.common.util.SafeClassGenerator;
-import drunkmafia.thaumicinfusion.common.util.WorldCoord;
+import drunkmafia.thaumicinfusion.common.util.helper.BlockHelper;
+import drunkmafia.thaumicinfusion.common.util.classes.SafeClassGenerator;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
@@ -45,6 +43,11 @@ public class BlockData extends BlockSavable {
     @Override
     public void dataLoad(World world) {
         this.world = world;
+
+        if(!world.isRemote && BlockHandler.isBlockBlacklisted(getContainingBlock())){
+            BlockHelper.destroyBlock(world, getCoords());
+            return;
+        }
 
         WorldCoord pos = getCoords();
         for(int a = 0; a < dataEffects.size(); a++) {
@@ -100,7 +103,6 @@ public class BlockData extends BlockSavable {
         return effects;
     }
 
-    @NotNull
     /** Can only be run within a method from the block class **/
     public Block runBlockMethod(){
         long time = System.currentTimeMillis();

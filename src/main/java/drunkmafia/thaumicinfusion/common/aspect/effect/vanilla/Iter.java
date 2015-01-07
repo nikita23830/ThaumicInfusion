@@ -1,9 +1,8 @@
 package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
-import drunkmafia.thaumicinfusion.client.gui.EffectGUI;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
-import drunkmafia.thaumicinfusion.common.util.BlockHelper;
-import drunkmafia.thaumicinfusion.common.util.WorldCoord;
+import drunkmafia.thaumicinfusion.common.util.helper.BlockHelper;
+import drunkmafia.thaumicinfusion.common.world.WorldCoord;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 import drunkmafia.thaumicinfusion.common.world.BlockData;
 import net.minecraft.entity.Entity;
@@ -11,7 +10,10 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.World;
+
+import java.util.ArrayList;
 
 /**
  * Created by DrunkMafia on 05/11/2014.
@@ -20,19 +22,21 @@ import net.minecraft.world.World;
 @Effect(aspect = ("iter"), cost = 4)
 public class Iter extends AspectEffect {
 
-    public static long maxCooldown = 100L;
+    public static long maxCooldown = 10000L;
     long startCooldown;
 
     WorldCoord destination;
 
     @Override
-    public void onEntityCollidedWithBlock(World world, int x, int y, int z, Entity ent) {
-        teleportEntity(ent);
-    }
+    public void updateBlock(World world) {
+        if(world.isRemote)
+            return;
 
-    @Override
-    public void onEntityWalking(World world, int x, int y, int z, Entity ent) {
-        teleportEntity(ent);
+        WorldCoord pos = getPos();
+        AxisAlignedBB bb = AxisAlignedBB.getBoundingBox(pos.x, pos.y, pos.z, pos.x + 1, pos.y + 2, pos.z + 1);
+        ArrayList<Entity> ents = (ArrayList<Entity>) world.getEntitiesWithinAABB(Entity.class, bb);
+        for(Entity ent : ents)
+            teleportEntity(ent);
     }
 
     @Override
@@ -91,8 +95,9 @@ public class Iter extends AspectEffect {
         if(entity.worldObj.isRemote || destination == null)
                 return;
 
-        if(entity instanceof EntityLivingBase && startCooldown < System.currentTimeMillis() + maxCooldown && safeToTeleport(entity.worldObj)) {
-            startCooldown = System.currentTimeMillis();
+        if(entity instanceof EntityLivingBase && startCooldown < System.currentTimeMillis() && safeToTeleport(entity.worldObj)) {
+            startCooldown = System.currentTimeMillis() + maxCooldown;
+            BlockHelper.getData(BlockData.class, entity.worldObj, destination).getEffect(Iter.class).startCooldown = startCooldown;
             ((EntityLivingBase) entity).setPositionAndUpdate(destination.x + 0.5F, destination.y + 1F, destination.z + 0.5F);
         }
     }

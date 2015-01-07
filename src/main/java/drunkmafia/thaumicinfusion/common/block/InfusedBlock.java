@@ -6,9 +6,9 @@ import cpw.mods.fml.relauncher.SideOnly;
 import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.lib.BlockInfo;
-import drunkmafia.thaumicinfusion.common.util.BlockHelper;
-import drunkmafia.thaumicinfusion.common.util.InfusionHelper;
-import drunkmafia.thaumicinfusion.common.util.WorldCoord;
+import drunkmafia.thaumicinfusion.common.util.helper.BlockHelper;
+import drunkmafia.thaumicinfusion.common.util.helper.InfusionHelper;
+import drunkmafia.thaumicinfusion.common.world.WorldCoord;
 import drunkmafia.thaumicinfusion.common.world.BlockData;
 import drunkmafia.thaumicinfusion.common.world.BlockSavable;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
@@ -897,10 +897,24 @@ public class InfusedBlock extends WorldBlockData implements ITileEntityProvider,
      * ==================================================
      */
 
+    /**
+     * Used by the generated tile entities
+     *
+     * @param e Exception thrown
+     * @param entity Tile entity that caused the exception
+     */
     public static void handleError(Exception e, TileEntity entity){
         handleError(e, entity.getWorldObj(), BlockHelper.getData(BlockData.class, entity.getWorldObj(), WorldCoord.get(entity.xCoord, entity.yCoord, entity.zCoord)), true);
     }
 
+    /**
+     * Handles all errors thrown by block, tile entity or event
+     *
+     * @param e Exception thrown
+     * @param world The World it occured in
+     * @param data The data of the block
+     * @param shouldDestroy Will destroy the block if true
+     */
     public static void handleError(Exception e, World world, BlockData data, boolean shouldDestroy) {
         String methName = Thread.currentThread().getStackTrace()[2].getMethodName();
         Logger logger = ThaumicInfusion.getLogger();

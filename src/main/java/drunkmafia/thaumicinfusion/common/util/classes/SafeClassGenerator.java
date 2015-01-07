@@ -1,14 +1,18 @@
-package drunkmafia.thaumicinfusion.common.util;
+package drunkmafia.thaumicinfusion.common.util.classes;
 
-import javassist.ClassPool;
-import javassist.CtClass;
-import javassist.CtField;
-import javassist.CtMethod;
-import org.apache.logging.log4j.core.Logger;
+import cpw.mods.fml.common.*;
+import cpw.mods.fml.common.Loader;
+import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
+import javassist.*;
+import javassist.bytecode.AccessFlag;
+import org.apache.logging.log4j.Logger;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Set;
 
 
 /**
@@ -21,7 +25,6 @@ public class SafeClassGenerator {
     Logger log;
     ClassPool cp;
 
-    static final int[] bannedAcessLevels = {0, 9, 16};
     static final HashMap<String, String> primitiveReturn = new HashMap<String, String>();
 
     CtClass lowestSuper;
@@ -35,13 +38,17 @@ public class SafeClassGenerator {
         primitiveReturn.put("byte", "0");
         primitiveReturn.put("short", "0");
         primitiveReturn.put("int", "0");
-        primitiveReturn.put("float", "0");
-        primitiveReturn.put("double", "0");
+        primitiveReturn.put("float", "0F");
+        primitiveReturn.put("double", "0.0D");
         primitiveReturn.put("string", "");
     }
 
     public void lowestSuper(CtClass ct){
         lowestSuper = ct;
+    }
+
+    public void setLog(Logger log){
+        this.log = log;
     }
 
     public Class generateSafeClass(CtClass orginal) {
@@ -53,24 +60,28 @@ public class SafeClassGenerator {
 
         try{
             CtMethod[] allMethods = getMethodsFromSuper(orginal);
-            CtClass safe = cp.makeClass(orginal.getName() + "Safe");
+
+            CtClass safe = cp.makeClass(orginal.getName() + "Safe", orginal);
             CtClass exception = getCtClass(Exception.class);
 
             if(safe.isFrozen())
                 safe.defrost();
-
-            safe.setSuperclass(orginal);
+            safe.stopPruning(true);
             safe.addInterface(getCtClass(SafeClass.class));
+
             for(CtMethod method : allMethods){
                 try{
                     CtMethod safeMethod = new CtMethod(method.getReturnType(), method.getName(), method.getParameterTypes(), safe);
-
-                    boolean hasReturn = !safeMethod.getReturnType().toString().contains("void");
+                    safeMethod.getMethodInfo().setAccessFlags(method.getMethodInfo().getAccessFlags());
+                    boolean hasReturn = !safeMethod.getReturnType().getName().equals("void");
                     safeMethod.setBody("{ " + (hasReturn ? " return " : "") + "super." + safeMethod.getName() + "($$); }");
 
-                    String retType = safeMethod.getReturnType().getName(), ret = "(" + retType + ")null";
-                    if(primitiveReturn.containsKey(retType))
+                    String retType = safeMethod.getReturnType().getName(), ret;
+
+                    if (primitiveReturn.containsKey(retType))
                         ret = primitiveReturn.get(retType);
+                    else
+                        ret = "(" + retType + ")null";
 
                     safeMethod.addCatch("{ drunkmafia.thaumicinfusion.common.block.InfusedBlock.handleError($e, this); " + (hasReturn ? " return " + ret + "; }" : "return; }"), exception);
                     safe.addMethod(safeMethod);
@@ -79,7 +90,7 @@ public class SafeClassGenerator {
                         log.error("Method: " + method.getName() + " \n Class: " + method.getDeclaringClass().getName() + " \n Access Level: " + method.getMethodInfo().getAccessFlags() + "\n Error Message: " + e.getMessage());
                 }
             }
-            safe.writeFile("Test");
+
             return safe.toClass();
         }catch(Exception e){
             if(log != null)
@@ -89,26 +100,31 @@ public class SafeClassGenerator {
     }
 
     public CtClass getCtClass(Class c){
-        if(cp == null)
-            cp = ClassPool.getDefault();
         try{
+            cp.appendClassPath(new javassist.LoaderClassPath(c.getClassLoader()));
             return cp.get(c.getName());
-        }catch(Exception e){
-           if(log != null)
-               log.info("Error getting: " + c.getName());
+        }catch (Exception e){
+            if(log != null)
+                log.error("Error getting: " + c.getName(), e);
         }
         return null;
     }
 
     CtMethod[] getMethodsFromSuper(CtClass startSuper){
+        ArrayList<CtMethod> methodsBlack = new ArrayList<CtMethod>();
         ArrayList<CtMethod> methods = new ArrayList<CtMethod>();
         try{
             CtClass currentSuper = startSuper;
 
             while(currentSuper != lowestSuper){
                 for(CtMethod method : currentSuper.getDeclaredMethods()){
-                    if(hasMethodInArray(methods, method) || !isMethodCompatible(method))
+                    if(getMethodInArray(methodsBlack, method) != null)
                         continue;
+
+                    if(getMethodInArray(methods, method) != null || !isMethodCompatible(method) || method.isEmpty()) {
+                        methodsBlack.add(method);
+                        continue;
+                    }
                     methods.add(method);
                 }
                 currentSuper = currentSuper.getSuperclass();
@@ -119,39 +135,19 @@ public class SafeClassGenerator {
         return methods.toArray(new CtMethod[methods.size()]);
     }
 
-    CtField[] getFieldsFromSuper(CtClass startSuper){
-        ArrayList<CtField> fields = new ArrayList<CtField>();
-        try{
-            CtClass currentSuper = startSuper;
-            while(currentSuper != lowestSuper){
-                for(CtField field : currentSuper.getDeclaredFields()){
-                    if(fields.contains(field))
-                        continue;
-                    fields.add(field);
-                }
-                currentSuper = currentSuper.getSuperclass();
-            }
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-        return fields.toArray(new CtField[fields.size()]);
-    }
-
-    boolean hasMethodInArray(ArrayList<CtMethod> list, CtMethod method){
+    CtMethod getMethodInArray(ArrayList<CtMethod> list, CtMethod method){
         for(CtMethod methList : list) {
             try {
                 if (methList.getName().matches(method.getName()) && methList.getReturnType() == method.getReturnType() && methList.getParameterTypes().length == method.getParameterTypes().length)
-                    return true;
+                    return methList;
             }catch (Exception e){}
         }
-        return false;
+        return null;
     }
 
     boolean isMethodCompatible(CtMethod meth){
-        for(int level : bannedAcessLevels)
-            if (level == meth.getMethodInfo().getAccessFlags())
-                return false;
-        return true;
+        String methCheck = meth.toString();
+        return (methCheck.contains("public") || methCheck.contains("protected")) && !methCheck.contains("final") && !methCheck.contains("static") && !methCheck.contains("abstract");
     }
 
     public static interface SafeClass{}

@@ -1,8 +1,6 @@
 package drunkmafia.thaumicinfusion.common.world;
 
-import drunkmafia.thaumicinfusion.common.util.WorldCoord;
 import gnu.trove.map.hash.THashMap;
-import net.minecraft.block.Block;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldSavedData;
@@ -10,7 +8,6 @@ import net.minecraftforge.common.DimensionManager;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 
 /**

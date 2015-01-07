@@ -1,12 +1,11 @@
 package drunkmafia.thaumicinfusion.common.block;
 
-import drunkmafia.thaumicinfusion.common.util.BlockHelper;
-import drunkmafia.thaumicinfusion.common.util.WorldCoord;
+import drunkmafia.thaumicinfusion.common.util.helper.BlockHelper;
+import drunkmafia.thaumicinfusion.common.world.WorldCoord;
 import drunkmafia.thaumicinfusion.common.world.BlockSavable;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 

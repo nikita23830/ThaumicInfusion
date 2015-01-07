@@ -1,4 +1,4 @@
-package drunkmafia.thaumicinfusion.common.util;
+package drunkmafia.thaumicinfusion.common.util.helper;
 
 import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import drunkmafia.thaumicinfusion.common.aspect.AspectHandler;
@@ -118,13 +118,12 @@ public class InfusionHelper {
         if(blockID == -1)
             return null;
 
-        ItemStack stack = new ItemStack(Block.getBlockById(blockID), size);
+        ItemStack stack = new ItemStack(Block.getBlockById(blockID), size, meta);
         NBTTagCompound tag = new NBTTagCompound();
         NBTTagCompound infuseTag = new NBTTagCompound();
 
         infuseTag.setInteger("infusedAspect_Size", effects.length);
         infuseTag.setInteger("infusedID", containingId);
-        infuseTag.setInteger("infusedMETA", meta);
 
         for(int i = 0; i < effects.length; i++) {
             if(effects[i] == null)
@@ -137,8 +136,6 @@ public class InfusionHelper {
 
         tag.setTag("InfuseTag", infuseTag);
         stack.stackTagCompound = tag;
-
-        //stack.setStackDisplayName(ThaumicInfusion.translate("key.infusedBlock.infused") + " " + new ItemStack(Block.getBlockById(containingId), 1, meta).getDisplayName());
         return stack;
     }
 }

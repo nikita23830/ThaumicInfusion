@@ -5,19 +5,12 @@ import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
-import drunkmafia.thaumicinfusion.common.block.FakeBlockRender;
-import drunkmafia.thaumicinfusion.common.intergration.ThaumcraftIntergration.AspectEffectPage;
 import drunkmafia.thaumicinfusion.common.lib.ModInfo;
-import drunkmafia.thaumicinfusion.common.util.BlockHelper;
-import drunkmafia.thaumicinfusion.common.util.InfusionHelper;
-import drunkmafia.thaumicinfusion.common.util.WorldCoord;
-import drunkmafia.thaumicinfusion.common.world.BlockData;
+import drunkmafia.thaumicinfusion.common.util.helper.InfusionHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
@@ -25,14 +18,9 @@ import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import thaumcraft.api.aspects.Aspect;
 import thaumcraft.api.aspects.AspectList;
-import thaumcraft.api.research.ResearchPage;
-import thaumcraft.client.gui.GuiResearchRecipe;
 import thaumcraft.client.lib.UtilsFX;
 import thaumcraft.common.Thaumcraft;
 import thaumcraft.common.config.Config;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 
 /**
  * Created by DrunkMafia on 07/11/2014.

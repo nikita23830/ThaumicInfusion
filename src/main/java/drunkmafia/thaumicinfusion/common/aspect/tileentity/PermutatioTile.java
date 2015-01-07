@@ -1,6 +1,6 @@
 package drunkmafia.thaumicinfusion.common.aspect.tileentity;
 
-import drunkmafia.thaumicinfusion.common.util.WorldCoord;
+import drunkmafia.thaumicinfusion.common.world.WorldCoord;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;

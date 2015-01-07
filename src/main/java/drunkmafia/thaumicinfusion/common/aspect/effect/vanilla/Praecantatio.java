@@ -1,15 +1,11 @@
 package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
-import drunkmafia.thaumicinfusion.common.util.BlockHelper;
-import drunkmafia.thaumicinfusion.common.util.WorldCoord;
+import drunkmafia.thaumicinfusion.common.world.WorldCoord;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
-import drunkmafia.thaumicinfusion.common.world.BlockData;
 import net.minecraft.world.World;
-import thaumcraft.api.aspects.Aspect;
 import thaumcraft.common.Thaumcraft;
 
-import java.util.ArrayList;
 import java.util.Random;
 
 /**

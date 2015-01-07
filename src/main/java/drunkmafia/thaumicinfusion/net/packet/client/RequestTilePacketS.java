@@ -3,7 +3,7 @@ package drunkmafia.thaumicinfusion.net.packet.client;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
-import drunkmafia.thaumicinfusion.common.util.WorldCoord;
+import drunkmafia.thaumicinfusion.common.world.WorldCoord;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
 import drunkmafia.thaumicinfusion.net.packet.CooldownPacket;
 import drunkmafia.thaumicinfusion.net.packet.server.TileSyncPacketC;

@@ -1,7 +1,5 @@
 package drunkmafia.thaumicinfusion.common.world;
 
-import drunkmafia.thaumicinfusion.common.util.Savable;
-import drunkmafia.thaumicinfusion.common.util.WorldCoord;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 

@@ -2,7 +2,7 @@ package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
 import cpw.mods.fml.common.network.NetworkRegistry;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
-import drunkmafia.thaumicinfusion.common.util.WorldCoord;
+import drunkmafia.thaumicinfusion.common.world.WorldCoord;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
 import drunkmafia.thaumicinfusion.net.packet.server.EffectSyncPacketC;

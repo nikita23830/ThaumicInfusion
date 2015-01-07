@@ -1,8 +1,7 @@
 package drunkmafia.thaumicinfusion.client.renderer.tile;
 
-import drunkmafia.thaumicinfusion.client.ClientProxy;
 import drunkmafia.thaumicinfusion.common.block.tile.InfusionCoreTile;
-import drunkmafia.thaumicinfusion.common.util.MathHelper;
+import drunkmafia.thaumicinfusion.common.util.helper.MathHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;

@@ -1,4 +1,4 @@
-package drunkmafia.thaumicinfusion.common.util;
+package drunkmafia.thaumicinfusion.common.util.classes;
 
 
 import javassist.ClassPool;

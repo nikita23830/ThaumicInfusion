@@ -10,7 +10,7 @@ import drunkmafia.thaumicinfusion.common.block.InfusedBlock;
 import drunkmafia.thaumicinfusion.common.item.ItemInfused;
 import drunkmafia.thaumicinfusion.common.lib.BlockInfo;
 import drunkmafia.thaumicinfusion.common.lib.ModInfo;
-import drunkmafia.thaumicinfusion.common.util.ClassFinder;
+import drunkmafia.thaumicinfusion.common.util.classes.ClassFinder;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;

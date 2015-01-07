@@ -4,20 +4,16 @@ import cpw.mods.fml.client.registry.ISimpleBlockRenderingHandler;
 import cpw.mods.fml.client.registry.RenderingRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import drunkmafia.thaumicinfusion.client.event.ClientEventContainer;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.block.FakeBlockRender;
 import drunkmafia.thaumicinfusion.common.block.InfusedBlock;
-import drunkmafia.thaumicinfusion.common.block.TIBlocks;
-import drunkmafia.thaumicinfusion.common.util.BlockHelper;
-import drunkmafia.thaumicinfusion.common.util.WorldCoord;
+import drunkmafia.thaumicinfusion.common.util.helper.BlockHelper;
+import drunkmafia.thaumicinfusion.common.world.WorldCoord;
 import drunkmafia.thaumicinfusion.common.world.BlockData;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.world.IBlockAccess;
-import thaumcraft.client.lib.UtilsFX;
-import thaumcraft.common.Thaumcraft;
 
 /**
  * Created by DrunkMafia on 25/07/2014.

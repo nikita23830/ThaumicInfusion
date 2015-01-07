@@ -1,13 +1,13 @@
-package drunkmafia.thaumicinfusion.common.util;
+package drunkmafia.thaumicinfusion.common.util.helper;
 
 import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
+import drunkmafia.thaumicinfusion.common.world.WorldCoord;
 import drunkmafia.thaumicinfusion.common.world.BlockData;
 import drunkmafia.thaumicinfusion.common.world.BlockSavable;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
 import drunkmafia.thaumicinfusion.net.packet.client.RequestBlockPacketS;
 import drunkmafia.thaumicinfusion.net.packet.server.BlockDestroyedPacketC;
-import javassist.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
@@ -18,13 +18,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldSavedData;
 import net.minecraftforge.common.util.ForgeDirection;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.lang.reflect.Field;
-import java.util.HashMap;
-
-import static drunkmafia.thaumicinfusion.common.util.InfusionHelper.*;
+import static drunkmafia.thaumicinfusion.common.util.helper.InfusionHelper.*;
 
 public final class BlockHelper {
 
@@ -74,38 +68,15 @@ public final class BlockHelper {
             ChannelHandler.network.sendToDimension(new BlockDestroyedPacketC(coords), world.provider.dimensionId);
     }
 
-    static Field worldObj;
-
-    static HashMap<IBlockAccess, World> worlds = new HashMap<IBlockAccess, World>();
-
     public static World getWorld(WorldCoord pos, IBlockAccess blockAccess) {
         if(ThaumicInfusion.instance.isServer) {
             TileEntity tile = blockAccess.getTileEntity(pos.x, pos.y, pos.z);
             if(tile != null)
                 return tile.getWorldObj();
 
-            if (blockAccess instanceof ChunkCache) {
-                if(worldObj == null) {
-                    try {
-                        worldObj = ChunkCache.class.getDeclaredField("worldObj");
-                        worldObj.setAccessible(true);
-                    } catch (NoSuchFieldException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                if(worlds.containsKey(blockAccess))
-                    return worlds.get(blockAccess);
-                else{
-                    try{
-                        World world = (World) worldObj.get(blockAccess);
-                        worlds.put(blockAccess, world);
-                        return world;
-                    }catch (Exception e){
-                        e.printStackTrace();
-                    }
-                }
-            } else if (blockAccess instanceof World)
+            if (blockAccess instanceof ChunkCache)
+                return ((ChunkCache)blockAccess).worldObj;
+            else if (blockAccess instanceof World)
                 return (World) blockAccess;
         }else
             return ChannelHandler.getClientWorld();

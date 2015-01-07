@@ -1,16 +1,14 @@
 package drunkmafia.thaumicinfusion.common.item;
 
-import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import drunkmafia.thaumicinfusion.common.block.IWorldData;
-import drunkmafia.thaumicinfusion.common.util.BlockHelper;
-import drunkmafia.thaumicinfusion.common.util.InfusionHelper;
-import drunkmafia.thaumicinfusion.common.util.WorldCoord;
+import drunkmafia.thaumicinfusion.common.util.helper.BlockHelper;
+import drunkmafia.thaumicinfusion.common.util.helper.InfusionHelper;
+import drunkmafia.thaumicinfusion.common.world.WorldCoord;
 import drunkmafia.thaumicinfusion.common.world.BlockData;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
@@ -34,10 +32,11 @@ public class ItemInfused extends ItemBlock {
     public String getItemStackDisplayName(ItemStack stack) {
         int id = InfusionHelper.getInfusedID(stack);
 
-        if(stack == null || Block.getBlockById(id) == null)
-            return "NULL STACK";
-
-        return "Infused " + (id != -1 ? (new ItemStack(Block.getBlockById(id), 1, stack.getItemDamage())).getDisplayName() : "");
+        try {
+            return "Infused " + (id != -1 ? (new ItemStack(Block.getBlockById(id), 1, stack.getItemDamage())).getDisplayName() : "");
+        }catch (Exception e){
+            return "NULL STACK, PLEASE DESTROY IT";
+        }
     }
 
     @Override
@@ -81,7 +80,7 @@ public class ItemInfused extends ItemBlock {
             TIWorldData worldData = BlockHelper.getWorldData(world);
             worldData.addBlock(data);
 
-            int meta = data.getContainingBlock().onBlockPlaced(world, x, y, z, side, hitX, hitY, hitZ, stack.stackTagCompound.getCompoundTag("InfuseTag").getInteger("infusedMETA"));
+            int meta = data.getContainingBlock().onBlockPlaced(world, x, y, z, side, hitX, hitY, hitZ, stack.getItemDamage());
             if(this.placeBlockAt(stack, player, world, x, y, z, side, hitX, hitY, hitZ, meta)) {
                 data = BlockHelper.getData(BlockData.class, world, pos);
                 if(data == null){
